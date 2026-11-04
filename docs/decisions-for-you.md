@@ -31,10 +31,26 @@ The work continues on the working defaults, so nothing is blocked yet.
 | **Review the Hindi**, or find a native speaker | I can draft it, but I can't vouch for how it reads to an owner |
 | **Record the exact deadline and upload limits** when you have them | Sets the freeze date |
 
+## Known gaps, for the next round
+
+| Gap | Plan |
+|---|---|
+| Typing a GSTIN can reveal the contact name on file, and new sessions make the rate limit easy to get around | Use the name on file only after a matching certificate is uploaded, and never show it |
+| The mock OTP lets anyone who knows a phone number sign in as that owner | Inherent to a mock. The privacy note must say so |
+| If OCR is down, the owner can retry but can't type the details by hand | Add manual entry, because the journey has to survive an OCR outage |
+| PDF uploads are rejected, though `smart-kyc` lists them as accepted | JPEG and PNG work. Rasterising PDFs needs a heavy dependency, so decide later |
+| No "My data" screen, adult signatory declaration or back-office logins yet | Build with the screens |
+| The README must list `npm run setup:env`, `db:migrate`, `seed` and `setup:ocr` | A fresh clone fails one test until the OCR file is installed |
+
 ## Choices I made that you may want to check
 
 | Choice | Reasoning | Where |
 |---|---|---|
+| GST is 18%, on prices assumed to exclude it, shown as final prices | You asked for the final price, and the catalogue doesn't state tax | `src/domain/pricing/pricing.ts` |
+| Mock checkout takes the setup fee plus the first month, including GST | A reasonable first payment, but the data doesn't state one | `src/server/services/order-service.ts` |
+| A blocked add-on returns `200` with `applied: false`, not an error | Toggling is normal use, and the owner needs the reason and the alternatives | `docs/architecture/api.md` |
+| The advisor needs the short consent notice before its first recommendation | Otherwise that consent purpose would protect nothing | `docs/architecture/api.md` |
+| An order under manual review can be placed, but is held and can't be paid until cleared. `RETAKE` and `NEEDS_CONFIRMATION` can't order | The owner keeps their place without paying for something that may not go through | `src/server/services/order-service.ts` |
 | TypeScript 5.9, not the latest 7.0 | 7.0 is a major rewrite, and I didn't want to risk Next's build | `package.json` |
 | ESLint 9, which npm warns is unsupported | It only runs during development, so it can't affect the demo. I haven't tried 10 | `package.json` |
 | Fibre is treated as a rule for Fibre 100, 300 and 1G, but not leased lines | The catalogue has no fibre flag, so this is an assumption | `src/domain/eligibility/eligibility.ts` |

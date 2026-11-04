@@ -439,6 +439,8 @@ Phase 6 status on 2026-11-04: KYC parsing, checks and verdicts are built in `src
 
 Phase 9 status on 2026-11-04: paused at your request. The final deck gets made once the product is finished. An early draft and its script sit in `docs/business-case`, uncommitted. The other deliverables haven't started.
 
+Phase 3 status on 2026-11-05: the backend is built and committed on `feat/foundation`, with the API documented in `docs/architecture/api.md`. The screens and a hosted deploy aren't done, so this phase's exit gate isn't met yet.
+
 Timeline update on 2026-11-04: the team now says there is enough time, so the 6-day schedule above is no longer a limit. The phase order and exit gates still apply.
 
 Open items for you are in [decisions-for-you.md](decisions-for-you.md).
