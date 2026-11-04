@@ -1,0 +1,410 @@
+{
+  "source": "smb_leads.csv, Apr-Jun 2026 (synthetic)",
+  "status": "MODELLED. Assumptions, not measurements. Label as modelled wherever shown.",
+  "baseline": {
+    "activations": 368,
+    "lead_to_activation_pct": 7.36,
+    "acquisition_cost_inr": 15053,
+    "monthly_value_inr": 4544990,
+    "days_to_activate": 17.6
+  },
+  "assumptions": {
+    "recovery_rates_low_base_high": {
+      "Owner had no time for a visit": [
+        0.3,
+        0.5,
+        0.7
+      ],
+      "Visit not scheduled by sales": [
+        0.4,
+        0.6,
+        0.8
+      ],
+      "Quote too complex to understand": [
+        0.5,
+        0.7,
+        0.85
+      ],
+      "Quote took too long to arrive": [
+        0.6,
+        0.8,
+        0.9
+      ],
+      "Missing GST or Udyam document": [
+        0.3,
+        0.5,
+        0.7
+      ],
+      "Found paperwork too long": [
+        0.5,
+        0.7,
+        0.85
+      ],
+      "Document details did not match": [
+        0.2,
+        0.4,
+        0.6
+      ],
+      "Unreachable after 3 attempts": [
+        0.1,
+        0.25,
+        0.4
+      ],
+      "Wrong or invalid number": [
+        0.0,
+        0.1,
+        0.2
+      ],
+      "Price too high": [
+        0.05,
+        0.15,
+        0.25
+      ],
+      "Competitor offered cheaper plan": [
+        0.0,
+        0.1,
+        0.2
+      ],
+      "Only wanted a mobile plan": [
+        0.3,
+        0.5,
+        0.7
+      ],
+      "Not interested on first call": [
+        0.0,
+        0.05,
+        0.1
+      ],
+      "Decided to wait": [
+        0.05,
+        0.15,
+        0.25
+      ],
+      "Locked in with current provider": [
+        0.0,
+        0.05,
+        0.1
+      ],
+      "Authorised signatory not available": [
+        0.1,
+        0.25,
+        0.4
+      ],
+      "Installation delayed beyond 21 days": [
+        0.0,
+        0.15,
+        0.3
+      ],
+      "Customer cancelled before install": [
+        0.1,
+        0.25,
+        0.4
+      ],
+      "Site not feasible for fibre": [
+        0.3,
+        0.5,
+        0.7
+      ],
+      "First payment failed": [
+        0.3,
+        0.5,
+        0.7
+      ]
+    },
+    "digital_adoption": {
+      "low": 0.4,
+      "base": 0.6,
+      "high": 0.75
+    },
+    "human_spend_saving_on_adopted": {
+      "low": 0.25,
+      "base": 0.5,
+      "high": 0.65
+    },
+    "digital_cost_per_lead_inr": {
+      "low": 100,
+      "base": 50,
+      "high": 25
+    },
+    "extra_activation_cost_share": {
+      "low": 0.5,
+      "base": 0.3,
+      "high": 0.2
+    },
+    "digital_days_before_kyc": {
+      "low": 3,
+      "base": 1,
+      "high": 1
+    },
+    "days_after_kyc_basis": "Catalogue install time for low and base, historic KYC-to-activation gap for high.",
+    "recovered_lead_quality": "Recovered leads are assumed to face later stages like anyone else, which may flatter the result."
+  },
+  "cases": {
+    "low": {
+      "total": {
+        "activations": 494,
+        "lead_to_activation_pct": 9.9,
+        "acquisition_cost_inr": 11253,
+        "monthly_value_inr": 5645803,
+        "days_to_activate_blended": 13.5,
+        "days_to_activate_digital": 10.2
+      },
+      "by_segment": [
+        {
+          "segment": "Micro retail & services",
+          "leads": 2709,
+          "activations_baseline": 110,
+          "activations": 172,
+          "of_which_mobile_only": 4,
+          "activation_pct": 6.3,
+          "digital_journey_activation_pct": 9.8,
+          "spend_inr": 2215057,
+          "acquisition_cost_inr": 12884,
+          "payback_months_of_median": 5.2,
+          "monthly_value_inr": 422583,
+          "days_to_activate_blended": 11.2,
+          "days_to_activate_digital": 7.8
+        },
+        {
+          "segment": "Professional offices",
+          "leads": 1247,
+          "activations_baseline": 138,
+          "activations": 173,
+          "of_which_mobile_only": 3,
+          "activation_pct": 13.9,
+          "digital_journey_activation_pct": 18.2,
+          "spend_inr": 1473102,
+          "acquisition_cost_inr": 8491,
+          "payback_months_of_median": 1.3,
+          "monthly_value_inr": 1162742,
+          "days_to_activate_blended": 12.6,
+          "days_to_activate_digital": 8.6
+        },
+        {
+          "segment": "Small manufacturers",
+          "leads": 289,
+          "activations_baseline": 37,
+          "activations": 45,
+          "of_which_mobile_only": 1,
+          "activation_pct": 15.6,
+          "digital_journey_activation_pct": 19.8,
+          "spend_inr": 565417,
+          "acquisition_cost_inr": 12553,
+          "payback_months_of_median": 0.8,
+          "monthly_value_inr": 886374,
+          "days_to_activate_blended": 21.6,
+          "days_to_activate_digital": 22.6
+        },
+        {
+          "segment": "Small multi-site businesses",
+          "leads": 755,
+          "activations_baseline": 83,
+          "activations": 103,
+          "of_which_mobile_only": 2,
+          "activation_pct": 13.7,
+          "digital_journey_activation_pct": 17.7,
+          "spend_inr": 1300325,
+          "acquisition_cost_inr": 12611,
+          "payback_months_of_median": 0.4,
+          "monthly_value_inr": 3174104,
+          "days_to_activate_blended": 15.3,
+          "days_to_activate_digital": 12.1
+        }
+      ]
+    },
+    "base": {
+      "total": {
+        "activations": 780,
+        "lead_to_activation_pct": 15.6,
+        "acquisition_cost_inr": 6194,
+        "monthly_value_inr": 8119691,
+        "days_to_activate_blended": 9.8,
+        "days_to_activate_digital": 8.0
+      },
+      "by_segment": [
+        {
+          "segment": "Micro retail & services",
+          "leads": 2709,
+          "activations_baseline": 110,
+          "activations": 318,
+          "of_which_mobile_only": 17,
+          "activation_pct": 11.7,
+          "digital_journey_activation_pct": 16.8,
+          "spend_inr": 1917562,
+          "acquisition_cost_inr": 6037,
+          "payback_months_of_median": 2.4,
+          "monthly_value_inr": 764549,
+          "days_to_activate_blended": 7.3,
+          "days_to_activate_digital": 5.8
+        },
+        {
+          "segment": "Professional offices",
+          "leads": 1247,
+          "activations_baseline": 138,
+          "activations": 251,
+          "of_which_mobile_only": 9,
+          "activation_pct": 20.1,
+          "digital_journey_activation_pct": 26.2,
+          "spend_inr": 1274689,
+          "acquisition_cost_inr": 5079,
+          "payback_months_of_median": 0.8,
+          "monthly_value_inr": 1651748,
+          "days_to_activate_blended": 8.9,
+          "days_to_activate_digital": 6.6
+        },
+        {
+          "segment": "Small manufacturers",
+          "leads": 289,
+          "activations_baseline": 37,
+          "activations": 63,
+          "of_which_mobile_only": 2,
+          "activation_pct": 21.9,
+          "digital_journey_activation_pct": 28.0,
+          "spend_inr": 496284,
+          "acquisition_cost_inr": 7835,
+          "payback_months_of_median": 0.5,
+          "monthly_value_inr": 1220939,
+          "days_to_activate_blended": 20.6,
+          "days_to_activate_digital": 20.6
+        },
+        {
+          "segment": "Small multi-site businesses",
+          "leads": 755,
+          "activations_baseline": 83,
+          "activations": 148,
+          "of_which_mobile_only": 5,
+          "activation_pct": 19.7,
+          "digital_journey_activation_pct": 25.4,
+          "spend_inr": 1145119,
+          "acquisition_cost_inr": 7716,
+          "payback_months_of_median": 0.3,
+          "monthly_value_inr": 4482455,
+          "days_to_activate_blended": 12.1,
+          "days_to_activate_digital": 10.1
+        }
+      ]
+    },
+    "high": {
+      "total": {
+        "activations": 1245,
+        "lead_to_activation_pct": 24.9,
+        "acquisition_cost_inr": 3307,
+        "monthly_value_inr": 11979105,
+        "days_to_activate_blended": 6.4,
+        "days_to_activate_digital": 5.5
+      },
+      "by_segment": [
+        {
+          "segment": "Micro retail & services",
+          "leads": 2709,
+          "activations_baseline": 110,
+          "activations": 563,
+          "of_which_mobile_only": 43,
+          "activation_pct": 20.8,
+          "digital_journey_activation_pct": 26.3,
+          "spend_inr": 1630647,
+          "acquisition_cost_inr": 2897,
+          "payback_months_of_median": 1.2,
+          "monthly_value_inr": 1332721,
+          "days_to_activate_blended": 5.1,
+          "days_to_activate_digital": 4.5
+        },
+        {
+          "segment": "Professional offices",
+          "leads": 1247,
+          "activations_baseline": 138,
+          "activations": 371,
+          "of_which_mobile_only": 20,
+          "activation_pct": 29.8,
+          "digital_journey_activation_pct": 36.0,
+          "spend_inr": 1076473,
+          "acquisition_cost_inr": 2899,
+          "payback_months_of_median": 0.4,
+          "monthly_value_inr": 2403379,
+          "days_to_activate_blended": 6.5,
+          "days_to_activate_digital": 5.4
+        },
+        {
+          "segment": "Small manufacturers",
+          "leads": 289,
+          "activations_baseline": 37,
+          "activations": 92,
+          "of_which_mobile_only": 5,
+          "activation_pct": 31.8,
+          "digital_journey_activation_pct": 38.1,
+          "spend_inr": 425453,
+          "acquisition_cost_inr": 4631,
+          "payback_months_of_median": 0.3,
+          "monthly_value_inr": 1735913,
+          "days_to_activate_blended": 9.8,
+          "days_to_activate_digital": 8.6
+        },
+        {
+          "segment": "Small multi-site businesses",
+          "leads": 755,
+          "activations_baseline": 83,
+          "activations": 219,
+          "of_which_mobile_only": 11,
+          "activation_pct": 29.0,
+          "digital_journey_activation_pct": 35.0,
+          "spend_inr": 985922,
+          "acquisition_cost_inr": 4498,
+          "payback_months_of_median": 0.2,
+          "monthly_value_inr": 6507092,
+          "days_to_activate_blended": 8.0,
+          "days_to_activate_digital": 6.9
+        }
+      ]
+    }
+  },
+  "sensitivity": {
+    "base_case": {
+      "activations": 780,
+      "lead_to_activation_pct": 15.6,
+      "acquisition_cost_inr": 6194
+    },
+    "adoption_40pct": {
+      "activations": 643,
+      "lead_to_activation_pct": 12.9,
+      "acquisition_cost_inr": 7884
+    },
+    "adoption_75pct": {
+      "activations": 883,
+      "lead_to_activation_pct": 17.7,
+      "acquisition_cost_inr": 5271
+    },
+    "adoption_100pct_digital_journey_alone": {
+      "activations": 1055,
+      "lead_to_activation_pct": 21.1,
+      "acquisition_cost_inr": 4134
+    },
+    "no_price_recovery": {
+      "activations": 739,
+      "lead_to_activation_pct": 14.8,
+      "acquisition_cost_inr": 6473
+    },
+    "no_mobile_only_sales": {
+      "activations": 747,
+      "lead_to_activation_pct": 14.9,
+      "acquisition_cost_inr": 6410
+    },
+    "only_reasons_the_journey_removes_outright": {
+      "activations": 576,
+      "lead_to_activation_pct": 11.5,
+      "acquisition_cost_inr": 7886
+    },
+    "stop_field_visits_to_micro": {
+      "activations": 694,
+      "lead_to_activation_pct": 16.9,
+      "acquisition_cost_inr": 5384
+    },
+    "note": "stop_field_visits_to_micro drops those leads entirely, so it assumes none of them would come another way."
+  },
+  "field_visits_to_micro": {
+    "leads": 894,
+    "activations": 27,
+    "share_of_all_activations_pct": 7.3,
+    "spend_inr": 1431710,
+    "share_of_all_spend_pct": 25.8
+  }
+}

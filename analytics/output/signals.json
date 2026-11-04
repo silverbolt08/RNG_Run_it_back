@@ -1,0 +1,346 @@
+{
+  "source": "smb_leads.csv, Apr-Jun 2026 (synthetic)",
+  "reading_note": "Associations, not causes. Say what would test each one. Treat small_group rows as anecdote.",
+  "gstin": {
+    "overall_pct": {
+      "N": 2.0,
+      "Y": 9.6
+    },
+    "by_segment": [
+      {
+        "segment": "Micro retail & services",
+        "with_gstin_n": 1431,
+        "with_gstin_pct": 6.3,
+        "without_gstin_n": 1278,
+        "without_gstin_pct": 1.6,
+        "small_group": false
+      },
+      {
+        "segment": "Professional offices",
+        "with_gstin_n": 1074,
+        "with_gstin_pct": 12.1,
+        "without_gstin_n": 173,
+        "without_gstin_pct": 4.6,
+        "small_group": false
+      },
+      {
+        "segment": "Small manufacturers",
+        "with_gstin_n": 287,
+        "with_gstin_pct": 12.9,
+        "without_gstin_n": 2,
+        "without_gstin_pct": 0.0,
+        "small_group": true
+      },
+      {
+        "segment": "Small multi-site businesses",
+        "with_gstin_n": 742,
+        "with_gstin_pct": 10.9,
+        "without_gstin_n": 13,
+        "without_gstin_pct": 15.4,
+        "small_group": true
+      }
+    ]
+  },
+  "city_tier": [
+    {
+      "city_tier": "1",
+      "n": 2578,
+      "pct": 8.6,
+      "ci95": [
+        7.6,
+        9.7
+      ],
+      "small_group": false
+    },
+    {
+      "city_tier": "2",
+      "n": 2422,
+      "pct": 6.1,
+      "ci95": [
+        5.2,
+        7.1
+      ],
+      "small_group": false
+    }
+  ],
+  "language": [
+    {
+      "preferred_language": "Bengali",
+      "n": 111,
+      "raw_pct": 9.0,
+      "segment_adjusted_pct": 8.7
+    },
+    {
+      "preferred_language": "English",
+      "n": 1168,
+      "raw_pct": 8.0,
+      "segment_adjusted_pct": 8.0
+    },
+    {
+      "preferred_language": "Hindi",
+      "n": 2137,
+      "raw_pct": 7.9,
+      "segment_adjusted_pct": 8.0
+    },
+    {
+      "preferred_language": "Telugu",
+      "n": 207,
+      "raw_pct": 7.7,
+      "segment_adjusted_pct": 7.5
+    },
+    {
+      "preferred_language": "Marathi",
+      "n": 505,
+      "raw_pct": 6.3,
+      "segment_adjusted_pct": 6.5
+    },
+    {
+      "preferred_language": "Malayalam",
+      "n": 83,
+      "raw_pct": 8.4,
+      "segment_adjusted_pct": 6.3
+    },
+    {
+      "preferred_language": "Gujarati",
+      "n": 233,
+      "raw_pct": 6.0,
+      "segment_adjusted_pct": 5.9
+    },
+    {
+      "preferred_language": "Kannada",
+      "n": 253,
+      "raw_pct": 5.1,
+      "segment_adjusted_pct": 5.0
+    },
+    {
+      "preferred_language": "Punjabi",
+      "n": 96,
+      "raw_pct": 4.2,
+      "segment_adjusted_pct": 4.4
+    },
+    {
+      "preferred_language": "Tamil",
+      "n": 207,
+      "raw_pct": 4.3,
+      "segment_adjusted_pct": 4.4
+    }
+  ],
+  "current_provider": [
+    {
+      "current_provider": "Accel (mobile only)",
+      "n": 1505,
+      "raw_pct": 9.2,
+      "segment_adjusted_pct": 9.2
+    },
+    {
+      "current_provider": "Accel",
+      "n": 385,
+      "raw_pct": 9.1,
+      "segment_adjusted_pct": 8.8
+    },
+    {
+      "current_provider": "Competitor B",
+      "n": 744,
+      "raw_pct": 7.4,
+      "segment_adjusted_pct": 7.4
+    },
+    {
+      "current_provider": "Competitor A",
+      "n": 1200,
+      "raw_pct": 6.5,
+      "segment_adjusted_pct": 6.3
+    },
+    {
+      "current_provider": "Local ISP",
+      "n": 1042,
+      "raw_pct": 5.4,
+      "segment_adjusted_pct": 5.5
+    },
+    {
+      "current_provider": "None",
+      "n": 124,
+      "raw_pct": 4.0,
+      "segment_adjusted_pct": 2.2
+    }
+  ],
+  "current_internet": [
+    {
+      "current_internet": "Business broadband",
+      "n": 1433,
+      "raw_pct": 9.3,
+      "segment_adjusted_pct": 6.3
+    },
+    {
+      "current_internet": "Home broadband",
+      "n": 1250,
+      "raw_pct": 7.6,
+      "segment_adjusted_pct": 5.9
+    },
+    {
+      "current_internet": "Mobile hotspot",
+      "n": 1799,
+      "raw_pct": 4.5,
+      "segment_adjusted_pct": 4.2
+    },
+    {
+      "current_internet": "Leased line",
+      "n": 173,
+      "raw_pct": 15.0,
+      "segment_adjusted_pct": 3.5
+    },
+    {
+      "current_internet": "None",
+      "n": 124,
+      "raw_pct": 4.0,
+      "segment_adjusted_pct": 2.2
+    },
+    {
+      "current_internet": "Mixed per site",
+      "n": 221,
+      "raw_pct": 12.7,
+      "segment_adjusted_pct": 1.9
+    }
+  ],
+  "lead_source": [
+    {
+      "lead_source": "Referral",
+      "n": 413,
+      "raw_pct": 14.8,
+      "segment_adjusted_pct": 15.2
+    },
+    {
+      "lead_source": "Inbound call",
+      "n": 504,
+      "raw_pct": 9.5,
+      "segment_adjusted_pct": 9.5
+    },
+    {
+      "lead_source": "Channel partner",
+      "n": 1010,
+      "raw_pct": 8.0,
+      "segment_adjusted_pct": 8.1
+    },
+    {
+      "lead_source": "Field sales",
+      "n": 1720,
+      "raw_pct": 7.3,
+      "segment_adjusted_pct": 7.1
+    },
+    {
+      "lead_source": "Website form",
+      "n": 995,
+      "raw_pct": 4.3,
+      "segment_adjusted_pct": 4.4
+    },
+    {
+      "lead_source": "WhatsApp campaign",
+      "n": 358,
+      "raw_pct": 2.8,
+      "segment_adjusted_pct": 2.9
+    }
+  ],
+  "chase_calls_vs_churn": [
+    {
+      "customer_follow_up_calls": 1,
+      "n": 34,
+      "pct": 5.9,
+      "ci95": [
+        1.6,
+        19.1
+      ],
+      "small_group": false
+    },
+    {
+      "customer_follow_up_calls": 2,
+      "n": 84,
+      "pct": 14.3,
+      "ci95": [
+        8.4,
+        23.3
+      ],
+      "small_group": false
+    },
+    {
+      "customer_follow_up_calls": 3,
+      "n": 137,
+      "pct": 11.7,
+      "ci95": [
+        7.3,
+        18.1
+      ],
+      "small_group": false
+    },
+    {
+      "customer_follow_up_calls": 4,
+      "n": 70,
+      "pct": 20.0,
+      "ci95": [
+        12.3,
+        30.8
+      ],
+      "small_group": false
+    },
+    {
+      "customer_follow_up_calls": 5,
+      "n": 43,
+      "pct": 27.9,
+      "ci95": [
+        16.7,
+        42.7
+      ],
+      "small_group": false
+    }
+  ],
+  "chase_calls_vs_nps": {
+    "1": 7.5,
+    "2": 7.2,
+    "3": 6.9,
+    "4": 6.7,
+    "5": 6.0
+  },
+  "days_vs_churn": [
+    {
+      "days_band": "14 or under",
+      "n": 86,
+      "pct": 16.3,
+      "ci95": [
+        10.0,
+        25.5
+      ],
+      "small_group": false
+    },
+    {
+      "days_band": "15 to 21",
+      "n": 222,
+      "pct": 14.4,
+      "ci95": [
+        10.4,
+        19.6
+      ],
+      "small_group": false
+    },
+    {
+      "days_band": "over 21",
+      "n": 60,
+      "pct": 16.7,
+      "ci95": [
+        9.3,
+        28.0
+      ],
+      "small_group": false
+    }
+  ],
+  "days_vs_nps": {
+    "14 or under": 7.2,
+    "15 to 21": 7.0,
+    "over 21": 6.0
+  },
+  "rule_breaks": {
+    "flagged": 56,
+    "of": 368,
+    "flagged_and_churned": 5,
+    "churn_if_flagged_pct": 8.9,
+    "churn_if_clean_pct": 16.3,
+    "note": "No claim that breaking a rule causes churn."
+  }
+}

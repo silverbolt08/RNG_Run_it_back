@@ -1,0 +1,105 @@
+{
+  "source": "smb_leads.csv, Apr-Jun 2026 (synthetic)",
+  "split": {
+    "train": "created before 2026-06-01",
+    "test": "created from 2026-06-01",
+    "train_leads": 3296
+  },
+  "excluded_as_leakage": "stage, outcome, drop reason, all later dates, follow-up calls, bundle, value, churn, NPS, acquisition cost",
+  "excluded_as_identifying": "lead ID, business name, contact name, GSTIN, Udyam number, city",
+  "excluded_as_sensitive": [
+    "preferred_language",
+    "state"
+  ],
+  "metrics_without_language_and_state": {
+    "test_leads": 1704,
+    "test_activations": 127,
+    "base_rate_pct": 7.5,
+    "pr_auc": 0.152,
+    "roc_auc": 0.707,
+    "top_decile_activation_pct": 15.9,
+    "top_decile_lift": 2.13,
+    "share_of_activations_in_top_30pct": 54.3,
+    "cross_validated_pr_auc": 0.158
+  },
+  "metrics_with_language_and_state": {
+    "test_leads": 1704,
+    "test_activations": 127,
+    "base_rate_pct": 7.5,
+    "pr_auc": 0.152,
+    "roc_auc": 0.703,
+    "top_decile_activation_pct": 18.2,
+    "top_decile_lift": 2.45,
+    "share_of_activations_in_top_30pct": 48.0,
+    "cross_validated_pr_auc": 0.156
+  },
+  "strongest_associations": {
+    "has_gstin_Y": 1.2146,
+    "lead_source_Referral": 0.8441,
+    "lead_source_WhatsApp campaign": -0.7387,
+    "current_provider_Local ISP": -0.5652,
+    "segment_Professional offices": 0.5351,
+    "current_internet_Leased line": 0.4866,
+    "current_internet_Mixed per site": 0.4649,
+    "lead_source_Website form": -0.4528,
+    "current_provider_Competitor A": -0.318,
+    "annual_turnover_band_5 - 25 cr": 0.3168,
+    "city_tier_2": -0.3077,
+    "annual_turnover_band_< 40 lakh": -0.2873
+  },
+  "model": {
+    "intercept": -3.6363,
+    "weights": {
+      "lead_source_Field sales": -0.0864,
+      "lead_source_Inbound call": 0.1868,
+      "lead_source_Referral": 0.8441,
+      "lead_source_Website form": -0.4528,
+      "lead_source_WhatsApp campaign": -0.7387,
+      "segment_Professional offices": 0.5351,
+      "segment_Small manufacturers": 0.0487,
+      "segment_Small multi-site businesses": 0.1236,
+      "city_tier_2": -0.3077,
+      "annual_turnover_band_25 - 100 cr": -0.1995,
+      "annual_turnover_band_40 lakh - 1.5 cr": 0.2065,
+      "annual_turnover_band_5 - 25 cr": 0.3168,
+      "annual_turnover_band_< 40 lakh": -0.2873,
+      "has_gstin_Y": 1.2146,
+      "has_udyam_Y": 0.2336,
+      "current_internet_Home broadband": -0.1058,
+      "current_internet_Leased line": 0.4866,
+      "current_internet_Mixed per site": 0.4649,
+      "current_internet_Mobile hotspot": -0.0724,
+      "current_internet_None": 0.01,
+      "current_provider_Accel (mobile only)": -0.0311,
+      "current_provider_Competitor A": -0.318,
+      "current_provider_Competitor B": -0.2674,
+      "current_provider_Local ISP": -0.5652,
+      "current_provider_None": 0.01,
+      "contact_role_Office admin": -0.0479,
+      "contact_role_Owner": 0.1684,
+      "contact_role_Partner": 0.1005,
+      "employee_count": -0.0125,
+      "num_sites": -0.0257,
+      "monthly_telecom_spend_inr": 0.0506,
+      "interest_count": -0.0218
+    },
+    "numeric_scaling": {
+      "employee_count": {
+        "mean": 20.5528,
+        "scale": 31.2912
+      },
+      "num_sites": {
+        "mean": 2.0522,
+        "scale": 2.6157
+      },
+      "monthly_telecom_spend_inr": {
+        "mean": 3325.5461,
+        "scale": 4309.3697
+      },
+      "interest_count": {
+        "mean": 1.9903,
+        "scale": 0.8125
+      }
+    }
+  }
+}

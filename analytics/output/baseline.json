@@ -1,0 +1,595 @@
+{
+  "source": "smb_leads.csv, Apr-Jun 2026 (synthetic)",
+  "kpis": {
+    "leads": 5000,
+    "activations": 368,
+    "lead_to_activation_pct": 7.36,
+    "acquisition_cost_inr": 15053,
+    "acquisition_cost_trap_inr": 5385,
+    "total_spend_inr": 5539640,
+    "time_to_activate_days": 17.6,
+    "status_chases": 3.01,
+    "churn_6m_pct": 15.2,
+    "median_bundle_inr": 6900.0,
+    "mean_nps": 6.9
+  },
+  "funnel": [
+    {
+      "stage": "Lead",
+      "leads": 5000,
+      "pct_of_previous": null
+    },
+    {
+      "stage": "Contacted",
+      "leads": 3406,
+      "pct_of_previous": 68.1
+    },
+    {
+      "stage": "Needs assessed",
+      "leads": 1974,
+      "pct_of_previous": 58.0
+    },
+    {
+      "stage": "Quote accepted",
+      "leads": 861,
+      "pct_of_previous": 43.6
+    },
+    {
+      "stage": "KYC complete",
+      "leads": 588,
+      "pct_of_previous": 68.3
+    },
+    {
+      "stage": "Activated",
+      "leads": 368,
+      "pct_of_previous": 62.6
+    }
+  ],
+  "drop_reasons": {
+    "by_stage_and_reason": [
+      {
+        "last_stage": "Lead",
+        "reason": "Unreachable after 3 attempts",
+        "group": "contactability",
+        "leads": 805
+      },
+      {
+        "last_stage": "Lead",
+        "reason": "Not interested on first call",
+        "group": "partly",
+        "leads": 470
+      },
+      {
+        "last_stage": "Lead",
+        "reason": "Wrong or invalid number",
+        "group": "contactability",
+        "leads": 319
+      },
+      {
+        "last_stage": "Contacted",
+        "reason": "Owner had no time for a visit",
+        "group": "direct",
+        "leads": 531
+      },
+      {
+        "last_stage": "Contacted",
+        "reason": "Locked in with current provider",
+        "group": "other",
+        "leads": 325
+      },
+      {
+        "last_stage": "Contacted",
+        "reason": "Visit not scheduled by sales",
+        "group": "direct",
+        "leads": 296
+      },
+      {
+        "last_stage": "Contacted",
+        "reason": "Only wanted a mobile plan",
+        "group": "partly",
+        "leads": 280
+      },
+      {
+        "last_stage": "Needs assessed",
+        "reason": "Price too high",
+        "group": "partly",
+        "leads": 414
+      },
+      {
+        "last_stage": "Needs assessed",
+        "reason": "Competitor offered cheaper plan",
+        "group": "partly",
+        "leads": 207
+      },
+      {
+        "last_stage": "Needs assessed",
+        "reason": "Quote too complex to understand",
+        "group": "direct",
+        "leads": 206
+      },
+      {
+        "last_stage": "Needs assessed",
+        "reason": "Quote took too long to arrive",
+        "group": "direct",
+        "leads": 179
+      },
+      {
+        "last_stage": "Needs assessed",
+        "reason": "Decided to wait",
+        "group": "partly",
+        "leads": 107
+      },
+      {
+        "last_stage": "Quote accepted",
+        "reason": "Missing GST or Udyam document",
+        "group": "direct",
+        "leads": 94
+      },
+      {
+        "last_stage": "Quote accepted",
+        "reason": "Found paperwork too long",
+        "group": "direct",
+        "leads": 79
+      },
+      {
+        "last_stage": "Quote accepted",
+        "reason": "Authorised signatory not available",
+        "group": "other",
+        "leads": 53
+      },
+      {
+        "last_stage": "Quote accepted",
+        "reason": "Document details did not match",
+        "group": "direct",
+        "leads": 47
+      },
+      {
+        "last_stage": "KYC complete",
+        "reason": "Installation delayed beyond 21 days",
+        "group": "other",
+        "leads": 98
+      },
+      {
+        "last_stage": "KYC complete",
+        "reason": "Customer cancelled before install",
+        "group": "other",
+        "leads": 53
+      },
+      {
+        "last_stage": "KYC complete",
+        "reason": "Site not feasible for fibre",
+        "group": "other",
+        "leads": 41
+      },
+      {
+        "last_stage": "KYC complete",
+        "reason": "First payment failed",
+        "group": "other",
+        "leads": 28
+      }
+    ],
+    "by_group": {
+      "contactability": {
+        "leads": 1124,
+        "pct": 24.3
+      },
+      "partly": {
+        "leads": 1478,
+        "pct": 31.9
+      },
+      "direct": {
+        "leads": 1432,
+        "pct": 30.9
+      },
+      "other": {
+        "leads": 598,
+        "pct": 12.9
+      }
+    },
+    "steepest_drop": {
+      "total": 1113,
+      "price_or_competitor": 621,
+      "price_or_competitor_pct": 55.8,
+      "slow_or_complex_quote": 385,
+      "slow_or_complex_quote_pct": 34.6
+    }
+  },
+  "segments": [
+    {
+      "segment": "Micro retail & services",
+      "leads": 2709,
+      "lead_share_pct": 54.2,
+      "activations": 110,
+      "activation_share_pct": 29.9,
+      "activation_pct": 4.1,
+      "acquisition_cost_inr": 20007,
+      "median_bundle_inr": 2470.0,
+      "mean_bundle_inr": 2505,
+      "bundle_value_share_pct": 6.1,
+      "payback_months_of_revenue": 8.1,
+      "churn_6m_pct": 22.7,
+      "has_gstin_pct": 52.8,
+      "mean_days_to_activate": 16.6,
+      "mean_longest_catalogue_install_days": 4.8
+    },
+    {
+      "segment": "Professional offices",
+      "leads": 1247,
+      "lead_share_pct": 24.9,
+      "activations": 138,
+      "activation_share_pct": 37.5,
+      "activation_pct": 11.1,
+      "acquisition_cost_inr": 10695,
+      "median_bundle_inr": 6575.0,
+      "mean_bundle_inr": 6796,
+      "bundle_value_share_pct": 20.6,
+      "payback_months_of_revenue": 1.6,
+      "churn_6m_pct": 13.8,
+      "has_gstin_pct": 86.1,
+      "mean_days_to_activate": 16.9,
+      "mean_longest_catalogue_install_days": 5.6
+    },
+    {
+      "segment": "Small manufacturers",
+      "leads": 289,
+      "lead_share_pct": 5.8,
+      "activations": 37,
+      "activation_share_pct": 10.1,
+      "activation_pct": 12.8,
+      "acquisition_cost_inr": 15324,
+      "median_bundle_inr": 15910.0,
+      "mean_bundle_inr": 19980,
+      "bundle_value_share_pct": 16.3,
+      "payback_months_of_revenue": 1.0,
+      "churn_6m_pct": 8.1,
+      "has_gstin_pct": 99.3,
+      "mean_days_to_activate": 20.5,
+      "mean_longest_catalogue_install_days": 19.6
+    },
+    {
+      "segment": "Small multi-site businesses",
+      "leads": 755,
+      "lead_share_pct": 15.1,
+      "activations": 83,
+      "activation_share_pct": 22.6,
+      "activation_pct": 11.0,
+      "acquisition_cost_inr": 15614,
+      "median_bundle_inr": 28080.0,
+      "mean_bundle_inr": 31233,
+      "bundle_value_share_pct": 57.0,
+      "payback_months_of_revenue": 0.6,
+      "churn_6m_pct": 10.8,
+      "has_gstin_pct": 98.3,
+      "mean_days_to_activate": 18.8,
+      "mean_longest_catalogue_install_days": 9.1
+    }
+  ],
+  "channels": {
+    "by_source": [
+      {
+        "source": "Referral",
+        "leads": 413,
+        "activation_pct": 14.8,
+        "acquisition_cost_inr": 4099,
+        "spend_share_pct": 4.5,
+        "activation_share_pct": 16.6,
+        "contact_pct": 78.9,
+        "quote_acceptance_pct": 48.3
+      },
+      {
+        "source": "Inbound call",
+        "leads": 504,
+        "activation_pct": 9.5,
+        "acquisition_cost_inr": 5113,
+        "spend_share_pct": 4.4,
+        "activation_share_pct": 13.0,
+        "contact_pct": 80.2,
+        "quote_acceptance_pct": 44.6
+      },
+      {
+        "source": "Channel partner",
+        "leads": 1010,
+        "activation_pct": 8.0,
+        "acquisition_cost_inr": 20851,
+        "spend_share_pct": 30.5,
+        "activation_share_pct": 22.0,
+        "contact_pct": 71.2,
+        "quote_acceptance_pct": 48.0
+      },
+      {
+        "source": "Field sales",
+        "leads": 1720,
+        "activation_pct": 7.3,
+        "acquisition_cost_inr": 24335,
+        "spend_share_pct": 54.9,
+        "activation_share_pct": 34.0,
+        "contact_pct": 73.4,
+        "quote_acceptance_pct": 41.2
+      },
+      {
+        "source": "Website form",
+        "leads": 995,
+        "activation_pct": 4.3,
+        "acquisition_cost_inr": 6352,
+        "spend_share_pct": 4.9,
+        "activation_share_pct": 11.7,
+        "contact_pct": 54.9,
+        "quote_acceptance_pct": 43.0
+      },
+      {
+        "source": "WhatsApp campaign",
+        "leads": 358,
+        "activation_pct": 2.8,
+        "acquisition_cost_inr": 4026,
+        "spend_share_pct": 0.7,
+        "activation_share_pct": 2.7,
+        "contact_pct": 41.3,
+        "quote_acceptance_pct": 27.3
+      }
+    ],
+    "field_and_partner": {
+      "spend_share_pct": 85.4,
+      "activation_share_pct": 56.0
+    }
+  },
+  "segment_by_source": [
+    {
+      "segment": "Micro retail & services",
+      "source": "Channel partner",
+      "leads": 568,
+      "activations": 30,
+      "activation_pct": 5.3,
+      "acquisition_cost_inr": 11382,
+      "payback_months_of_segment_median": 4.6,
+      "small_group": false
+    },
+    {
+      "segment": "Micro retail & services",
+      "source": "Field sales",
+      "leads": 894,
+      "activations": 27,
+      "activation_pct": 3.0,
+      "acquisition_cost_inr": 53026,
+      "payback_months_of_segment_median": 21.5,
+      "small_group": false
+    },
+    {
+      "segment": "Micro retail & services",
+      "source": "Inbound call",
+      "leads": 269,
+      "activations": 16,
+      "activation_pct": 5.9,
+      "acquisition_cost_inr": 7710,
+      "payback_months_of_segment_median": 3.1,
+      "small_group": false
+    },
+    {
+      "segment": "Micro retail & services",
+      "source": "Referral",
+      "leads": 234,
+      "activations": 24,
+      "activation_pct": 10.3,
+      "acquisition_cost_inr": 5760,
+      "payback_months_of_segment_median": 2.3,
+      "small_group": false
+    },
+    {
+      "segment": "Micro retail & services",
+      "source": "Website form",
+      "leads": 544,
+      "activations": 11,
+      "activation_pct": 2.0,
+      "acquisition_cost_inr": 13124,
+      "payback_months_of_segment_median": 5.3,
+      "small_group": false
+    },
+    {
+      "segment": "Micro retail & services",
+      "source": "WhatsApp campaign",
+      "leads": 200,
+      "activations": 2,
+      "activation_pct": 1.0,
+      "acquisition_cost_inr": 10830,
+      "payback_months_of_segment_median": 4.4,
+      "small_group": true
+    },
+    {
+      "segment": "Professional offices",
+      "source": "Channel partner",
+      "leads": 246,
+      "activations": 28,
+      "activation_pct": 11.4,
+      "acquisition_cost_inr": 14198,
+      "payback_months_of_segment_median": 2.2,
+      "small_group": false
+    },
+    {
+      "segment": "Professional offices",
+      "source": "Field sales",
+      "leads": 447,
+      "activations": 53,
+      "activation_pct": 11.9,
+      "acquisition_cost_inr": 16393,
+      "payback_months_of_segment_median": 2.5,
+      "small_group": false
+    },
+    {
+      "segment": "Professional offices",
+      "source": "Inbound call",
+      "leads": 130,
+      "activations": 13,
+      "activation_pct": 10.0,
+      "acquisition_cost_inr": 5157,
+      "payback_months_of_segment_median": 0.8,
+      "small_group": false
+    },
+    {
+      "segment": "Professional offices",
+      "source": "Referral",
+      "leads": 101,
+      "activations": 22,
+      "activation_pct": 21.8,
+      "acquisition_cost_inr": 2937,
+      "payback_months_of_segment_median": 0.4,
+      "small_group": false
+    },
+    {
+      "segment": "Professional offices",
+      "source": "Website form",
+      "leads": 233,
+      "activations": 18,
+      "activation_pct": 7.7,
+      "acquisition_cost_inr": 3720,
+      "payback_months_of_segment_median": 0.6,
+      "small_group": false
+    },
+    {
+      "segment": "Professional offices",
+      "source": "WhatsApp campaign",
+      "leads": 90,
+      "activations": 4,
+      "activation_pct": 4.4,
+      "acquisition_cost_inr": 2715,
+      "payback_months_of_segment_median": 0.4,
+      "small_group": true
+    },
+    {
+      "segment": "Small manufacturers",
+      "source": "Channel partner",
+      "leads": 61,
+      "activations": 8,
+      "activation_pct": 13.1,
+      "acquisition_cost_inr": 39712,
+      "payback_months_of_segment_median": 2.5,
+      "small_group": true
+    },
+    {
+      "segment": "Small manufacturers",
+      "source": "Field sales",
+      "leads": 101,
+      "activations": 11,
+      "activation_pct": 10.9,
+      "acquisition_cost_inr": 18182,
+      "payback_months_of_segment_median": 1.1,
+      "small_group": false
+    },
+    {
+      "segment": "Small manufacturers",
+      "source": "Inbound call",
+      "leads": 29,
+      "activations": 7,
+      "activation_pct": 24.1,
+      "acquisition_cost_inr": 2354,
+      "payback_months_of_segment_median": 0.1,
+      "small_group": true
+    },
+    {
+      "segment": "Small manufacturers",
+      "source": "Referral",
+      "leads": 19,
+      "activations": 7,
+      "activation_pct": 36.8,
+      "acquisition_cost_inr": 2031,
+      "payback_months_of_segment_median": 0.1,
+      "small_group": true
+    },
+    {
+      "segment": "Small manufacturers",
+      "source": "Website form",
+      "leads": 58,
+      "activations": 3,
+      "activation_pct": 5.2,
+      "acquisition_cost_inr": 5240,
+      "payback_months_of_segment_median": 0.3,
+      "small_group": true
+    },
+    {
+      "segment": "Small manufacturers",
+      "source": "WhatsApp campaign",
+      "leads": 21,
+      "activations": 1,
+      "activation_pct": 4.8,
+      "acquisition_cost_inr": 2880,
+      "payback_months_of_segment_median": 0.2,
+      "small_group": true
+    },
+    {
+      "segment": "Small multi-site businesses",
+      "source": "Channel partner",
+      "leads": 135,
+      "activations": 15,
+      "activation_pct": 11.1,
+      "acquisition_cost_inr": 42149,
+      "payback_months_of_segment_median": 1.5,
+      "small_group": false
+    },
+    {
+      "segment": "Small multi-site businesses",
+      "source": "Field sales",
+      "leads": 278,
+      "activations": 34,
+      "activation_pct": 12.2,
+      "acquisition_cost_inr": 15921,
+      "payback_months_of_segment_median": 0.6,
+      "small_group": false
+    },
+    {
+      "segment": "Small multi-site businesses",
+      "source": "Inbound call",
+      "leads": 76,
+      "activations": 12,
+      "activation_pct": 15.8,
+      "acquisition_cost_inr": 3213,
+      "payback_months_of_segment_median": 0.1,
+      "small_group": false
+    },
+    {
+      "segment": "Small multi-site businesses",
+      "source": "Referral",
+      "leads": 59,
+      "activations": 8,
+      "activation_pct": 13.6,
+      "acquisition_cost_inr": 4118,
+      "payback_months_of_segment_median": 0.1,
+      "small_group": true
+    },
+    {
+      "segment": "Small multi-site businesses",
+      "source": "Website form",
+      "leads": 160,
+      "activations": 11,
+      "activation_pct": 6.9,
+      "acquisition_cost_inr": 4189,
+      "payback_months_of_segment_median": 0.1,
+      "small_group": false
+    },
+    {
+      "segment": "Small multi-site businesses",
+      "source": "WhatsApp campaign",
+      "leads": 47,
+      "activations": 3,
+      "activation_pct": 6.4,
+      "acquisition_cost_inr": 1620,
+      "payback_months_of_segment_median": 0.1,
+      "small_group": true
+    }
+  ],
+  "where_the_days_go": {
+    "mean_days_between_stages": {
+      "created_date_to_contacted_date": 2.0,
+      "contacted_date_to_needs_assessed_date": 3.0,
+      "needs_assessed_date_to_quote_accepted_date": 4.1,
+      "quote_accepted_date_to_kyc_complete_date": 3.8,
+      "kyc_complete_date_to_activated_date": 4.8
+    },
+    "mean_days_before_kyc_complete": 12.8,
+    "mean_days_kyc_to_activation": 4.8,
+    "mean_longest_catalogue_install_days": 7.6,
+    "note": "Catalogue install time and the historic KYC-to-activation gap disagree, so each target must name its basis."
+  },
+  "caveats": {
+    "activations_after_today": 16,
+    "activations_within_6_months_of_today": 368,
+    "note": "No activation has had 6 full months by the pack's 'today', so the churn label is used as given and footnoted."
+  }
+}
