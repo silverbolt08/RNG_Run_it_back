@@ -9,6 +9,13 @@ import { getProduct, type Catalogue, type Product, type ProductUnit } from '../c
  */
 export const PRICE_POSITION = 0.5;
 
+/**
+ * The team wants owners to see the final price. Assumptions: catalogue prices exclude GST, since
+ * the catalogue doesn't state tax treatment, and telecom services carry the usual 18%. Change it
+ * here and every quote follows.
+ */
+export const GST_RATE_PERCENT = 18;
+
 export type BundleLine = { productId: string; quantity: number };
 
 export type QuoteLine = BundleLine & {
@@ -19,15 +26,23 @@ export type QuoteLine = BundleLine & {
 
 export type Quote = {
   lines: QuoteLine[];
+  /** Before GST. The owner sees monthlyFinalInr. */
   monthlyTotalInr: number;
+  monthlyGstInr: number;
+  monthlyFinalInr: number;
+  /** Before GST. The owner sees setupFinalInr. */
   setupTotalInr: number;
+  setupGstInr: number;
+  setupFinalInr: number;
   contractMonths: number;
   installDays: number;
 };
 
 export type QuoteComparison = {
   monthlyDeltaInr: number;
+  monthlyFinalDeltaInr: number;
   setupDeltaInr: number;
+  setupFinalDeltaInr: number;
   contractMonthsBefore: number;
   contractMonthsAfter: number;
   contractChanged: boolean;
@@ -57,6 +72,11 @@ export function unitPriceInr(product: Product): number {
   return Math.round(product.priceMinInr + (product.priceMaxInr - product.priceMinInr) * PRICE_POSITION);
 }
 
+/** GST on an amount before tax, in whole rupees. */
+export function gstOnInr(amountInr: number): number {
+  return Math.round((amountInr * GST_RATE_PERCENT) / 100);
+}
+
 export function priceBundle(catalogue: Catalogue, bundle: readonly BundleLine[]): Quote {
   const seen = new Set<string>();
   const lines = bundle.map((line) => {
@@ -66,10 +86,18 @@ export function priceBundle(catalogue: Catalogue, bundle: readonly BundleLine[])
   });
 
   const products = bundle.map((line) => getProduct(catalogue, line.productId));
+  const monthlyTotalInr = sum(lines.map((line) => line.monthlyInr));
+  const setupTotalInr = sum(lines.map((line) => line.setupInr));
+  const monthlyGstInr = gstOnInr(monthlyTotalInr);
+  const setupGstInr = gstOnInr(setupTotalInr);
   return {
     lines,
-    monthlyTotalInr: sum(lines.map((line) => line.monthlyInr)),
-    setupTotalInr: sum(lines.map((line) => line.setupInr)),
+    monthlyTotalInr,
+    monthlyGstInr,
+    monthlyFinalInr: monthlyTotalInr + monthlyGstInr,
+    setupTotalInr,
+    setupGstInr,
+    setupFinalInr: setupTotalInr + setupGstInr,
     contractMonths: Math.max(0, ...products.map((product) => product.minContractMonths)),
     installDays: Math.max(0, ...products.map((product) => product.installDays)),
   };
@@ -79,7 +107,9 @@ export function priceBundle(catalogue: Catalogue, bundle: readonly BundleLine[])
 export function compareQuotes(before: Quote, after: Quote): QuoteComparison {
   return {
     monthlyDeltaInr: after.monthlyTotalInr - before.monthlyTotalInr,
+    monthlyFinalDeltaInr: after.monthlyFinalInr - before.monthlyFinalInr,
     setupDeltaInr: after.setupTotalInr - before.setupTotalInr,
+    setupFinalDeltaInr: after.setupFinalInr - before.setupFinalInr,
     contractMonthsBefore: before.contractMonths,
     contractMonthsAfter: after.contractMonths,
     contractChanged: before.contractMonths !== after.contractMonths,

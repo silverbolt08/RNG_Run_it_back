@@ -2,6 +2,7 @@ import { recommendBundle, type DiscoveryProfile, type Need } from '../../domain/
 import { inferSegment, lookupCityTier } from '../../domain/bundle/segments';
 import { getProduct } from '../../domain/catalogue/catalogue';
 import type { GstinStatus } from '../../domain/eligibility/eligibility';
+import { GST_RATE_PERCENT } from '../../domain/pricing/pricing';
 import type { AppContext } from '../app-context';
 import { namesOf } from './quote-view';
 
@@ -49,6 +50,6 @@ export async function recommend(app: AppContext, input: DiscoveryInput) {
     },
     lines: recommendation.lines.map((line) => ({ ...line, ...namesOf(getProduct(catalogue, line.productId)) })),
     blocked: recommendation.blocked.map((item) => ({ ...item, name: getProduct(catalogue, item.productId).name })),
-    quote: { ...recommendation.quote, priceBasis: 'EXCL_GST' as const },
+    quote: { ...recommendation.quote, gstRatePercent: GST_RATE_PERCENT },
   };
 }

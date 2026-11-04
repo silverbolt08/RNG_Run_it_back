@@ -44,11 +44,12 @@ describe('orders and the tracker', () => {
         status: 'ACTIVE',
         stage: 'KYC_CONFIRMED',
         placedOn: '2026-07-15',
-        priceBasis: 'EXCL_GST',
+        gstRatePercent: 18,
         kycUnderReview: false,
       });
       expect(order.payment).toMatchObject({ status: 'PENDING', mock: true, attempts: [] });
-      expect(order.payment.amountDueInr).toBe(order.monthlyTotalInr + order.setupTotalInr);
+      expect(order.monthlyFinalInr).toBeGreaterThan(order.monthlyTotalInr);
+      expect(order.payment.amountDueInr).toBe(order.monthlyFinalInr + order.setupFinalInr);
     });
 
     it('works out expected dates per product from the business date', async () => {

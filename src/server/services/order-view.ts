@@ -10,6 +10,7 @@ import {
   type PaymentStatus,
   type Tracker,
 } from '../../domain/orders/orders';
+import { GST_RATE_PERCENT, gstOnInr } from '../../domain/pricing/pricing';
 import type { LoggedMessage } from '../adapters/notifications/notification-log';
 import type { AppContext } from '../app-context';
 import { orderEvents, orders, paymentAttempts } from '../db/schema';
@@ -23,9 +24,11 @@ export type OrderView = Omit<Tracker, 'products'> & {
   id: string;
   quoteId: string;
   kycApplicationId: string;
-  priceBasis: 'EXCL_GST';
+  gstRatePercent: number;
   monthlyTotalInr: number;
+  monthlyFinalInr: number;
   setupTotalInr: number;
+  setupFinalInr: number;
   contractMonths: number;
   products: Array<Tracker['products'][number] & { name: string; description: string; unit: string }>;
   /** The review a manual-review verdict needs before the order can move on. */
@@ -79,9 +82,11 @@ export async function toOrderView(app: AppContext, catalogue: Catalogue, row: Or
     id: row.id,
     quoteId: row.quoteId,
     kycApplicationId: row.kycApplicationId,
-    priceBasis: 'EXCL_GST',
+    gstRatePercent: GST_RATE_PERCENT,
     monthlyTotalInr: row.monthlyTotalInr,
+    monthlyFinalInr: row.monthlyTotalInr + gstOnInr(row.monthlyTotalInr),
     setupTotalInr: row.setupTotalInr,
+    setupFinalInr: row.setupTotalInr + gstOnInr(row.setupTotalInr),
     contractMonths: row.contractMonths,
     products: tracker.products.map((product) => ({ ...product, ...namesOf(getProduct(catalogue, product.productId)) })),
     kycUnderReview: row.status === 'ACTIVE' && row.stage === 'ORDER_PLACED',

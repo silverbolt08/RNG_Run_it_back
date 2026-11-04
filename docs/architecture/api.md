@@ -266,10 +266,14 @@ Needs `advisor_profile` consent. Stores nothing.
   "quote": {
     "lines": [{ "productId": "P01", "quantity": 1, "unitPriceInr": 1099, "monthlyInr": 1099, "setupInr": 0 }],
     "monthlyTotalInr": 1099,
+    "monthlyGstInr": 198,
+    "monthlyFinalInr": 1297,
     "setupTotalInr": 0,
+    "setupGstInr": 0,
+    "setupFinalInr": 0,
     "contractMonths": 12,
     "installDays": 5,
-    "priceBasis": "EXCL_GST"
+    "gstRatePercent": 18
   }
 }
 ```
@@ -295,7 +299,7 @@ To turn a recommendation into a quote, send the `profile` back without `segment`
   "id": "qt_...",
   "status": "DRAFT",
   "revision": 1,
-  "priceBasis": "EXCL_GST",
+  "gstRatePercent": 18,
   "profile": { "cityTier": 1, "employeeCount": 12, "numSites": 1, "gstinStatus": "ACTIVE", "fibreAvailable": true },
   "lines": [
     {
@@ -310,7 +314,11 @@ To turn a recommendation into a quote, send the `profile` back without `segment`
     }
   ],
   "monthlyTotalInr": 1099,
+  "monthlyGstInr": 198,
+  "monthlyFinalInr": 1297,
   "setupTotalInr": 0,
+  "setupGstInr": 0,
+  "setupFinalInr": 0,
   "contractMonths": 12,
   "installDays": 5,
   "savedAt": null,
@@ -331,7 +339,9 @@ To turn a recommendation into a quote, send the `profile` back without `segment`
 {
   "comparison": {
     "monthlyDeltaInr": 1799,
+    "monthlyFinalDeltaInr": 2123,
     "setupDeltaInr": 5000,
+    "setupFinalDeltaInr": 5900,
     "contractMonthsBefore": 12,
     "contractMonthsAfter": 24,
     "contractChanged": true,
@@ -566,15 +576,17 @@ No body. Re-runs verification. Use it after an outage.
   "delay": null,
   "alternativeProductIds": [],
   "kycUnderReview": false,
-  "priceBasis": "EXCL_GST",
+  "gstRatePercent": 18,
   "monthlyTotalInr": 2898,
+  "monthlyFinalInr": 3420,
   "setupTotalInr": 0,
+  "setupFinalInr": 0,
   "contractMonths": 12,
   "payment": {
     "status": "PENDING",
-    "amountDueInr": 2898,
+    "amountDueInr": 3420,
     "mock": true,
-    "attempts": [{ "outcome": "FAILED", "amountInr": 2898, "attemptedAt": "..." }]
+    "attempts": [{ "outcome": "FAILED", "amountInr": 3420, "attemptedAt": "..." }]
   },
   "statusMessages": [{ "templateCode": "ORDER_PLACED", "params": {}, "loggedAt": "..." }],
   "events": [

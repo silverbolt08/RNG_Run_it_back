@@ -138,7 +138,9 @@ describe('products and quotes', () => {
       ]);
       expect(quote.id).toMatch(/^qt_/);
       expect(quote.status).toBe('DRAFT');
-      expect(quote.priceBasis).toBe('EXCL_GST');
+      expect(quote.gstRatePercent).toBe(18);
+      expect(quote.monthlyFinalInr).toBe(quote.monthlyTotalInr + quote.monthlyGstInr);
+      expect(quote.monthlyGstInr).toBeGreaterThan(0);
       expect(quote.lines.map((line: { name: string }) => line.name)).toContain('Biz Fibre 300');
       for (const line of quote.lines) {
         expect(line.monthlyInr).toBe(line.unitPriceInr * line.quantity);

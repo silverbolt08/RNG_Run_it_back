@@ -137,7 +137,7 @@ The historic data confirms these formulas:
 
 **Unit price policy (team assumption, change in one place):** the brief wants one clear price but the catalogue gives ranges, and historic prices show no pattern by tier, segment or volume. They sit at about 48% of the range on average. Use the rounded midpoint, `round((min + max) / 2)`, from a single `PRICE_POSITION` constant. A unit price outside its range is a bug.
 
-The catalogue does not state tax treatment, so label prices "excl. GST" until the team decides otherwise.
+**Tax:** owners see the final price including GST. The catalogue doesn't state tax treatment, so `GST_RATE_PERCENT` assumes its prices exclude GST and that the rate is 18%. Quotes carry `monthlyTotalInr`, `monthlyGstInr` and `monthlyFinalInr`, and the same three for setup. Lead with the final figures.
 
 ### Quantity defaults
 

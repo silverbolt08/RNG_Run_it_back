@@ -145,8 +145,8 @@ async function placeOrder(
       placedOn,
       plan: JSON.stringify(planOrder(catalogue, quote.lines, placedOn)),
       paymentStatus: 'PENDING',
-      // Assumption: the mock checkout takes the one-time setup fee and the first month.
-      amountDueInr: priced.setupTotalInr + priced.monthlyTotalInr,
+      // Assumption: the mock checkout takes the one-time setup fee and the first month, including GST.
+      amountDueInr: priced.setupFinalInr + priced.monthlyFinalInr,
       monthlyTotalInr: priced.monthlyTotalInr,
       setupTotalInr: priced.setupTotalInr,
       contractMonths: priced.contractMonths,

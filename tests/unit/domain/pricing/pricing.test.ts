@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   compareQuotes,
   defaultQuantity,
+  GST_RATE_PERCENT,
+  gstOnInr,
   priceBundle,
   PRICE_POSITION,
   unitPriceInr,
@@ -103,9 +105,48 @@ describe('priceBundle', () => {
     expect(priceBundle(catalogue, [])).toEqual({
       lines: [],
       monthlyTotalInr: 0,
+      monthlyGstInr: 0,
+      monthlyFinalInr: 0,
       setupTotalInr: 0,
+      setupGstInr: 0,
+      setupFinalInr: 0,
       contractMonths: 0,
       installDays: 0,
+    });
+  });
+
+  describe('the final price, including GST', () => {
+    const micro = priceBundle(catalogue, [
+      { productId: 'P01', quantity: 1 },
+      { productId: 'P07', quantity: 1 },
+      { productId: 'P22', quantity: 1 },
+    ]);
+
+    it('uses 18%', () => {
+      expect(GST_RATE_PERCENT).toBe(18);
+    });
+
+    it('adds GST to the monthly total, rounded to a whole rupee', () => {
+      expect(micro).toMatchObject({ monthlyTotalInr: 1947, monthlyGstInr: 350, monthlyFinalInr: 2297 });
+    });
+
+    it('adds GST to the setup fee separately', () => {
+      expect(micro).toMatchObject({ setupTotalInr: 1000, setupGstInr: 180, setupFinalInr: 1180 });
+    });
+
+    it('rounds half a rupee of GST up', () => {
+      // 18% of 25 is exactly 4.50.
+      expect(gstOnInr(25)).toBe(5);
+    });
+
+    it('keeps every total in whole rupees across the catalogue', () => {
+      for (const product of catalogue.products) {
+        const quote = priceBundle(catalogue, [{ productId: product.id, quantity: 3 }]);
+        expect(Number.isInteger(quote.monthlyFinalInr)).toBe(true);
+        expect(Number.isInteger(quote.setupFinalInr)).toBe(true);
+        expect(quote.monthlyFinalInr).toBe(quote.monthlyTotalInr + quote.monthlyGstInr);
+        expect(quote.setupFinalInr).toBe(quote.setupTotalInr + quote.setupGstInr);
+      }
     });
   });
 
@@ -136,7 +177,9 @@ describe('compareQuotes', () => {
     ]);
     expect(compareQuotes(before, after)).toEqual({
       monthlyDeltaInr: 2499,
+      monthlyFinalDeltaInr: 2949,
       setupDeltaInr: 4000,
+      setupFinalDeltaInr: 4720,
       contractMonthsBefore: 12,
       contractMonthsAfter: 24,
       contractChanged: true,

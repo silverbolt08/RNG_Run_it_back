@@ -1,6 +1,6 @@
 import { getProduct, type Catalogue, type Product } from '../../domain/catalogue/catalogue';
 import type { EligibilityResult } from '../../domain/eligibility/eligibility';
-import type { Quote, QuoteComparison, QuoteLine } from '../../domain/pricing/pricing';
+import { GST_RATE_PERCENT, type Quote, type QuoteComparison, type QuoteLine } from '../../domain/pricing/pricing';
 import type { StrandedProduct } from '../../domain/bundle/bundle-changes';
 import type { StoredQuote } from './quote-repository';
 
@@ -36,8 +36,7 @@ export type QuoteView = {
   id: string;
   status: string;
   revision: number;
-  /** The catalogue doesn't state tax treatment, so every price is labelled as before GST. */
-  priceBasis: 'EXCL_GST';
+  gstRatePercent: number;
   profile: StoredQuote['profile'];
   lines: QuoteLineView[];
   savedAt: string | null;
@@ -63,7 +62,7 @@ export function toQuoteView(catalogue: Catalogue, stored: StoredQuote, change: Q
     id: row.id,
     status: row.status,
     revision: row.revision,
-    priceBasis: 'EXCL_GST',
+    gstRatePercent: GST_RATE_PERCENT,
     profile,
     lines: priced.lines.map((line) => ({ ...line, ...namesOf(getProduct(catalogue, line.productId)) })),
     ...totalsOf(priced),
