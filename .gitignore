@@ -1,0 +1,43 @@
+# Dependencies and build output
+node_modules/
+.next/
+/out/
+/dist/
+/build/
+/coverage/
+/playwright-report/
+/test-results/
+*.tsbuildinfo
+next-env.d.ts
+
+# Secrets: only .env.example is committed
+.env*
+!.env.example
+
+# Data pack and case files stay out of git (docs/blueprint.md, decision 3)
+YTL_TrackA_Udyam_Digital_Data/
+6ad9d4887d445_airtel_sync/
+__MACOSX/
+
+# Local databases and uploaded documents. Anchored to the root, because
+# src/server/adapters/storage is source code.
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+/uploads/
+/storage/
+
+# OCR language data, fetched or bundled separately
+*.traineddata
+
+# Python
+__pycache__/
+.venv/
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# OS files
+.DS_Store
+Thumbs.db
