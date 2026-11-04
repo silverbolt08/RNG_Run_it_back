@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1793808087101,
+      "tag": "0000_core_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793808089531,
+      "tag": "0001_append_only_triggers",
+      "breakpoints": true
+    }
+  ]
+}

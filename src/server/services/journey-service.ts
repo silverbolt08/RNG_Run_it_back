@@ -1,0 +1,55 @@
+import { desc, eq } from 'drizzle-orm';
+import { getProduct } from '../../domain/catalogue/catalogue';
+import type { AppContext } from '../app-context';
+import type { SessionInfo } from '../auth/session-service';
+import { kycApplications, orders, quotes } from '../db/schema';
+import { refreshApplicationForQuote } from './kyc/kyc-service';
+import { acceptQuote } from './quote-service';
+import type { QuoteView } from './quote-view';
+
+export type Journey = { quoteId: string | null; kycApplicationId: string | null; orderId: string | null };
+
+/** The owner's most recent work, so a return visit can pick up where they left off. */
+export async function findJourney(app: AppContext, ownerId: string): Promise<Journey> {
+  const [quote] = await app.db
+    .select({ id: quotes.id })
+    .from(quotes)
+    .where(eq(quotes.ownerId, ownerId))
+    .orderBy(desc(quotes.updatedAt))
+    .limit(1);
+  const [application] = await app.db
+    .select({ id: kycApplications.id })
+    .from(kycApplications)
+    .where(eq(kycApplications.ownerId, ownerId))
+    .orderBy(desc(kycApplications.updatedAt))
+    .limit(1);
+  const [order] = await app.db
+    .select({ id: orders.id })
+    .from(orders)
+    .where(eq(orders.ownerId, ownerId))
+    .orderBy(desc(orders.updatedAt))
+    .limit(1);
+  return { quoteId: quote?.id ?? null, kycApplicationId: application?.id ?? null, orderId: order?.id ?? null };
+}
+
+export type AcceptedQuoteView = QuoteView & { kycApplication: { id: string; verdict: string | null } | null };
+
+/**
+ * Accepting a quote that KYC changed also re-runs KYC against the new bundle, so the verdict the
+ * owner sees next is about what they just agreed to.
+ */
+export async function acceptQuoteAndRefreshKyc(
+  app: AppContext,
+  session: SessionInfo,
+  quoteId: string,
+  requestId: string,
+): Promise<AcceptedQuoteView> {
+  const quote = await acceptQuote(app, session, quoteId, requestId);
+  const catalogue = await app.catalogue();
+  const needsGstin = quote.lines.some((line) => getProduct(catalogue, line.productId).requiresGstin);
+  const application = await refreshApplicationForQuote(app, session.ownerId, quoteId, needsGstin, requestId);
+  return {
+    ...quote,
+    kycApplication: application ? { id: application.id, verdict: application.verdict } : null,
+  };
+}
