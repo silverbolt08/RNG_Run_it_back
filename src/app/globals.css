@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+
+/* Tokens come from the airtel-design-system skill, which is the source of visual truth. */
+@theme {
+  --color-brand: #e40000;
+  --color-brand-strong: #c40000;
+  --color-brand-tint: #fff1f1;
+  --color-brand-tint-soft: #fff7f7;
+  --color-ink: #1b1b1b;
+  --color-ink-muted: #5a5a5a;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f5f5f5;
+  --color-line: #e3e3e3;
+  --color-line-strong: #8c8c8c;
+  --color-success: #0b6b3a;
+  --color-success-tint: #e8f5ee;
+  --color-warning: #8a5a00;
+  --color-warning-tint: #fff6e0;
+  --color-danger: #b00020;
+  --color-danger-tint: #fdecec;
+  --color-info: #1d4ed8;
+
+  --font-sans: 'Poppins', 'Noto Sans Devanagari', system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
