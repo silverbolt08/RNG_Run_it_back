@@ -1,0 +1,396 @@
+{
+ "_note": "Real tesseract.js output for the fictional specimens K01 to K12, captured on 2026-11-04 with auto-rotation and no watermark filter. All names and identifiers are fictional, from the data pack. Expected results live in the test, and are our own reading, not the judges answer key.",
+ "applicants": {
+  "K01": {
+   "leadId": "L00045",
+   "contactName": "Neha Kaur",
+   "businessName": "Vindhya Tours & Travels",
+   "gstinOnFile": "37IHKXV5167L1ZS",
+   "udyamNumberOnFile": null,
+   "documents": {
+    "gst": {
+     "text": "Specimen: GST Registration Certificate\n\nFormat for hackathon OCR testing only\n\nGSTIN 37IHKXV5167L1ZS\n\nLegal name Neha Kaur (Prop. Vindhya Tours & Travels)\nTrade name Vindhya Tours & Travels\n\nConstitution Proprietorship\n\nAddress of principal Shop/Unit 1, Tech Park Road, Visakhapatnam, A\n\nplace of business ndhra Pradesh -- 118383\n\nDate of liability 2025-06-07\n\nType of registration Regular\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 91,
+     "blurScore": 549,
+     "rotationDegrees": 0.0
+    },
+    "udyam": {
+     "text": "Specimen: Udyam Registration Certificate\nFormat for hackathon OCR testing only\n\nUdyam reg. number\n\nEnterprise name Vindhya Tours & Travels\n\nMajor activity Services\n\nCity Visakhapatnam\n\nState Andhra Pradesh\n\nDate of registration 2024-03-24\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 434,
+     "rotationDegrees": 0.0
+    },
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\nName\nNeha Kaur\nDesignation\nOffice admin\nFor business\nVindhya Tours & Travels\nID no.\nSYN-ID-346190\nValid till\n2028-03-26\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 850,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 9485717625\n\nBilled to Vindhya Tours & Travels\n\nSupply address Shop/Unit 1, Tech Park Road, Visakhapatnam, A\n\nndhra Pradesh - 118383\n\nBill date 2026-06-26\n\nUnits consumed 2203\n\nAmount due (INR) 27,071\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 457,
+     "rotationDegrees": 0.0
+    }
+   }
+  },
+  "K02": {
+   "leadId": "L01287",
+   "contactName": "Joseph Shah",
+   "businessName": "Harmony Dental Care",
+   "gstinOnFile": "19EOGXH4115Y1ZL",
+   "udyamNumberOnFile": "UDYAM-WB-00-5053330",
+   "documents": {
+    "gst": {
+     "text": "Specimen: GST Registration Certificate\nFormat for hackathon OCR testing only\nGSTIN 19E0GXH4115Y1ZL\nLegal name Joseph Shah (Prop. Harmony Dental Care)\nTrade name Harmony Dental Care\nConstitution Proprietorship\nAddress of principal Shop/Unit 199, Station Road, Kolkata, West Be\nplace of business ngal - 347550\nDate of liability 2022-04-17\nType of registration Regular\nAccel YTL Hackathon - Track A test.data. Fictional business, person and identifiers.\n",
+     "confidence": 92,
+     "blurScore": 436,
+     "rotationDegrees": -6.9
+    },
+    "udyam": {
+     "text": "Specimen: Udyam Registration Certificate\nFormat for hackathon OCR testing only\n\nUdyam reg. number UDYAM-WB-00-5053330\n\nEnterprise name Harmony Dental Care\n\nMajor activity Services\n\nCity Kolkata\n\nState West Bengal\n\nDate of registration 2023-01-11\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 443,
+     "rotationDegrees": 0.0
+    },
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\n\nName\n\nJoseph Shah\n\nDesignation\n\nManager\n\nFor business\n\nHarmony Dental Care\n\nID no.\n\nSYN-ID-816907\n\nValid till\n\n2028-09-10\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 839,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 9790713533\n\nBilled to Harmony Dental Care\n\nSupply address Shop/Unit 199, Station Road, Kolkata, West Be\n\nngal - 347550\n\nBill date 2026-05-22\n\nUnits consumed 992\n\nAmount due (INR) 7,077\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 95,
+     "blurScore": 445,
+     "rotationDegrees": 0.0
+    }
+   }
+  },
+  "K03": {
+   "leadId": "L03571",
+   "contactName": "Joseph Singh",
+   "businessName": "Ganesh Woodcraft",
+   "gstinOnFile": "27XUIXG0767D1ZP",
+   "udyamNumberOnFile": "UDYAM-MH-00-9516696",
+   "documents": {
+    "gst": {
+     "text": "Specimen: GST Registration Certificate\nFormat for hackathon OCR testing only\n\nGSTIN 27XUIXGO767D1ZP\n\nLegal name Joseph Singh (Prop. Ganesh Woodcraft)\nTrade name Ganesh Woodcraft\n\nConstitution Proprietorship\n\nAddress of principal Shop/Unit 80, Civil Lines, Nagpur, Maharashtr\n\nplace of business a-411231\n\nDate of liability 2020-02-10\n\nType of registration Regular\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 534,
+     "rotationDegrees": 0.0
+    },
+    "udyam": {
+     "text": "Specimen: Udyam Registration Certificate\nFormat for hackathon OCR testing only\n\nUdyam reg. number UDYAM-MH-00-9516696\n\nEnterprise name Ganesh Woodcraft\n\nMajor activity Manufacturing\n\nCity Nagpur\n\nState Maharashtra\n\nDate of registration 2024-11-21\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 447,
+     "rotationDegrees": 0.0
+    },
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\n\nName\n\nJoseph Singh\n\nDesignation\n\nOwner\n\nFor business\n\nGanesh Woodcraft\n\nID no.\n\nSYN-ID-447889\n\nValid till\n\n2028-07-04\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 827,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 3438517928\n\nBilled to Ganesh Woodcraft\n\nSupply address Shop/Unit 80, Civil Lines, Nagpur, Maharashtr\n\na-411231\n\nBill date 2026-05-30\n\nUnits consumed 231\n\nAmount due (INR) 33,615\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 440,
+     "rotationDegrees": 0.0
+    }
+   }
+  },
+  "K04": {
+   "leadId": "L01014",
+   "contactName": "Fatima Pillai",
+   "businessName": "Saffron Dental Care LLP",
+   "gstinOnFile": "27PZSXS1936O1ZH",
+   "udyamNumberOnFile": "UDYAM-MH-00-6131836",
+   "documents": {
+    "gst": {
+     "text": "—\none\n——— ey\n-—\n| -\npos\n“oe . Se Coe\nohne co wr\nete [ES P——\n— Septea a\n— an pe\nines ——\nC PF O le ov\nRt oP \\ li\n\\Y) o° \\\net Pe : wot » ne\nFE\n—_ wo pV i\na a \\\n——\n",
+     "confidence": 31,
+     "blurScore": 1,
+     "rotationDegrees": 0.0
+    },
+    "udyam": {
+     "text": "Specimen: Udyam Registration Certificate\nFormat for hackathon OCR testing only\n\nUdyam reg. number UDYAM-MH-00-6131836\n\nEnterprise name Saffron Dental Care LLP\n\nMajor activity Services\n\nCity Nagpur\n\nState Maharashtra\n\nDate of registration 2025-05-17\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 445,
+     "rotationDegrees": 0.0
+    },
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\nName\nFatima Pillai\nDesignation\nPartner\nFor business\nSaffron Dental Care LLP\nID no.\nSYN-ID-609396\nValid till\n2028-08-03\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 844,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 7397844759\n\nBilled to Saffron Dental Care LLP\n\nSupply address Shop/Unit 75, Lake View Colony, Nagpur, Mahar\n\nashtra - 137452\n\nBill date 2026-05-28\n\nUnits consumed 2295\n\nAmount due (INR) 20,713\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 450,
+     "rotationDegrees": 0.0
+    }
+   }
+  },
+  "K05": {
+   "leadId": "L04014",
+   "contactName": "Anita Shah",
+   "businessName": "Balaji Realty LLP",
+   "gstinOnFile": "32TZAXB5481U1Z1",
+   "udyamNumberOnFile": "UDYAM-KL-00-5521886",
+   "documents": {
+    "gst": {
+     "text": "Specimen: GST Registration Certificate\nFormat for hackathon OCR testing only\n\nGSTIN 32TZAXB5481U171\n\nLegal name Balaji Realty LLP\n\nTrade name Balaji Realty LLP\n\nConstitution Limited Liability Partnership\nAddress of principal Shop/Unit 38, Civil Lines, Kochi, Kerala - 75\n\nplace of business 2083\n\nDate of liability 2020-07-26\n\nType of registration Regular\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 519,
+     "rotationDegrees": 0.0
+    },
+    "udyam": null,
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\n\nName\n\nAnita Shah\n\nDesignation\n\nOwner\n\nFor business\n\nBalaji Realty LLP\n\nID no.\n\nSYN-ID-587234\n\nValid till\n\n2029-09-11\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 813,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 4294969054\n\nBilled to Balaji Realty LLP\n\nSupply address Shop/Unit 38, Civil Lines, Kochi, Kerala - 75\n\n2083\n\nBill date 2026-06-11\n\nUnits consumed 996\n\nAmount due (INR) 22,425\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 95,
+     "blurScore": 433,
+     "rotationDegrees": 0.0
+    }
+   }
+  },
+  "K06": {
+   "leadId": "L00115",
+   "contactName": "Pooja Shah",
+   "businessName": "Saffron Unisex Salon",
+   "gstinOnFile": "08YKZXS5189L1ZO",
+   "udyamNumberOnFile": "UDYAM-RJ-00-6577157",
+   "documents": {
+    "gst": {
+     "text": "Specimen: GST Registration Certificate\nFormat for hackathon OCR testing only\n\nGSTIN 08YKZXS8189L170\n\nLegal name Pooja Shah (Prop. Saffron Unisex Salon)\nTrade name Saffron Unisex Salon\n\nConstitution Proprietorship\n\nAddress of principal Shop/Unit 71, Market Yard, Jaipur, Rajasthan\n\nplace of business -194057\n\nDate of liability 2019-09-25\n\nType of registration Regular\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 534,
+     "rotationDegrees": 0.0
+    },
+    "udyam": {
+     "text": "Specimen: Udyam Registration Certificate\nFormat for hackathon OCR testing only\n\nUdyam reg. number UDYAM-RJ-00-6577157\n\nEnterprise name Saffron Unisex Salon\n\nMajor activity Services\n\nCity Jaipur\n\nState Rajasthan\n\nDate of registration 2023-01-24\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 437,
+     "rotationDegrees": 0.0
+    },
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\n\nName\n\nPooja Shah\n\nDesignation\n\nOwner\n\nFor business\n\nSaffron Unisex Salon\n\nID no.\n\nSYN-ID-118354\n\nValid till\n\n2028-09-15\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 825,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 9566781101\n\nBilled to Saffron Unisex Salon\n\nSupply address Shop/Unit 71, Market Yard, Jaipur, Rajasthan\n\n- 194057\n\nBill date 2026-06-11\n\nUnits consumed 1280\n\nAmount due (INR) 27,352\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 95,
+     "blurScore": 441,
+     "rotationDegrees": 0.0
+    }
+   }
+  },
+  "K07": {
+   "leadId": "L03349",
+   "contactName": "Neha Banerjee",
+   "businessName": "Neelgiri Physio Clinic",
+   "gstinOnFile": "07CPCXN0398P1ZT",
+   "udyamNumberOnFile": "UDYAM-DL-00-9565547",
+   "documents": {
+    "gst": {
+     "text": "Specimen: GST Registration Certificate\nFormat for hackathon OCR testing only\n\nGSTIN 07CPCXNO398P1ZT\n\nLegal name Neha Banerjee (Prop. Shri Physio Clinic)\nTrade name Neelgiri Physio Clinic\n\nConstitution Proprietorship\n\nAddress of principal Shop/Unit 52, Transport Nagar, Delhi, Delhi -\n\nplace of business 334596\n\nDate of liability 2024-01-13\n\nType of registration Regular\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 534,
+     "rotationDegrees": 0.0
+    },
+    "udyam": {
+     "text": "Specimen: Udyam Registration Certificate\nFormat for hackathon OCR testing only\n\nUdyam reg. number UDYAM-DL-00-9565547\n\nEnterprise name Neelgiri Physio Clinic\n\nMajor activity Services\n\nCity Delhi\n\nState Delhi\n\nDate of registration 2024-07-14\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 434,
+     "rotationDegrees": 0.0
+    },
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\n\nName\n\nNeha Banerjee\n\nDesignation\n\nManager\n\nFor business\n\nNeelgiri Physio Clinic\n\nID no.\n\nSYN-ID-178237\n\nValid till\n\n2030-05-05\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 850,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 7545812405\n\nBilled to Neelgiri Physio Clinic\n\nSupply address Shop/Unit 52, Transport Nagar, Delhi, Delhi -\n\n334596\n\nBill date 2026-07-05\n\nUnits consumed 1652\n\nAmount due (INR) 10,690\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 442,
+     "rotationDegrees": 0.0
+    }
+   }
+  },
+  "K08": {
+   "leadId": "L03473",
+   "contactName": "Joseph Rao",
+   "businessName": "Green Leaf Legal Associates",
+   "gstinOnFile": "24XORXG9365M1Z3",
+   "udyamNumberOnFile": "UDYAM-GJ-00-8477445",
+   "documents": {
+    "gst": {
+     "text": "Specimen: GST Registration Certificate\n\nFormat for hackathon OCR testing only\n\nGSTIN 24X0RXG9365M173\n\nLegal name Joseph Rao (Prop. Green Leaf Legal Associates)\nTrade name Green Leaf Legal Associates\n\nConstitution Proprietorship\n\nAddress of principal Shop/Unit 238, Ring Road, Vadodara, Gujarat -\n\nplace of business 348176\n\nDate of liability 2018-12-01\n\nType of registration Regular\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 549,
+     "rotationDegrees": 0.0
+    },
+    "udyam": {
+     "text": "Specimen: Udyam Registration Certificate\nFormat for hackathon OCR testing only\n\nUdyam reg. number UDYAM-GJ-00-8477445\n\nEnterprise name Green Leaf Legal Associates\n\nMajor activity Services\n\nCity Vadodara\n\nState Gujarat\n\nDate of registration 2022-11-12\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 445,
+     "rotationDegrees": 0.0
+    },
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\nName\nJoseph Rao\nDesignation\nOffice admin\nFor business\nGreen Leaf Legal Associates\nID no.\nSYN-ID-393148\nValid till\n2027-09-18\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 866,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 2568472785\n\nBilled to Green Leaf Legal Associates\n\nSupply address Shop/Unit 238, Ring Road, Vadodara, Gujarat -\n\n348176\n\nBill date 2026-05-26\n\nUnits consumed 2219\n\nAmount due (INR) 33,859\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 95,
+     "blurScore": 450,
+     "rotationDegrees": 0.0
+    }
+   }
+  },
+  "K09": {
+   "leadId": "L04779",
+   "contactName": "Anita Kulkarni",
+   "businessName": "Kaveri Insurance Advisors",
+   "gstinOnFile": "37LDYXK0296F1ZB",
+   "udyamNumberOnFile": "UDYAM-AP-00-9751562",
+   "documents": {
+    "gst": {
+     "text": "Specimen: GST Registration Certificate\n\nFormat for hackathon OCR testing only\n\nGSTIN 37LDYXK0296F1ZB\n\nLegal name Anita Kulkarni (Prop. Kaveri Insurance Advisors)\nTrade name Kaveri Insurance Advisors\n\nConstitution Proprietorship\n\nAddress of principal Shop/Unit 217, Civil Lines, Visakhapatnam, An\n\nplace of business dhra Pradesh - 405337\n\nDate of liability 2023-09-20\n\nType of registration Regular\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 555,
+     "rotationDegrees": 0.0
+    },
+    "udyam": {
+     "text": "Specimen: Udyam Registration Certificate\nFormat for hackathon OCR testing only\n\nUdyam reg. number UDYAM-AP-00-9751562\n\nEnterprise name Kaveri Insurance Advisors\n\nMajor activity Services\n\nCity Visakhapatnam\n\nState Andhra Pradesh\n\nDate of registration 2023-07-04\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 456,
+     "rotationDegrees": 0.0
+    },
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\nName\nAnita Kulkarni\nDesignation\nOffice admin\nFor business\nKaveri Insurance Advisors\nID no.\nSYN-ID-126040\nValid till\n2027-12-22\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 867,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 9375012581\n\nBilled to Kaveri Insurance Advisors\n\nSupply address Shop/Unit 217, Civil Lines, Visakhapatnam, An\n\ndhra Pradesh - 405337\n\nBill date 2026-07-10\n\nUnits consumed 2026\n\nAmount due (INR) 28,569\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 95,
+     "blurScore": 457,
+     "rotationDegrees": 0.0
+    }
+   }
+  },
+  "K10": {
+   "leadId": "L04525",
+   "contactName": "Fatima Menon",
+   "businessName": "Kaveri Stays LLP",
+   "gstinOnFile": "27QHJXK0658U1ZL",
+   "udyamNumberOnFile": "UDYAM-MH-00-7183141",
+   "documents": {
+    "gst": {
+     "text": "Specimen: GST Registration Certificate\nFormat for hackathon OCR testing only\n\nGSTIN 27QHIXK0658U1ZL\n\nLegal name Kaveri Stays LLP\n\nTrade name Kaveri Stays LLP\n\nConstitution Limited Liability Partnership\nAddress of principal Shop/Unit 21, Sector 14, Mumbai, Maharashtra\n\nplace of business -570043\n\nDate of liability 2022-07-13\n\nType of registration Regular\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 522,
+     "rotationDegrees": 0.0
+    },
+    "udyam": {
+     "text": "Specimen: Udyam Registration Certificate\nFormat for hackathon OCR testing only\n\nUdyam reg. number UDYAM-MH-00-7183141\n\nEnterprise name Kaveri Stays LLP\n\nMajor activity Services\n\nCity Mumbai\n\nState Maharashtra\n\nDate of registration 2024-01-09\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 438,
+     "rotationDegrees": 0.0
+    },
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\n\nName\n\nNisha Arora\n\nDesignation\n\nOwner\n\nFor business\n\nKaveri Stays LLP\n\nID no.\n\nSYN-ID-247542\n\nValid till\n\n2029-06-01\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 811,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 6910330901\n\nBilled to Kaveri Stays LLP\n\nSupply address Shop/Unit 21, Sector 14, Mumbai, Maharashtra\n\n-570043\n\nBill date 2026-06-18\n\nUnits consumed 675\n\nAmount due (INR) 23,713\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 95,
+     "blurScore": 438,
+     "rotationDegrees": 0.0
+    }
+   }
+  },
+  "K11": {
+   "leadId": "L03485",
+   "contactName": "Vikram Pillai",
+   "businessName": "Trinity Bake House Pvt Ltd",
+   "gstinOnFile": "03KGZXT1320R1ZZ",
+   "udyamNumberOnFile": "UDYAM-PB-00-9719478",
+   "documents": {
+    "gst": {
+     "text": "Specimen: GST Registration Certificate\nFormat for hackathon OCR testing only\n\nGSTIN 03KGZXT1320R1ZZ\n\nLegal name Trinity Bake House Pvt Ltd\n\nTrade name Trinity Bake House Pvt Ltd\nConstitution Private Limited Company\nAddress of principal Shop/Unit 188, Industrial Area Phase 2, Ludhi\n\nplace of business ana, Punjab - 541498\n\nDate of liability 2019-08-19\n\nType of registration Regular\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 545,
+     "rotationDegrees": 0.0
+    },
+    "udyam": {
+     "text": "Specimen: Udyam Registration Certificate\nFormat for hackathon OCR testing only\n\nUdyam reg. number UDYAM-PB-00-9719478\n\nEnterprise name Trinity Bake House Pvt Ltd\n\nMajor activity Services\n\nCity Ludhiana\n\nState Punjab\n\nDate of registration 2025-09-15\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 442,
+     "rotationDegrees": 0.0
+    },
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\nName\nVikram Pillai\nDesignation\nOwner\nFor business\nTrinity Bake House Pvt Ltd\nID no.\nSYN-ID-440312\nValid till\n2028-12-23\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 844,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 2710511786\n\nBilled to Trinity Bake House Pvt Ltd\n\nSupply address Shop/Unit 188, Industrial Area Phase 2, Ludhi\n\nana, Punjab - 541498\n\nBill date 2025-10-31\n\nUnits consumed 981\n\nAmount due (INR) 2,768\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 95,
+     "blurScore": 453,
+     "rotationDegrees": 0.0
+    }
+   }
+  },
+  "K12": {
+   "leadId": "L03558",
+   "contactName": "Pooja Agarwal",
+   "businessName": "Star Electronics",
+   "gstinOnFile": "37NBLXS1145E1ZU",
+   "udyamNumberOnFile": "UDYAM-AP-00-5186772",
+   "documents": {
+    "gst": {
+     "text": "Specimen: GST Registration Certificate\nFormat for hackathon OCR testing only\n\nGSTIN 37NBLXS1145E17U\n\nLegal name Pooja Agarwal (Prop. Star Electronics)\nTrade name Star Electronics\n\nConstitution Proprietorship\n\nAddress of principal Shop/Unit 216, Nehru Nagar, Visakhapatnam, An\n\nplace of business dhra Pradesh - 762071\n\nDate of liability 2017-01-08\n\nType of registration Regular\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 541,
+     "rotationDegrees": 0.0
+    },
+    "udyam": {
+     "text": "Specimen: Udyam Registration Certificate\nFormat for hackathon OCR testing only\n\nUdyam reg. number UDYAM-AP-00-5186772\n\nEnterprise name Star Electronics\n\nMajor activity Services\n\nCity Visakhapatnam\n\nState Andhra Pradesh\n\nDate of registration 2024-02-03\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 448,
+     "rotationDegrees": 0.0
+    },
+    "signatory": {
+     "text": "Specimen: Authorised Signatory ID\n\nName\n\nPooja Agarwal\n\nDesignation\n\nOwner\n\nFor business\n\nStar Electronics\n\nID no.\n\nSYN-ID-365512\n\nValid till\n\n2029-03-03\nSYNTHETIC SPECIMEN - NOT A VALID DOCUMENT\n",
+     "confidence": 94,
+     "blurScore": 821,
+     "rotationDegrees": 0.0
+    },
+    "addressProof": {
+     "text": "Specimen: Electricity Bill\n\nFictional utility - address proof for OCR testing\n\nConsumer no. 6982457282\n\nBilled to Star Electronics\n\nSupply address Shop/Unit 216, Nehru Nagar, Visakhapatnam, An\n\ndhra Pradesh - 762071\n\nBill date 2026-07-06\n\nUnits consumed 492\n\nAmount due (INR) 25,639\nAccel YTL Hackathon - Track A test data. Fictional business, person and identifiers.\n",
+     "confidence": 94,
+     "blurScore": 451,
+     "rotationDegrees": 0.0
+    }
+   }
+  }
+ }
+}
