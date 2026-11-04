@@ -15,9 +15,22 @@ export type AppConfig = {
   allowedOrigins: string[];
   secureCookies: boolean;
   registryTimeoutMs: number;
+  llm: LlmConfig;
+};
+
+export type LlmConfig = {
+  /** `off` runs the advisor on tappable choices alone, which is also how outages are drilled. */
+  provider: 'gemini' | 'off';
+  /** Tried in order. The first is the main model, and the rest cover it when it is busy. */
+  models: string[];
+  apiKey: string | null;
+  timeoutMs: number;
 };
 
 const DEFAULT_REGISTRY_TIMEOUT_MS = 3000;
+// Chosen by running our scenarios on each. See docs/spikes/llm-choice.md.
+const DEFAULT_LLM_MODELS = 'gemini-3.5-flash-lite,gemini-2.5-flash';
+const DEFAULT_LLM_TIMEOUT_MS = 8000;
 const MASTER_KEY_BYTES = 32;
 const MIN_SECRET_LENGTH = 32;
 
@@ -34,6 +47,10 @@ const envSchema = z.object({
   COOKIE_SECURE: z.string().optional(),
   NODE_ENV: z.string().optional(),
   REGISTRY_TIMEOUT_MS: z.coerce.number().int().positive().optional(),
+  LLM_PROVIDER: z.string().optional(),
+  LLM_MODEL: z.string().optional(),
+  LLM_API_KEY: z.string().optional(),
+  LLM_TIMEOUT_MS: z.coerce.number().int().positive().optional(),
 });
 
 /** Fails with the names of what's missing, and never prints a value. */
@@ -66,5 +83,14 @@ export function loadConfig(env: Readonly<Record<string, string | undefined>>): A
       .filter((origin) => origin !== ''),
     secureCookies: values.COOKIE_SECURE ? values.COOKIE_SECURE !== 'false' : values.NODE_ENV === 'production',
     registryTimeoutMs: values.REGISTRY_TIMEOUT_MS ?? DEFAULT_REGISTRY_TIMEOUT_MS,
+    llm: {
+      provider: values.LLM_PROVIDER === 'off' || !values.LLM_API_KEY ? 'off' : 'gemini',
+      models: (values.LLM_MODEL || DEFAULT_LLM_MODELS)
+        .split(',')
+        .map((model) => model.trim())
+        .filter((model) => model !== ''),
+      apiKey: values.LLM_API_KEY || null,
+      timeoutMs: values.LLM_TIMEOUT_MS ?? DEFAULT_LLM_TIMEOUT_MS,
+    },
   };
 }

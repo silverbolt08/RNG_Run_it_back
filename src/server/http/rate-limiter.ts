@@ -53,4 +53,6 @@ export const RATE_LIMITS = {
   // A guided-path owner toggling add-ons makes many of these, but not this many.
   quoteChange: { limit: 120, windowSeconds: 60 },
   recommendation: { limit: 60, windowSeconds: 60 },
+  // Each message can cost two LLM calls, and the free tier allows few a minute.
+  advisorMessage: { limit: 20, windowSeconds: 60 },
 } as const satisfies Record<string, RateLimitRule>;

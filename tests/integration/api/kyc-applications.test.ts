@@ -1,7 +1,7 @@
 import { readdirSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiClient, expectApiError, grant, newVisitor, verifyPhone } from '../../helpers/api-client';
-import { createTestApp, documentImage, type TestApp } from '../../helpers/test-app';
+import { blurredImage, createTestApp, documentImage, type TestApp } from '../../helpers/test-app';
 import {
   acceptedQuote,
   ACTIVE_PROFILE,
@@ -102,11 +102,22 @@ describe('KYC applications', () => {
       expect(response.body.nextActions).toContain('PROVIDE_CONTACT_NAME');
     });
 
-    it('prefills the contact name when a GSTIN matches a seeded lead', async () => {
+    it('reveals nothing about a lead when someone only types its GSTIN', async () => {
       await seedRegistryFor(app, 'K03');
       const quoteId = await acceptedQuote(owner);
       const response = await owner.post(APPLICATIONS, { quoteId, gstin: applicant('K03').gstinOnFile });
-      expect(response.body.contact).toEqual({ name: applicant('K03').contactName, source: 'LEAD_PREFILL' });
+      expect(response.body.contact).toEqual({ name: null, source: null });
+      expect(JSON.stringify(response.body)).not.toContain(applicant('K03').contactName);
+    });
+
+    it('uses the name on file only after a matching certificate, and never shows it', async () => {
+      await seedRegistryFor(app, 'K03');
+      const quoteId = await acceptedQuote(owner);
+      const created = await owner.post(APPLICATIONS, { quoteId });
+      const uploaded = await uploadSpecimen(app, owner, created.body.id, 'K03', 'GST_CERTIFICATE');
+      expect(uploaded.body.application.contact).toEqual({ name: null, source: 'LEAD_PREFILL' });
+      expect(uploaded.body.application.nextActions).not.toContain('PROVIDE_CONTACT_NAME');
+      expect(JSON.stringify(uploaded.body)).not.toContain(applicant('K03').contactName);
     });
 
     it('does not prefill from a GSTIN that matches nothing', async () => {
@@ -307,19 +318,47 @@ describe('KYC applications', () => {
       expectApiError(response, 409, 'IDEMPOTENCY_KEY_REUSED');
     });
 
-    it('lets a failed upload retry with the same key, keeping progress', async () => {
+    it('keeps a document uploaded during an OCR outage and reads it once OCR is back', async () => {
       await seedRegistryFor(app, 'K03');
       const { id } = await start('K03');
-      const image = await documentImage();
+      const person = applicant('K03');
 
       app.stubOcr.failing = true;
-      expectApiError(await postDocument(owner, id, 'SIGNATORY_ID', image, 'retry-key-0001'), 503, 'OCR_UNAVAILABLE');
-      expect(storedFiles()).toEqual([]);
+      const during = await postDocument(owner, id, 'SIGNATORY_ID', await documentImage(), 'outage-key-0001');
+      expect(during.status).toBe(201);
+      expect(during.body.document.quality).toBe('PENDING_READ');
+      expect(during.body.application.nextActions).not.toContain('RETAKE_DOCUMENT');
+      expect(storedFiles()).toHaveLength(1);
+
+      // Everything else goes in too, so the owner is done and only OCR is holding things up.
+      await postDocument(owner, id, 'GST_CERTIFICATE', await documentImage(), 'outage-key-0002');
+      const last = await postDocument(owner, id, 'ADDRESS_PROOF', await documentImage(), 'outage-key-0003');
+      expect(last.body.application.verdict).toBe('VERIFICATION_PENDING');
+      expect(last.body.application.nextActions).toContain('RETRY_VERIFICATION');
+
+      const stillDown = await owner.post(`${APPLICATIONS}/${id}/reassessment`, {});
+      expect(stillDown.status).toBe(200);
+      expect(stillDown.body.verdict).toBe('VERIFICATION_PENDING');
 
       app.stubOcr.failing = false;
-      app.stubOcr.willRead(applicant('K03').documents.signatory?.text ?? '');
-      const retried = await postDocument(owner, id, 'SIGNATORY_ID', image, 'retry-key-0001');
-      expect(retried.status).toBe(201);
+      // Read in upload order, which is the order the stored documents are retried in.
+      app.stubOcr.willRead(
+        person.documents.signatory?.text ?? '',
+        person.documents.gst?.text ?? '',
+        person.documents.addressProof?.text ?? '',
+      );
+      const after = await owner.post(`${APPLICATIONS}/${id}/reassessment`, {});
+      expect(after.status).toBe(200);
+      expect(after.body.documents.map((doc: { quality: string }) => doc.quality)).toEqual(['OK', 'OK', 'OK']);
+      expect(after.body.verdict).toBe('VERIFIED');
+    });
+
+    it('runs a blurred photo past the quality gate even during an OCR outage', async () => {
+      const { id } = await start('K03');
+      app.stubOcr.failing = true;
+      const response = await postDocument(owner, id, 'SIGNATORY_ID', await blurredImage(), 'outage-blur-0001');
+      expect(response.body.document.quality).toBe('BLURRED');
+      expect(storedFiles()).toEqual([]);
     });
 
     it('replaces an earlier document of the same type, deleting its file', async () => {
@@ -376,7 +415,7 @@ describe('KYC applications', () => {
       const created = await owner.post(APPLICATIONS, { quoteId });
       const uploaded = await uploadAll(app, owner, created.body.id, 'K03');
       // The GSTIN on the certificate matched a lead, so the name was prefilled for the owner to check.
-      expect(uploaded.body.application.contact.source).toBe('LEAD_PREFILL');
+      expect(uploaded.body.application.contact).toEqual({ name: null, source: 'LEAD_PREFILL' });
       expect(uploaded.body.application.verdict).toBe('VERIFIED');
     });
 

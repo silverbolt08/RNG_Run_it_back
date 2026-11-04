@@ -107,8 +107,8 @@ describe.skipIf(!hasPack)('the whole journey on the real specimens', () => {
 
     const created = await owner.post('/api/v1/kyc-applications', { quoteId, gstin: person.gstinOnFile });
     expect(created.status).toBe(201);
-    // The GSTIN matched a seeded lead, so the owner only has to check the name.
-    expect(created.body.contact).toEqual({ name: person.contactName, source: 'LEAD_PREFILL' });
+    // Typing a number reveals nothing. The name on file is used only once a certificate matches.
+    expect(created.body.contact).toEqual({ name: null, source: null });
     const id = created.body.id as string;
 
     expectApiError(await owner.post('/api/v1/orders', { quoteId, kycApplicationId: id }, { headers: { 'idempotency-key': 'k03-too-early' } }), 409, 'KYC_NOT_READY');

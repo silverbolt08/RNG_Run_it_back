@@ -21,6 +21,11 @@ const ALLOWED_FIELDS = [
   'orderId',
   'quoteId',
   'applicationId',
+  'conversationId',
+  // Codes set by the advisor's own code, never words from the owner or the LLM.
+  'reason',
+  'source',
+  'nextKind',
 ] as const;
 
 type AllowedField = (typeof ALLOWED_FIELDS)[number];

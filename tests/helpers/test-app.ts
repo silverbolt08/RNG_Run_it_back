@@ -9,6 +9,7 @@ import { createLogger, type LogEntry } from '@/lib/logger';
 import type { OcrProvider, OcrResult } from '@/server/adapters/ocr/ocr-provider';
 import { setAppContext, buildAppContext, type AppContext } from '@/server/app-context';
 import type { AppConfig } from '@/server/config';
+import type { LlmProvider } from '@/server/llm/provider';
 import { seedProducts } from '@/server/db/seed';
 import { gstRegistry, leads, udyamRegistry } from '@/server/db/schema';
 import { createTestDatabase, type TestDatabase } from './test-db';
@@ -65,10 +66,11 @@ export function testConfig(dir: string): AppConfig {
     allowedOrigins: [],
     secureCookies: true,
     registryTimeoutMs: 1000,
+    llm: { provider: 'off', models: [], apiKey: null, timeoutMs: 1000 },
   };
 }
 
-export async function createTestApp(options: { ocr?: OcrProvider } = {}): Promise<TestApp> {
+export async function createTestApp(options: { ocr?: OcrProvider; llm?: LlmProvider | null } = {}): Promise<TestApp> {
   const testDb = await createTestDatabase();
   const fixedClock = createFixedClock({ today: TEST_TODAY, now: TEST_NOW });
   const logs: LogEntry[] = [];
@@ -81,6 +83,7 @@ export async function createTestApp(options: { ocr?: OcrProvider } = {}): Promis
     db: testDb.db,
     logger: createLogger((entry) => logs.push(entry)),
     ocr: options.ocr ?? stubOcr,
+    llm: options.llm ?? null,
   });
   setAppContext(app);
 

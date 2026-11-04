@@ -118,7 +118,8 @@ export async function toApplicationView(app: AppContext, row: ApplicationRow): P
     quoteId: row.quoteId,
     status: row.status,
     verdict,
-    contact: { name: identity.contactName, source: row.contactNameSource },
+    // A name from our records stays private: it is compared with the ID, and never shown back.
+    contact: { name: row.contactNameSource === 'OWNER' ? identity.contactName : null, source: row.contactNameSource },
     requiredDocuments: required,
     missingDocuments: missing,
     documents: documents.map(toDocumentView),
@@ -152,7 +153,7 @@ function nextActionsFor(
   if (missing.length > 0) actions.push('UPLOAD_DOCUMENTS');
 
   const needsRetake =
-    documents.some((doc) => doc.quality !== 'OK') ||
+    documents.some((doc) => doc.quality !== 'OK' && doc.quality !== 'PENDING_READ') ||
     checks.some((check) => check.outcome === 'FAIL' && check.onFail === 'RETAKE' && check.evidence.problem !== 'MISSING');
   if (needsRetake) actions.push('RETAKE_DOCUMENT');
 

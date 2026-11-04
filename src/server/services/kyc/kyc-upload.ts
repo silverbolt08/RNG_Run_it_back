@@ -10,6 +10,7 @@ import {
 } from '../../../domain/kyc/documents';
 import { newPublicId } from '../../../lib/ids';
 import { blurScore } from '../../adapters/images/blur-score';
+import { OcrUnavailableError, type OcrResult } from '../../adapters/ocr/ocr-provider';
 import { MAX_UPLOAD_BYTES, UploadRejectedError, validateUpload } from '../../adapters/images/upload-validation';
 import type { AppContext } from '../../app-context';
 import { recordAudit } from '../../db/repositories/audit-repository';
@@ -42,7 +43,7 @@ const PARSERS: Readonly<Record<DocumentType, (text: string) => unknown>> = {
 };
 
 type ReadDocument = {
-  quality: 'OK' | 'BLURRED' | 'UNREADABLE' | 'WRONG_TYPE';
+  quality: 'OK' | 'BLURRED' | 'UNREADABLE' | 'WRONG_TYPE' | 'PENDING_READ';
   detectedType: DocumentType | null;
   fields: unknown;
   /** Only a readable document of the right type is worth keeping. */
@@ -112,8 +113,28 @@ async function readDocument(app: AppContext, documentType: DocumentType, bytes: 
 
   if (assessImageQuality(score) === 'BLURRED') return { ...none, quality: 'BLURRED', blurScore: score };
 
-  // OCR text stops here: only the parsed fields go on, and only in sealed form.
-  const ocr = await app.ocr.read(image);
+  const read = await readWithOcr(app, documentType, image, score);
+  // The owner's upload survives an OCR outage. It stays encrypted until OCR can read it.
+  return read ?? { ...none, quality: 'PENDING_READ', image, blurScore: score };
+}
+
+/** Returns null during an OCR outage. OCR text stops here: only parsed fields go on, sealed. */
+async function readWithOcr(
+  app: AppContext,
+  documentType: DocumentType,
+  image: Buffer,
+  score: number,
+): Promise<ReadDocument | null> {
+  let ocr: OcrResult;
+  try {
+    ocr = await app.ocr.read(image);
+  } catch (error) {
+    if (!(error instanceof OcrUnavailableError)) throw error;
+    app.logger.error('ocr.unavailable', { error });
+    return null;
+  }
+
+  const none = { detectedType: null, fields: null, image: null };
   const read = { ocrConfidence: ocr.confidence, rotationDegrees: ocr.rotationDegrees, blurScore: score };
   const detected = detectDocumentType(ocr.text);
 
@@ -122,6 +143,32 @@ async function readDocument(app: AppContext, documentType: DocumentType, bytes: 
   }
   if (ocr.text.trim() === '') return { ...none, ...read, quality: 'UNREADABLE' };
   return { ...none, ...read, quality: 'WRONG_TYPE', detectedType: detected };
+}
+
+/** Reads what was kept during an outage. Stops at the first failure, since OCR must still be down. */
+export async function readPendingDocuments(app: AppContext, applicationId: string): Promise<void> {
+  const documents = await listActiveDocuments(app, applicationId);
+  for (const document of documents) {
+    if (document.quality !== 'PENDING_READ' || !document.storageKey) continue;
+
+    const image = await app.storage.get(document.storageKey);
+    const read = await readWithOcr(app, document.documentType as DocumentType, image, document.blurScore ?? 0);
+    if (!read) return;
+
+    await app.db
+      .update(kycDocuments)
+      .set({
+        quality: read.quality,
+        detectedType: read.detectedType,
+        sealedFields: read.fields === null ? null : app.sealer.sealJson(read.fields, fieldsContext(document.id)),
+        ocrConfidence: read.ocrConfidence,
+        rotationDegrees: read.rotationDegrees,
+        storageKey: read.image ? document.storageKey : null,
+        updatedAt: app.clock.now().toISOString(),
+      })
+      .where(eq(kycDocuments.id, document.id));
+    if (!read.image) await app.storage.delete(document.storageKey);
+  }
 }
 
 async function storeDocument(
@@ -227,6 +274,7 @@ export async function uploadDocument(
     documentType === 'GST_CERTIFICATE' && application.gstinConfirmed === 1
       ? await updateApplication(app, application.id, { gstinConfirmed: 0 })
       : application;
+  await readPendingDocuments(app, application.id);
   const assessed = await assessApplication(app, fresh, input.requestId);
 
   return {

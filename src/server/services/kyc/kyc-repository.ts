@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, isNull } from 'drizzle-orm';
+import { and, asc, desc, eq, isNull, sql } from 'drizzle-orm';
 import type { Clock } from '../../../lib/clock';
 import type { Sealer } from '../../crypto/sealer';
 import type { Database } from '../../db/client';
@@ -77,7 +77,8 @@ export async function listActiveDocuments(deps: Deps, applicationId: string): Pr
     .select()
     .from(kycDocuments)
     .where(and(eq(kycDocuments.applicationId, applicationId), isNull(kycDocuments.supersededAt)))
-    .orderBy(asc(kycDocuments.createdAt));
+    // By insertion order, since two uploads can share a timestamp.
+    .orderBy(asc(sql`rowid`));
 }
 
 export async function listChecks(deps: Deps, applicationId: string): Promise<CheckRow[]> {

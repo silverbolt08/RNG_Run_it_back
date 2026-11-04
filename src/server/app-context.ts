@@ -14,6 +14,8 @@ import { createSealer, type Sealer } from './crypto/sealer';
 import { createDatabase, runMigrations, type Database } from './db/client';
 import { loadCatalogue } from './db/repositories/catalogue-repository';
 import { createRateLimiter, type RateLimiter } from './http/rate-limiter';
+import { createLlmProvider } from './llm/create-provider';
+import type { LlmProvider } from './llm/provider';
 
 export type AppContext = {
   config: AppConfig;
@@ -27,11 +29,13 @@ export type AppContext = {
   registryBackend: RegistryBackend;
   notifications: NotificationLog;
   rateLimiter: RateLimiter;
+  /** Null when no LLM is configured. The advisor then runs on tappable choices alone. */
+  llm: LlmProvider | null;
   /** Loaded once, because the catalogue only changes when the data pack is seeded again. */
   catalogue(): Promise<Catalogue>;
 };
 
-type AppParts = Pick<AppContext, 'config' | 'clock' | 'db' | 'logger'> & Partial<Pick<AppContext, 'ocr'>>;
+type AppParts = Pick<AppContext, 'config' | 'clock' | 'db' | 'logger'> & Partial<Pick<AppContext, 'ocr' | 'llm'>>;
 
 export function buildAppContext(parts: AppParts): AppContext {
   const { config, clock, db, logger } = parts;
@@ -51,6 +55,7 @@ export function buildAppContext(parts: AppParts): AppContext {
     registryBackend,
     notifications: createDbNotificationLog(db, clock),
     rateLimiter: createRateLimiter(clock),
+    llm: parts.llm === undefined ? createLlmProvider(config.llm, clock) : parts.llm,
     catalogue: () => {
       catalogue ??= loadCatalogue(db).catch((error: unknown) => {
         catalogue = null;

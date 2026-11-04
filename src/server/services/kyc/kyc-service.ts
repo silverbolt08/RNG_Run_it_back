@@ -18,6 +18,7 @@ import {
   type ApplicationRow,
   type KycIdentity,
 } from './kyc-repository';
+import { readPendingDocuments } from './kyc-upload';
 import { toApplicationView, type KycApplicationView } from './kyc-view';
 
 export type CreateInput = { quoteId: string; contactName?: string; businessName?: string; gstin?: string };
@@ -134,6 +135,7 @@ export async function reassessApplication(
   requestId: string,
 ): Promise<KycApplicationView> {
   const row = await loadOpen(app, session.ownerId, id);
+  await readPendingDocuments(app, id);
   return toApplicationView(app, await assessApplication(app, row, requestId));
 }
 

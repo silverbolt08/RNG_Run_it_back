@@ -36,7 +36,8 @@ export const CONTACT_NAME_SOURCES = ['OWNER', 'LEAD_PREFILL'] as const;
 
 export const DOCUMENT_TYPES = ['GST_CERTIFICATE', 'UDYAM_CERTIFICATE', 'SIGNATORY_ID', 'ADDRESS_PROOF'] as const;
 
-export const DOCUMENT_QUALITIES = ['OK', 'BLURRED', 'UNREADABLE', 'WRONG_TYPE'] as const;
+// PENDING_READ is a document kept during an OCR outage, to be read once OCR is back.
+export const DOCUMENT_QUALITIES = ['OK', 'BLURRED', 'UNREADABLE', 'WRONG_TYPE', 'PENDING_READ'] as const;
 
 export const KYC_CHECK_IDS = [
   'GST_DOCUMENT',

@@ -40,7 +40,7 @@ export const businessProfileSchema = z.strictObject({
   fibreAvailable: z.boolean().nullable(),
 });
 
-const NEEDS = [
+export const NEEDS = [
   'UPTIME',
   'CUSTOMER_OUTREACH',
   'BULK_SMS',
@@ -72,6 +72,7 @@ export const discoveryProfileSchema = z.strictObject({
   fibreAvailable: z.boolean().nullable(),
   connectivity: z.enum(['NONE', 'STANDARD', 'HIGH_SPEED', 'DEDICATED', 'DEDICATED_HIGH']),
   needs: z.array(z.enum(NEEDS)).max(NEEDS.length),
+  requestedProducts: z.array(z.string().regex(/^P\d{2}$/)).max(25).optional(),
   counts: z
     .strictObject({
       lines: count.optional(),
@@ -133,3 +134,22 @@ export const orderDelaySchema = z.strictObject({
   reason: z.enum(DELAY_REASONS),
   newDate: z.iso.date(),
 });
+
+const SLOT_ANSWER = z.discriminatedUnion('slot', [
+  z.strictObject({ slot: z.literal('BUSINESS'), value: z.enum(['SHOP', 'OFFICE', 'CHAIN', 'FACTORY']) }),
+  z.strictObject({ slot: z.literal('CITY_TIER'), value: z.union([z.number().int().min(1).max(3), z.literal('DECLINED')]) }),
+  z.strictObject({ slot: z.literal('EMPLOYEES'), value: z.union([count, z.literal('DECLINED')]) }),
+  z.strictObject({ slot: z.literal('SITES'), value: z.union([count, z.literal('DECLINED')]) }),
+  z.strictObject({ slot: z.literal('GSTIN'), value: z.enum(GSTIN_STATUSES) }),
+  z.strictObject({ slot: z.literal('FIBRE'), value: z.union([z.boolean(), z.literal('DECLINED')]) }),
+  z.strictObject({ slot: z.literal('NEEDS'), value: z.array(z.enum(NEEDS)).max(NEEDS.length) }),
+]);
+
+const uiLocale = z.enum(['en', 'hi']);
+
+export const conversationStartSchema = z.strictObject({ language: uiLocale, restart: z.boolean().optional() });
+
+// Text, a tapped answer, or both: a tapped answer's label is kept as the owner's words in the chat.
+export const conversationMessageSchema = z
+  .strictObject({ text: z.string().trim().min(1).max(500).optional(), answer: SLOT_ANSWER.optional(), language: uiLocale })
+  .refine((body) => body.text !== undefined || body.answer !== undefined, 'text or answer is required');

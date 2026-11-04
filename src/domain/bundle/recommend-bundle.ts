@@ -34,10 +34,12 @@ export type DiscoveryProfile = BusinessProfile & {
   segment: SegmentCode | null;
   connectivity: Connectivity;
   needs: readonly Need[];
+  /** Products named outright. Checked even when no need leads to them, so a refusal is always explained. */
+  requestedProducts?: readonly string[];
   counts: UnitCounts;
 };
 
-export type LineReason = { kind: 'CONNECTIVITY' } | { kind: 'NEED'; need: Need };
+export type LineReason = { kind: 'CONNECTIVITY' } | { kind: 'NEED'; need: Need } | { kind: 'REQUESTED' };
 
 export type RecommendedLine = BundleLine & { reason: LineReason };
 
@@ -113,6 +115,17 @@ export function recommendBundle(catalogue: Catalogue, profile: DiscoveryProfile)
     }
   }
 
+  for (const productId of profile.requestedProducts ?? []) {
+    if (!catalogue.byId.has(productId)) continue;
+    if (lines.some((line) => line.productId === productId)) continue;
+    if (blocked.some((item) => item.productId === productId)) continue;
+
+    const ids = [...lines.map((line) => line.productId), productId];
+    const eligibility = checkProduct(catalogue, productId, profile, ids);
+    if (eligibility.eligible) lines.push(toLine(catalogue, profile, productId, { kind: 'REQUESTED' }));
+    else blocked.push({ ...eligibility, need: null });
+  }
+
   return { lines, blocked, quote: priceBundle(catalogue, lines) };
 }
 
@@ -138,7 +151,7 @@ function chooseConnection(
   return { productId: chosen?.productId ?? null, blocked: report };
 }
 
-function productsForNeed(need: Need, segment: SegmentCode | null): readonly string[] {
+export function productsForNeed(need: Need, segment: SegmentCode | null): readonly string[] {
   if (need === 'PHONE_LINES') return segment === 'micro' || segment === null ? ['P07'] : ['P08'];
   if (need === 'SECURITY') {
     if (segment === 'micro' || segment === null) return ['P22'];

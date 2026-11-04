@@ -1,9 +1,7 @@
 /**
- * The interface only, and neutral about which provider sits behind it. The ai-engineer builds the
- * adapters in Phase 4, each reading its settings from LLM_PROVIDER, LLM_MODEL and LLM_API_KEY.
- *
- * Code decides eligibility, prices and verdicts, so nothing here returns a decision: only text
- * and requests to call a tool that runs those rules.
+ * The interface only, and neutral about which provider sits behind it. Code decides eligibility,
+ * prices and verdicts, so nothing here returns a decision: only text, and structured facts read
+ * from what the owner said.
  */
 export type LlmToolCall = {
   /** Links a result to its call. An adapter whose provider has no call IDs must generate one. */
@@ -12,10 +10,7 @@ export type LlmToolCall = {
   input: unknown;
 };
 
-export type LlmMessage =
-  | { role: 'user'; content: string }
-  | { role: 'assistant'; content: string; toolCalls?: readonly LlmToolCall[] }
-  | { role: 'tool'; toolCallId: string; name: string; content: string };
+export type LlmMessage = { role: 'user' | 'assistant'; content: string };
 
 export type LlmTool = {
   name: string;
@@ -28,12 +23,23 @@ export type LlmRequest = {
   system: string;
   messages: readonly LlmMessage[];
   tools: readonly LlmTool[];
+  /** Makes the model answer through this tool, rather than in prose. */
+  forceTool?: string;
   maxTokens: number;
 };
 
 export type LlmResponse = { text: string; toolCalls: readonly LlmToolCall[] };
 
+/** Rejected when the provider is down, busy or too slow, so the caller can move to the guided path. */
+export class LlmUnavailableError extends Error {
+  constructor(public readonly reason: string) {
+    super(`LLM unavailable: ${reason}`);
+    this.name = 'LlmUnavailableError';
+  }
+}
+
 export interface LlmProvider {
-  /** Rejects if the provider is down or times out, so the caller can move to the guided path. */
+  /** Which model answered, for evaluation records. Holds no secret. */
+  readonly label: string;
   complete(request: LlmRequest): Promise<LlmResponse>;
 }

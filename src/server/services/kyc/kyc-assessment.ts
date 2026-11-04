@@ -51,6 +51,9 @@ function toSlot<T>(app: AppContext, document: DocumentRow | undefined): Document
       return { quality: 'BLURRED' };
     case 'WRONG_TYPE':
       return { quality: 'WRONG_TYPE', detected: document.detectedType as DocumentType | null };
+    // Kept during an OCR outage. Nothing has been read from it yet, so nothing can be checked.
+    case 'PENDING_READ':
+      return { quality: 'MISSING' };
     default:
       return { quality: 'UNREADABLE' };
   }
@@ -113,7 +116,9 @@ export async function assessApplication(
   if (prepared && prepared.value !== '') identity.gstin = prepared.value;
 
   const lead = prepared?.readyForLookup ? await findLeadByGstin(app, prepared.value) : null;
-  const prefilled = identity.contactName === null && lead !== null;
+  // Only from a matching certificate, because typing a number must not unlock a stranger's name.
+  // The view never shows a prefilled name: it is only compared against the signatory's ID.
+  const prefilled = identity.contactName === null && lead !== null && gst.quality === 'OK';
   if (prefilled) identity.contactName = lead.contactName;
 
   const udyam = toSlot<UdyamFields>(app, byType.get('UDYAM_CERTIFICATE'));
@@ -134,7 +139,14 @@ export async function assessApplication(
   const needed = documentsNeeded(initial, identity, documents);
   const incomplete = identity.contactName === null || needed.some((type) => !byType.has(type));
   // Until everything is in, a "retake" only means "not uploaded yet". A rejection is final enough to say now.
-  const verdict = incomplete && assessment.verdict !== 'REJECTED' ? null : assessment.verdict;
+  const heldForOcr = documents.some((doc) => doc.quality === 'PENDING_READ');
+  const verdict = heldForOcr
+    ? incomplete
+      ? null
+      : 'VERIFICATION_PENDING'
+    : incomplete && assessment.verdict !== 'REJECTED'
+      ? null
+      : assessment.verdict;
 
   const finding = gstinFinding(gstLookup, prepared, confirmed);
   const quoteChange = finding ? await applyGstinFinding(app, initial.ownerId, initial.quoteId, finding) : null;

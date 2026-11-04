@@ -29,6 +29,10 @@ export const conversations = sqliteTable(
     status: text('status').notNull(),
     language: text('language').notNull(),
     redactedMessages: text('redacted_messages'),
+    /** JSON of the domain's AdvisorFacts: business facts only, with no names or identifiers. */
+    facts: text('facts'),
+    /** Why the advisor handed over to a person, as a code, so the back office can word it. */
+    handoffReason: text('handoff_reason'),
     ...timestamps(),
   },
   (table) => [enumCheck('conversations_status_check', table.status, CONVERSATION_STATUSES)],

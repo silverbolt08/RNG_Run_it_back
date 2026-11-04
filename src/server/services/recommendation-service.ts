@@ -17,6 +17,7 @@ export type DiscoveryInput = {
   fibreAvailable: boolean | null;
   connectivity: DiscoveryProfile['connectivity'];
   needs: readonly Need[];
+  requestedProducts?: readonly string[];
   counts: DiscoveryProfile['counts'];
 };
 
@@ -35,6 +36,7 @@ export async function recommend(app: AppContext, input: DiscoveryInput) {
     segment: input.segment ?? (input.businessType ? inferSegment(input.businessType, input.numSites) : null),
     connectivity: input.connectivity,
     needs: input.needs,
+    requestedProducts: input.requestedProducts ?? [],
     counts: input.counts,
   };
 
@@ -50,6 +52,12 @@ export async function recommend(app: AppContext, input: DiscoveryInput) {
     },
     lines: recommendation.lines.map((line) => ({ ...line, ...namesOf(getProduct(catalogue, line.productId)) })),
     blocked: recommendation.blocked.map((item) => ({ ...item, name: getProduct(catalogue, item.productId).name })),
+    // So a screen can name alternatives to a blocked product without a product code in sight.
+    alternativeNames: Object.fromEntries(
+      recommendation.blocked
+        .flatMap((item) => item.alternatives)
+        .map((id) => [id, getProduct(catalogue, id).name]),
+    ),
     quote: { ...recommendation.quote, gstRatePercent: GST_RATE_PERCENT },
   };
 }
