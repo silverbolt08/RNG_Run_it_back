@@ -67,6 +67,8 @@ const TIER_BY_CITY: Readonly<Record<string, number>> = {
   visakhapatnam: 2,
 };
 
+export const KNOWN_CITIES: readonly string[] = Object.keys(TIER_BY_CITY);
+
 /** A starting guess the advisor confirms with the owner. Segment guides ranking, never eligibility. */
 export function inferSegment(businessType: string, numSites: number | null): SegmentCode | null {
   const segment = SEGMENT_BY_BUSINESS_TYPE[normalise(businessType)] ?? null;

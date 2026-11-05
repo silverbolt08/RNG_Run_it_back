@@ -21,7 +21,7 @@ import {
 import { readPendingDocuments } from './kyc-upload';
 import { toApplicationView, type KycApplicationView } from './kyc-view';
 
-export type CreateInput = { quoteId: string; contactName?: string; businessName?: string; gstin?: string };
+export type CreateInput = { quoteId: string; contactName?: string; businessName?: string; gstin?: string; declaredAdultSignatory?: true };
 
 export async function createApplication(
   app: AppContext,
@@ -74,6 +74,7 @@ export async function createApplication(
     objectType: 'kyc_application',
     objectId: id,
     requestId,
+    metadata: { declaredAdultSignatory: input.declaredAdultSignatory === true },
   });
 
   // With a number up front, a lookup can prefill the contact name right away.

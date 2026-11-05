@@ -359,6 +359,27 @@ describe('the advisor conversation', () => {
       expect(response.body.recommendation.blocked[0]).toMatchObject({ productId: 'P21', blockers: [{ rule: 'DEPENDENCY' }] });
     });
 
+    it('sells no broadband to someone who wants one thing and nothing else', async () => {
+      const id = await start();
+      llm.willRead({ addNeeds: ['FLEET'], noOtherNeeds: true });
+      const response = await say(id, 'I have vehicles to track, and want nothing else');
+      expect(response.body.facts.connectivity).toBe('NONE');
+    });
+
+    it('keeps the connection when "nothing else" answers the question about extras', async () => {
+      const id = await start();
+      for (const [slot, value] of [['BUSINESS', 'SHOP']] as const) await tap(id, slot, value);
+      await say(id, 'Pune');
+      await say(id, '4');
+      await tap(id, 'SITES', 1);
+      await tap(id, 'GSTIN', 'NONE');
+      await tap(id, 'FIBRE', true);
+      llm.willRead({ addNeeds: ['CCTV'], noOtherNeeds: true });
+      const response = await say(id, 'cameras for the shop, that is all really');
+      expect(response.body.facts.connectivity).toBeNull();
+      expect(response.body.recommendation.lines.map((line: { productId: string }) => line.productId)).toEqual(['P01', 'P23']);
+    });
+
     it('suggests a person for manufacturers, without forcing one', async () => {
       const id = await start();
       llm.willRead({ businessType: 'textile unit', city: 'Pune', employeeCount: 30, numSites: 1, gstinStatus: 'ACTIVE', fibreAvailable: true, noOtherNeeds: true });

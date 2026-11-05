@@ -174,7 +174,14 @@ Rules:
 - Record only what the owner stated. Never guess a number. Never assume GST status or fibre.
 - Owners write in English, Hindi, Hinglish and other Indian languages. Read them all, and record values in English using the allowed codes.
 - "[... removed]" marks an identifier taken out for privacy. A removed GSTIN means they have GST, so record ACTIVE only if they say or imply it is theirs and working.
-- A short answer such as a number or yes or no answers the question just asked.`;
+- A short answer such as a number or yes or no answers the question just asked.
+
+How to read needs:
+- Add a need only when the owner asks for that outcome. Never add one because it would be useful, or because it often goes with something else.
+- Mentioning UPI, or wanting good internet for payments, is not POS. "achha internet for UPI" adds no need at all. POS means they asked for billing, a billing counter or a card or UPI machine.
+- "Backup" alongside internet staying up is UPTIME only. BACKUP means backing up files or data.
+- Machines to monitor or track means MACHINE_MONITORING, and record the count too.
+- If they want only specific things and say they want nothing else, or say they don't want internet, set connectivity to NONE.`;
 
 export const SLOT_QUESTIONS: Readonly<Record<AdvisorSlot, string>> = {
   BUSINESS: 'What kind of business do you run?',
@@ -215,6 +222,11 @@ export async function readOwnerTurn(
   const call = response.toolCalls.find((item) => item.name === RECORD_TURN.name);
   const parsed = turnSchema.parse(call?.input ?? {});
 
+  // Someone naming only what they want, and nothing else, hasn't asked for broadband. The NEEDS
+  // question is about extras on top of the connection, so it doesn't count there.
+  const wantsNoConnection =
+    parsed.noOtherNeeds === true && parsed.addNeeds.length > 0 && parsed.connectivity === undefined && input.facts.connectivity === null && input.askedSlot !== 'NEEDS';
+
   const declined: DeclinableFact[] = parsed.declined;
   const counts = parsed.counts ? stripUndefined(parsed.counts) : undefined;
 
@@ -233,7 +245,7 @@ export async function readOwnerTurn(
       numSites: parsed.numSites,
       gstinStatus: parsed.gstinStatus,
       fibreAvailable: parsed.fibreAvailable,
-      connectivity: parsed.connectivity,
+      connectivity: wantsNoConnection ? 'NONE' : parsed.connectivity,
       addNeeds: parsed.addNeeds,
       removeNeeds: parsed.removeNeeds,
       addProducts: parsed.addProducts,

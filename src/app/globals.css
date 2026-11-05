@@ -20,11 +20,42 @@
   --color-danger-tint: #fdecec;
   --color-info: #1d4ed8;
 
-  --font-sans: 'Poppins', 'Noto Sans Devanagari', system-ui, sans-serif;
+  --font-sans: var(--font-poppins), 'Noto Sans Devanagari', system-ui, sans-serif;
+
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-pill: 999px;
+  --shadow-float: 0 1px 3px rgb(0 0 0 / 0.12);
 }
 
 body {
   background: var(--color-surface);
   color: var(--color-ink);
   font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+/* Indic scripts need more room for matras above and below the line. */
+:lang(hi) {
+  line-height: 1.65;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Keeps a sticky action bar clear of the phone's own gesture area. */
+.safe-bottom {
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
 }

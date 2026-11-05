@@ -114,6 +114,8 @@ export const kycApplicationCreateSchema = z.strictObject({
   // Needed only when there is no GSTIN to read the business name from.
   businessName: z.string().trim().min(2).max(160).optional(),
   gstin: gstinInput.optional(),
+  // The owner's tick on the consent screen, kept in the audit log. Only 	rue can be sent.
+  declaredAdultSignatory: z.literal(true).optional(),
 });
 
 export const kycContactSchema = z.strictObject({ contactName: personName });
