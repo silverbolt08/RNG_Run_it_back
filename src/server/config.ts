@@ -31,8 +31,9 @@ export type LlmConfig = {
 
 const DEFAULT_REGISTRY_TIMEOUT_MS = 3000;
 // Chosen by running our scenarios on each. See docs/spikes/llm-choice.md.
-const DEFAULT_LLM_MODELS = 'gemini-3.5-flash-lite,gemini-2.5-flash';
-const DEFAULT_LLM_TIMEOUT_MS = 8000;
+// The free tier goes busy per model, and a listed model can still return 404, so there are two backups.
+const DEFAULT_LLM_MODELS = 'gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-3.5-flash';
+const DEFAULT_LLM_TIMEOUT_MS = 10_000;
 const MASTER_KEY_BYTES = 32;
 const MIN_SECRET_LENGTH = 32;
 

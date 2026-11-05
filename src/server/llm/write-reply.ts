@@ -21,8 +21,9 @@ const SYSTEM = `You write chat replies for the Accel Business advisor, talking t
 Everything you may say is in the BRIEF. The code behind you has already decided what can be sold and at what price, and you only put it in friendly words.
 
 Rules you must never break:
-- Never write a digit, a price, an amount, a percentage or a product name yourself. Use the slots in the BRIEF, copied exactly, such as {{MONTHLY}} or {{L0}}. A slot is replaced by the real value on screen.
-- Use only slots that appear in the BRIEF. Never invent one.
+- Never write a digit, a price, an amount, a percentage or a product name yourself. Numbers and product names reach the owner only through slots, which are words in double curly braces in the BRIEF, copied exactly. A slot is replaced by the real value on screen.
+- Use only slots that appear in the BRIEF. Never invent one. A BRIEF with no slots means your reply has none.
+- Never recommend or mention a product unless the BRIEF does. If the BRIEF only asks a question, ask only that question.
 - Never promise a discount, a waiver, a free item or a date. Never compare with other providers.
 - Say nothing that is not in the BRIEF. Never ask for a name, a GST number or any other ID number.
 
@@ -46,8 +47,12 @@ export async function writeReply(
   llm: LlmProvider,
   input: { language: OwnerLanguage; brief: string; values: Readonly<Record<string, string>>; catalogueNames: readonly string[] },
 ): Promise<{ text: string; failure: null } | { text: null; failure: GuardFailure }> {
-  const prompt = `Write the reply in ${LANGUAGE_NAMES[input.language]}. Keep product names in slots.\n\nBRIEF:\n${input.brief}`;
-  const context = { values: input.values, catalogueNames: input.catalogueNames, brief: input.brief };
+  const allowed = slotsIn(input.brief);
+  const slotLine = allowed.length > 0 ? `Slots you may use: ${allowed.map((slot) => `{{${slot}}}`).join(', ')}.` : 'This reply uses no slots.';
+  const prompt = `Write the reply in ${LANGUAGE_NAMES[input.language]}. ${slotLine}\n\nBRIEF:\n${input.brief}`;
+  // Only what the brief raised, so a value held for another turn can't appear by accident.
+  const values = Object.fromEntries(Object.entries(input.values).filter(([slot]) => allowed.includes(slot)));
+  const context = { values, catalogueNames: input.catalogueNames, brief: input.brief };
 
   let failure: GuardFailure = 'EMPTY';
   for (const note of ['', '\n\nYour last attempt was refused. Remember: no digits, amounts or product names of your own, and only the slots in the BRIEF.']) {
@@ -62,6 +67,10 @@ export async function writeReply(
     failure = result.reason;
   }
   return { text: null, failure };
+}
+
+function slotsIn(brief: string): string[] {
+  return [...new Set([...brief.matchAll(/\{\{([A-Z0-9_]+)\}\}/g)].map((match) => match[1] ?? ''))];
 }
 
 export { fillSlots };

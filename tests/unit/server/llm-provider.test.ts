@@ -103,7 +103,7 @@ describe('the resilient provider', () => {
     expect(first.calls).toBe(1);
 
     isDown = false;
-    clock.nowMs = 31_000;
+    clock.nowMs = 16_000;
     await expect(resilient.complete(REQUEST)).resolves.toMatchObject({ text: 'from a' });
   });
 

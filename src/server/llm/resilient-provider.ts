@@ -2,7 +2,7 @@ import type { Clock } from '../../lib/clock';
 import { LlmUnavailableError, type LlmProvider } from './provider';
 
 // A free tier fails in bursts, so one failure rests that model before the next owner has to wait.
-const REST_AFTER_FAILURE_MS = 30_000;
+const REST_AFTER_FAILURE_MS = 15_000;
 
 /**
  * Tries each model in turn, skipping any that failed recently. If all are unavailable it rejects at

@@ -1,6 +1,6 @@
 # Which free LLM to use
 
-**Choice:** `gemini-3.5-flash-lite`, with `gemini-2.5-flash` as a backup when it is busy. Both are set in `src/server/config.ts`, and `LLM_MODEL` overrides them.
+**Choice:** `gemini-3.5-flash-lite`, with `gemini-3.1-flash-lite` and `gemini-3.5-flash` as backups when it is busy. Both are set in `src/server/config.ts`, and `LLM_MODEL` overrides them.
 
 **How it was chosen:** `scripts/advisor-live-eval.ts` sends each of our own 31 scenarios to a real model, then lets our engine decide from what the model read. A pass means the engine reached the expected products and blocks. These are our own scenarios, not the judges' private ones, so a high score here doesn't predict theirs.
 
@@ -27,7 +27,20 @@
 | Scenarios reaching the expected bundle | 24 of 25. S19's owner declined to give GST details, and was asked again. That is now fixed, and not yet re-run live |
 | Off-script messages that changed a rule or price | 0 of 6 |
 
-**Free quota:** a third full pass the same day stopped working after S09, with every model returning `429 RESOURCE_EXHAUSTED`. Google's free daily quota had run out after several hundred calls across that day's testing. All 31 conversations still finished without an error, on templates and tappable answers, which is the fallback working as designed. It does mean these fixes haven't been re-run live: the repeated GST question (S19), the leased line asked for alongside "ignore your rules" (X02), and the prompt changes for S01. A tapped answer leading to the next question now spends no LLM call in English or Hindi, to make the quota last.
+**Latest pass, on a new key, on 2026-11-05:**
+
+| Measure | Result |
+|---|---|
+| Conversations completed | 31 of 31 |
+| Replies using the model's words | 60 of 62 sampled. The other 2 fell back to templates |
+| Replies the guard refused | 0 |
+| Times no model was available | 2, one a 503 and one a timeout |
+| Scenarios reaching the expected bundle | 23 of 25. S17's first message hit that outage, so the owner carried on by tapping. S14 read "backup" as file backup too, now fixed in code with a test, and not re-run live |
+| Off-script messages that changed a rule or price | 0 of 6 |
+
+This pass confirmed the fixes for S01, S19 and X02. The pass before it found a flaw in our prompt: its example slots led the backup model to pitch a product instead of asking a question. The guard refused every attempt, so no owner saw one, and the examples are gone. `gemini-2.5-flash` was dropped because it returned 404 on the new key, though the API still lists it.
+
+**Free quota:** an earlier full pass stopped working after S09, with every model returning `429 RESOURCE_EXHAUSTED`. Google's free daily quota had run out after several hundred calls across that day's testing. All 31 conversations still finished without an error, on templates and tappable answers, which is the fallback working as designed. It does mean these fixes haven't been re-run live: the repeated GST question (S19), the leased line asked for alongside "ignore your rules" (X02), and the prompt changes for S01. A tapped answer leading to the next question now spends no LLM call in English or Hindi, to make the quota last.
 
 That was one run on one day. Quotas and model names on the free tier change without notice, and an earlier run hit a moment when both models were unavailable, so run this again before the demo. The replies are in `analytics/output/advisor-live-replies.json`, and read well in English and Hinglish. The Hindi needs a native speaker's review.
 

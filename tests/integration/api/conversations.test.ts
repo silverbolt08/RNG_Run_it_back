@@ -162,6 +162,22 @@ describe('the advisor conversation', () => {
       expect(last.text).not.toContain('999');
     });
 
+    it('refuses a slot held for another turn, so a question cannot become a sales pitch', async () => {
+      const id = await start();
+      llm.willRead({ businessType: 'salon', city: 'Pune', employeeCount: 4 });
+      llm.willWrite('You have {{EMPLOYEES}} people. How many sites?', 'You have {{EMPLOYEES}} people. How many sites?');
+      const response = await say(id, 'a salon in Pune with 4 of us');
+      expect(response.body.messages.at(-1)).toMatchObject({ source: 'TEMPLATE', text: 'How many sites or branches do you have?' });
+    });
+
+    it('tells the model which slots it may use, and none when there are none', async () => {
+      const id = await start();
+      llm.willRead({ businessType: 'salon', city: 'Pune', employeeCount: 4 });
+      await say(id, 'a salon in Pune with 4 of us');
+      const writer = llm.requests.find((request) => !request.forceTool);
+      expect(writer?.messages[0]?.content).toContain('This reply uses no slots.');
+    });
+
     it('retries once, and uses a good second attempt', async () => {
       const id = await start();
       llm.willRead({ ...READY_FACTS, noOtherNeeds: true });
@@ -191,6 +207,20 @@ describe('the advisor conversation', () => {
       llm.willRead({ ...READY_FACTS, addNeeds: ['GUEST_WIFI', 'CCTV'], noOtherNeeds: true });
       const response = await say(id, 'guest wifi and cameras, nothing else');
       expect(response.body.recommendation.lines.map((line: { productId: string }) => line.productId)).toEqual(['P01', 'P22', 'P23']);
+    });
+
+    it('takes "backup" beside keeping the internet up as a backup connection, not file backup', async () => {
+      const id = await start();
+      llm.willRead({ ...READY_FACTS, addNeeds: ['UPTIME', 'BACKUP'] });
+      const response = await say(id, 'Internet kabhi band na ho, backup bhi chahiye');
+      expect(response.body.facts.needs).toEqual(['UPTIME']);
+    });
+
+    it('keeps file backup when the owner says that is what they mean', async () => {
+      const id = await start();
+      llm.willRead({ ...READY_FACTS, addNeeds: ['UPTIME', 'BACKUP'] });
+      const response = await say(id, 'Internet must stay up, and I want my files backed up too');
+      expect(response.body.facts.needs).toEqual(['UPTIME', 'BACKUP']);
     });
 
     it('survives nonsense from the model', async () => {

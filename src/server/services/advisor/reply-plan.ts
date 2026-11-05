@@ -68,7 +68,7 @@ export function composeReply(plan: ReplyPlan, locale: Locale): ComposedReply {
 
   const { next } = plan;
   if (next.kind === 'ASK') {
-    brief.push(`Then ask one question, translated into the language of your reply: "${SLOT_QUESTIONS[next.slot]}". End your reply with it. Tappable answers appear below your message, so do not list options.`);
+    brief.push(`Ask one question, translated into the language of your reply: "${SLOT_QUESTIONS[next.slot]}". End your reply with it. Tappable answers appear below your message, so do not list options.`);
     template.push(translate(locale, `advisor.ask.${next.slot}`));
   } else if (next.kind === 'HANDOFF') {
     brief.push(`A person from Accel Business will take over, for this reason: ${next.reason}. Tell them so, and that their details are saved. Ask no question.`);

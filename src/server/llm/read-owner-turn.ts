@@ -235,6 +235,11 @@ export async function readOwnerTurn(
     input.facts.connectivity === null &&
     input.askedSlot !== 'NEEDS';
 
+  // "Backup" beside keeping the internet up means a backup connection. The model has read this as file
+  // backup across runs too, which would add a line the owner never asked for.
+  const backupOfFiles = /file|data|photo|document|फ़ाइल|फाइल|डेटा|फ़ोटो|दस्तावेज़/iu.test(input.redactedText);
+  const addNeeds = parsed.addNeeds.includes('UPTIME') && !backupOfFiles ? parsed.addNeeds.filter((need) => need !== 'BACKUP') : parsed.addNeeds;
+
   const declined: DeclinableFact[] = parsed.declined;
   const counts = parsed.counts ? stripUndefined(parsed.counts) : undefined;
 
@@ -254,7 +259,7 @@ export async function readOwnerTurn(
       gstinStatus: parsed.gstinStatus,
       fibreAvailable: parsed.fibreAvailable,
       connectivity: wantsNoConnection ? 'NONE' : parsed.connectivity,
-      addNeeds: parsed.addNeeds,
+      addNeeds,
       removeNeeds: parsed.removeNeeds,
       addProducts: parsed.addProducts,
       removeProducts: parsed.removeProducts,
