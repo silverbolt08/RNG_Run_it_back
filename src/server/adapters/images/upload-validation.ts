@@ -1,4 +1,5 @@
-import sharp from 'sharp';
+import sharp, { type OutputInfo } from 'sharp';
+import { PdfRenderError, renderFirstPdfPage } from './pdf-first-page';
 
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
@@ -8,6 +9,9 @@ const MAX_INPUT_PIXELS = 40_000_000;
 const MIN_SHORT_SIDE_PX = 300;
 
 const JPEG_QUALITY = 90;
+// How far from white still counts as blank paper, allowing for speckle from JPEG compression.
+const PAGE_TRIM_THRESHOLD = 12;
+const PAGE_MARGIN_PX = 24;
 
 const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const JPEG_MAGIC = Buffer.from([0xff, 0xd8, 0xff]);
@@ -19,7 +23,8 @@ const PNG_CHUNK_OVERHEAD_BYTES = 12;
 export type UploadRejectionCode =
   | 'FILE_TOO_LARGE'
   | 'UNSUPPORTED_FILE_TYPE'
-  | 'PDF_NOT_SUPPORTED'
+  | 'PDF_PROTECTED'
+  | 'PDF_UNREADABLE'
   | 'UNREADABLE_IMAGE'
   | 'IMAGE_TOO_LARGE'
   | 'IMAGE_TOO_SMALL';
@@ -36,12 +41,14 @@ export type ValidatedUpload = { image: Buffer; format: 'png' | 'jpeg' };
 /**
  * Checks the bytes rather than what the file claims to be, then re-encodes through sharp. Only
  * decoded pixels survive that, so EXIF location data and any embedded payload are left behind.
+ * The same goes for a PDF, whose first page is drawn to an image first.
  */
 export async function validateUpload(bytes: Buffer): Promise<ValidatedUpload> {
   if (bytes.length > MAX_UPLOAD_BYTES) throw new UploadRejectedError('FILE_TOO_LARGE');
 
-  // sharp's prebuilt binaries have no PDF support, and adding one means a heavy native dependency.
-  if (startsWith(bytes, PDF_MAGIC)) throw new UploadRejectedError('PDF_NOT_SUPPORTED');
+  // From here a PDF is only a picture of its first page, and goes through the same checks as a photo.
+  if (startsWith(bytes, PDF_MAGIC)) return validateUpload(await renderPdf(bytes));
+
   const format = detectFormat(bytes);
   if (!format) throw new UploadRejectedError('UNSUPPORTED_FILE_TYPE');
 
@@ -52,6 +59,35 @@ export async function validateUpload(bytes: Buffer): Promise<ValidatedUpload> {
   if (Math.min(width, height) < MIN_SHORT_SIDE_PX) throw new UploadRejectedError('IMAGE_TOO_SMALL');
 
   return { image: await reencode(bytes, format), format };
+}
+
+async function renderPdf(bytes: Buffer): Promise<Buffer> {
+  try {
+    return await cropToContent(await renderFirstPdfPage(bytes));
+  } catch (error) {
+    throw new UploadRejectedError(error instanceof PdfRenderError ? error.code : 'PDF_UNREADABLE');
+  }
+}
+
+/**
+ * Takes away the blank paper around a document. A card scanned onto an A4 page is mostly white, which
+ * the blur check reads as a smooth, blurred image, and it leaves OCR less of the page to work with.
+ */
+async function cropToContent(png: Buffer): Promise<Buffer> {
+  let cropped: { data: Buffer; info: OutputInfo };
+  try {
+    cropped = await sharp(png).trim({ background: '#ffffff', threshold: PAGE_TRIM_THRESHOLD }).png().toBuffer({ resolveWithObject: true });
+  } catch {
+    // Nothing to crop to, as on a blank page. The checks after this decide what to say about it.
+    return png;
+  }
+  // A short note can crop smaller than the size limit, so white space brings it back up.
+  const sideways = Math.max(PAGE_MARGIN_PX, Math.ceil((MIN_SHORT_SIDE_PX - cropped.info.width) / 2));
+  const upAndDown = Math.max(PAGE_MARGIN_PX, Math.ceil((MIN_SHORT_SIDE_PX - cropped.info.height) / 2));
+  return sharp(cropped.data)
+    .extend({ top: upAndDown, bottom: upAndDown, left: sideways, right: sideways, background: '#ffffff' })
+    .png()
+    .toBuffer();
 }
 
 function detectFormat(bytes: Buffer): ValidatedUpload['format'] | null {

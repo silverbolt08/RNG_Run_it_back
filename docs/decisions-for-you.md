@@ -16,7 +16,9 @@ The app is built and runs end to end, so nothing here blocks further work.
 | Impact assumptions | As in `analytics/impact_model.py`, with 60% of leads adopting the digital journey. They're judgement, not evidence, and the deck must say so |
 | Test data | `tests/fixtures/kyc/specimens.json` stays in the repo. It holds text from the fictional specimens, and the data pack stays out |
 | Payment | Labelled mock payment after KYC, with no card data |
-| Stack | Server-based Next.js as built. Deployment is decided later |
+| Stack | Server-based Next.js as built |
+| Hosting | Decided at the end. It needs a host with Node and a persistent disk, so a static host such as GitHub Pages won't work |
+| Hindi | Reviewed and accepted by you |
 
 ## Decisions for you
 
@@ -30,11 +32,9 @@ The app is built and runs end to end, so nothing here blocks further work.
 
 | Item | Why it matters |
 |---|---|
-| **Review the Hindi**, or find a native speaker | I drafted all of `src/i18n/hi.json`, and I can't vouch for how it reads to an owner |
 | **Record the exact deadline and upload limits** when you have them | Sets the freeze date |
 | **Record the demo video** | The script is in the blueprint's shot list. 3 minutes at most |
 | **Ask for the final deck** when you're happy with the product | You asked to make it last |
-| **Re-run the live pass once the quota has reset**: `npx tsx scripts/advisor-live-conversations.ts http://localhost:3000` | Three fixes haven't been checked on the real model. It uses about 100 calls, so don't run it on judging day |
 | **Rotate the Gemini key** before the repo goes public, if it's ever been shared | It's only in `.env.local`, which git ignores |
 
 ## Known gaps
@@ -42,7 +42,7 @@ The app is built and runs end to end, so nothing here blocks further work.
 | Gap | Note |
 |---|---|
 | The mock OTP lets anyone who knows a phone number sign in as that owner | Inherent to a mock, and the privacy note says so |
-| PDF uploads are rejected, though `smart-kyc` lists them as accepted | JPEG and PNG work. Rasterising PDFs needs a heavy dependency |
+| PDF uploads read the first page only | Certificates carry what we check on page one. A document whose details sit on a later page gets the "wrong document" message, and can be sent as a photo |
 | Real phone photos are untested | Simulated ones read 91.6% to 100% of fields the same as clean scans. See the [OCR note](spikes/ocr-accuracy.md). Try a few real photos before the demo |
 | Chat works in any language the model reads, but only English and Hindi have screens and fallback wording | Replies in other languages haven't been tested |
 | No local LLM backup | If Gemini is down, the owner continues on tappable answers and the short form |
@@ -95,4 +95,5 @@ An independent QA pass found 24 defects that the other tests had missed, 3 of th
 | Fibre is treated as a rule for Fibre 100, 300 and 1G, but not leased lines | The catalogue has no fibre flag, so this is an assumption | `src/domain/eligibility/eligibility.ts` |
 | 3 or more sites counts as multi-site, whatever the business type | Matches all 5,000 leads | `src/domain/bundle/segments.ts` |
 | Language and state left out of the propensity score | Including them didn't improve it, so they aren't worth the fairness concern | `analytics/propensity.py` |
+| PDFs add `pdfjs-dist` and `@napi-rs/canvas`, about 36 MB plus a native canvas | `sharp`'s prebuilt build can't open PDFs, and these need no system install. A security review showed a 1 KB PDF could freeze the server, so they run in a separate process with a 15-second kill, a memory limit and none of the app's keys in its environment. It isn't a full sandbox, because it still runs as the same user. Hosting must include `scripts/` and `node_modules`, start from the project folder and allow about 1 GB for this process | `scripts/pdf-render-process.mjs` |
 | TypeScript 5.9, not the latest 7.0, and ESLint 9 | 7.0 is a major rewrite, and I didn't want to risk Next's build. ESLint only runs during development | `package.json` |

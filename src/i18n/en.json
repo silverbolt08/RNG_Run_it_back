@@ -339,7 +339,7 @@
     "businessNameHint": "Only needed if you have no GST registration.",
     "continue": "Continue",
     "documentsTitle": "Upload your documents",
-    "documentsIntro": "Take a clear photo of each one, or choose a file. JPEG or PNG, up to 10 MB.",
+    "documentsIntro": "Take a clear photo of each one, or choose a photo or PDF, up to 10 MB. For a PDF, we read the first page.",
     "doc": {
       "GST_CERTIFICATE": "GST certificate",
       "UDYAM_CERTIFICATE": "Udyam certificate",
@@ -364,8 +364,9 @@
     },
     "wrongTypeFound": "This looks like your {found}. We need your {wanted}.",
     "uploadError": {
-      "UNSUPPORTED_FILE_TYPE": "Please upload a JPEG or PNG image.",
-      "PDF_NOT_SUPPORTED": "PDFs can't be read yet. Please upload a photo of the document.",
+      "UNSUPPORTED_FILE_TYPE": "Please upload a photo or a PDF.",
+      "PDF_PROTECTED": "This PDF is locked with a password. Please upload an unlocked copy, or a photo of the document.",
+      "PDF_UNREADABLE": "We couldn't open this PDF. Please try downloading it again, or upload a photo of the document.",
       "FILE_TOO_LARGE": "This file is over 10 MB. Please use a smaller photo.",
       "IMAGE_TOO_LARGE": "This image is too large. Please use a smaller photo.",
       "IMAGE_TOO_SMALL": "This image is too small to read. Please take a closer photo.",

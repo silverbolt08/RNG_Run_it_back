@@ -589,12 +589,13 @@ Send `multipart/form-data` with fields `documentType` and `file`, and no others.
 { "document": { "id": "doc_...", "quality": "OK" }, "application": {}, "replayed": false }
 ```
 
-A repeat with the same key returns `200` with `replayed: true`, creates nothing and doesn't run OCR again. `document` can then be `null` if a later upload has replaced it. A blurred or wrong document returns `201` too: check `document.quality`. A new document of the same type replaces the old one.
+For a PDF, only the first page is read, and it is stored as an image rather than as the PDF. A repeat with the same key returns `200` with `replayed: true`, creates nothing and doesn't run OCR again. `document` can then be `null` if a later upload has replaced it. A blurred or wrong document returns `201` too: check `document.quality`. A new document of the same type replaces the old one.
 
 | Error | Meaning |
 |---|---|
-| `422 UNSUPPORTED_FILE_TYPE` | Not a JPEG or PNG, judged by its content |
-| `422 PDF_NOT_SUPPORTED` | PDFs can't be read yet. Ask for a photo |
+| `422 UNSUPPORTED_FILE_TYPE` | Not a JPEG, PNG or PDF, judged by its content |
+| `422 PDF_PROTECTED` | The PDF needs a password. Ask for an unlocked copy or a photo |
+| `422 PDF_UNREADABLE` | The PDF is damaged. Ask for a fresh download or a photo |
 | `422 FILE_TOO_LARGE` | Over 10 MB |
 | `422 IMAGE_TOO_LARGE` | Over 40 megapixels |
 | `422 IMAGE_TOO_SMALL` | Shorter side under 300 pixels |

@@ -37,7 +37,7 @@ This table is a team assumption. The brief lists all four documents, but 1,466 o
 
 | Situation | Behaviour |
 |---|---|
-| Wrong file type | Accept JPEG, PNG and PDF only, and check magic bytes as well as the extension |
+| Wrong file type | Accept JPEG, PNG and PDF only, and check magic bytes as well as the extension. A PDF's first page is drawn to an image in a separate killable process (`scripts/pdf-render-process.mjs`), and only that image is checked, read and stored |
 | Over 10 MB or unreadable | Clear message and retry without losing progress |
 | Blurred image | Ask for a retake with a tip. Don't guess values |
 | Skewed or rotated image | Deskew automatically and continue |

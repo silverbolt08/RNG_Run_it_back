@@ -96,6 +96,18 @@ On K02's GST certificate, that tag made auto-rotation measure 0° instead of -6.
 - **Our own reading of the specimens,** not the judges' answer key.
 - **Field extraction only.** The verdict logic isn't built yet.
 
+## PDFs
+
+A PDF is drawn to an image of its first page, then goes through the same checks. `tests/regression/kyc-pdf-ocr.test.ts` wraps the specimens in PDFs to compare:
+
+| Check | Result |
+|---|---|
+| Scanned PDFs of K03, K08 and K12, all documents | Every field the same as reading the image |
+| Text PDFs of those three GST certificates | GSTIN, legal name and trade name all read correctly |
+| Blur check on all 47 specimens as PDFs | Same answer as the image, including K04's blurred certificate |
+
+These PDFs were made from the specimens. No PDF from the real GST portal has been tried.
+
 ## Simulated phone photos
 
 `scripts/ocr-phone-sim.ts` damages the 20 documents of five clean applicants (K02, K03, K08, K09, K12) and runs each through the real upload pipeline. The share is of fields that read the same as on the clean scan. These are simulations, so real phone photos are still untested.

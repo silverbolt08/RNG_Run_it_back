@@ -204,8 +204,9 @@ function toErrorResponse(error: unknown, requestId: string, route: string, logge
 
 const UPLOAD_MESSAGES: Record<UploadRejectedError['code'], string> = {
   FILE_TOO_LARGE: 'This file is over the 10 MB limit. Please use a smaller photo.',
-  UNSUPPORTED_FILE_TYPE: 'Please upload a JPEG or PNG image.',
-  PDF_NOT_SUPPORTED: 'PDF files are not supported yet. Please upload a photo of the document, as a JPEG or PNG.',
+  UNSUPPORTED_FILE_TYPE: 'Please upload a photo or a PDF.',
+  PDF_PROTECTED: 'This PDF is locked with a password. Please upload an unlocked copy, or a photo of the document.',
+  PDF_UNREADABLE: 'We could not open this PDF. Please try downloading it again, or upload a photo of the document.',
   UNREADABLE_IMAGE: 'We could not open this image. Please try a different photo.',
   IMAGE_TOO_LARGE: 'This image has too many pixels. Please use a smaller photo.',
   IMAGE_TOO_SMALL: 'This image is too small to read. Please take a closer photo.',

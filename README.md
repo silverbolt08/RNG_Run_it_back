@@ -10,7 +10,7 @@ Accel Business is the fictional operator in the case. All data is synthetic.
 |---|---|
 | **Advisor** | Chat in any language, with tappable answers and a short form. Code chooses the bundle and the LLM only reads and words |
 | **Quote and checkout** | One final monthly price including GST, add-ons to toggle, and a labelled mock payment |
-| **Smart KYC** | Consent first, document upload, local OCR, mock GSTIN and Udyam lookups, cross-checks and a specific verdict |
+| **Smart KYC** | Consent first, document upload as a photo or PDF, local OCR, mock GSTIN and Udyam lookups, cross-checks and a specific verdict |
 | **Tracker** | What happens next and when, every stage with a date, and delays with reasons |
 | **My data** | What's held, per-purpose consent, withdrawal and a grievance contact |
 | **Back office** | Leads the advisor handed over, a propensity ranking and demo controls |

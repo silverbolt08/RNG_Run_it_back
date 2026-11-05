@@ -9,7 +9,7 @@ import { api, ApiFailure, newIdempotencyKey } from '@/lib/api-client';
 import type { DocumentView, KycApplicationView } from '@/server/services/kyc/kyc-view';
 import { useErrorMessage } from '../shell/use-error-message';
 
-const UPLOAD_ERRORS = new Set(['UNSUPPORTED_FILE_TYPE', 'PDF_NOT_SUPPORTED', 'FILE_TOO_LARGE', 'IMAGE_TOO_LARGE', 'IMAGE_TOO_SMALL', 'UNREADABLE_IMAGE']);
+const UPLOAD_ERRORS = new Set(['UNSUPPORTED_FILE_TYPE', 'PDF_PROTECTED', 'PDF_UNREADABLE', 'FILE_TOO_LARGE', 'IMAGE_TOO_LARGE', 'IMAGE_TOO_SMALL', 'UNREADABLE_IMAGE']);
 
 const STATUS_TONE: Readonly<Record<string, Tone>> = {
   OK: 'success',
@@ -96,7 +96,7 @@ export function UploadTile({
       <input
         id={inputId}
         type="file"
-        accept="image/jpeg,image/png"
+        accept="image/jpeg,image/png,application/pdf"
         onChange={onChange}
         data-testid={`upload-${documentType}`}
         aria-busy={busy || undefined}

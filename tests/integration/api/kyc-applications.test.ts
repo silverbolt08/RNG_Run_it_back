@@ -1,6 +1,7 @@
 import { readdirSync } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ApiClient, expectApiError, grant, newVisitor, verifyPhone } from '../../helpers/api-client';
+import { passwordProtectedPdf, textPdf } from '../../helpers/pdf-fixtures';
 import { blurredImage, createTestApp, documentImage, type TestApp } from '../../helpers/test-app';
 import {
   acceptedQuote,
@@ -221,13 +222,31 @@ describe('KYC applications', () => {
       expectApiError(await owner.request('POST', `${APPLICATIONS}/${id}/documents`, { form: extra, headers }), 400, 'INVALID_REQUEST');
     });
 
-    it('rejects a PDF with a clear 422, keeping progress', async () => {
+    it('asks for an unlocked copy of a password-protected PDF', async () => {
+      const { id } = await start('K03');
+      expectApiError(await postDocument(owner, id, 'SIGNATORY_ID', passwordProtectedPdf()), 422, 'PDF_PROTECTED');
+      expect(storedFiles()).toEqual([]);
+    });
+
+    it('reads a PDF like any other document, storing only the image of its first page', async () => {
+      await seedRegistryFor(app, 'K03');
+      const { id } = await start('K03');
+      const person = applicant('K03');
+      app.stubOcr.willRead(person.documents.signatory?.text ?? '');
+
+      const response = await postDocument(owner, id, 'SIGNATORY_ID', textPdf(['A signatory ID as a PDF', 'FICTIONAL-MARKER-TEXT']));
+      expect(response.status).toBe(201);
+      expect(response.body.document.quality).toBe('OK');
+      expect(storedFiles()).toHaveLength(1);
+    });
+
+    it('rejects a broken PDF with a clear 422, keeping progress', async () => {
       await seedRegistryFor(app, 'K03');
       const { id } = await start('K03');
       await uploadSpecimen(app, owner, id, 'K03', 'SIGNATORY_ID');
 
       const response = await postDocument(owner, id, 'ADDRESS_PROOF', Buffer.from('%PDF-1.7 fake'));
-      expectApiError(response, 422, 'PDF_NOT_SUPPORTED');
+      expectApiError(response, 422, 'PDF_UNREADABLE');
 
       const read = await owner.get(`${APPLICATIONS}/${id}`);
       expect(read.body.documents.map((doc: { documentType: string }) => doc.documentType)).toEqual(['SIGNATORY_ID']);
@@ -377,8 +396,10 @@ describe('KYC applications', () => {
 
     it('rate limits uploads', async () => {
       const { id } = await start('K03');
-      let last = await postDocument(owner, id, 'SIGNATORY_ID', Buffer.from('%PDF-'));
-      for (let i = 0; i < 35; i++) last = await postDocument(owner, id, 'SIGNATORY_ID', Buffer.from('%PDF-'));
+      // Bytes that are refused at once, so the test measures the limit and not the reading.
+      const notAnImage = Buffer.from('not an image');
+      let last = await postDocument(owner, id, 'SIGNATORY_ID', notAnImage);
+      for (let i = 0; i < 35; i++) last = await postDocument(owner, id, 'SIGNATORY_ID', notAnImage);
       expectApiError(last, 429, 'RATE_LIMITED');
     });
   });
