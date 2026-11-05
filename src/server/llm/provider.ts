@@ -38,6 +38,14 @@ export class LlmUnavailableError extends Error {
   }
 }
 
+/**
+ * By name, not instanceof: Next.js can load the shared client and each route as separate copies of
+ * this module, and a class from one copy isn't an instance of the class from another.
+ */
+export function isLlmUnavailable(error: unknown): error is LlmUnavailableError {
+  return error instanceof Error && error.name === 'LlmUnavailableError';
+}
+
 export interface LlmProvider {
   /** Which model answered, for evaluation records. Holds no secret. */
   readonly label: string;

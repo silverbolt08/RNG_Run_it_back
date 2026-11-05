@@ -110,7 +110,7 @@ Errors: `422 OTP_INCORRECT`, `422 OTP_EXPIRED`, `429 OTP_ATTEMPTS_EXCEEDED` afte
 
 ## Consents
 
-Purposes: `advisor_profile`, `kyc_verification`, `service_updates`, `marketing`. Each is separate, and none is implied by another.
+Purposes: `advisor_profile`, `ai_chat`, `kyc_verification`, `service_updates`, `marketing`. Each is separate, and none is implied by another. `ai_chat` lets an outside AI service read typed chat, so the short form and tapped answers work without it.
 
 ### `GET /consents`
 
@@ -170,6 +170,7 @@ Error: `409 CONSENT_NOT_ACTIVE`.
 | `kyc_verification` | Stops processing and deletes documents and extracted fields. Cancels any order not yet activated. On an activated order, only the raw documents go, and the fields stay until the contract ends |
 | `advisor_profile` | Deletes draft and saved quotes and advisor conversations. Accepted quotes stay |
 | `service_updates` | Stops status messages. Nothing else changes |
+| `ai_chat` | Nothing more goes to the LLM. The advisor works on tapped answers |
 | `marketing` | Nothing else changes |
 
 ## Products
@@ -560,7 +561,7 @@ Needs an accepted quote.
 { "quoteId": "qt_...", "contactName": "Joseph Singh", "businessName": "Ganesh Woodcraft", "gstin": "27XUIXG0767D1ZP" }
 ```
 
-Only `quoteId` is required. **Ask for `contactName` when the application starts,** because the signatory check compares against it. Send `businessName` only when there's no GSTIN. Send `declaredAdultSignatory: true` once the owner has ticked that declaration, and it is kept in the audit log. Typing a `gstin` reveals nothing about any lead.
+`quoteId` and `declaredAdultSignatory: true` are required, the second only once the owner has ticked it. **Ask for `contactName` when the application starts,** because the signatory check compares against it. Send `businessName` only when there's no GSTIN. The declaration is kept in the audit log. Typing a `gstin` reveals nothing, because the application is assessed only once a document is in.
 
 `201`, or `200` with the existing application if one is already open for this quote. Requests with a `gstin` share a limit of 15 per 10 minutes with GSTIN confirmations. Error: `409 QUOTE_NOT_ACCEPTED`.
 
@@ -604,6 +605,8 @@ Each upload took 0.3 to 1.1 seconds on this laptop, so show progress per documen
 ### `POST /kyc-applications/{id}/gstin-confirmation`
 
 Request `{ "gstin": "27QHJXK0658U1ZL" }`: the number the owner read from their certificate. It's judged exactly as given. `200` returns the re-assessed application, masked again. By `POST`, so the identifier stays out of the URL.
+
+Errors: `409 CONFIRMATION_NOT_REQUESTED` unless `CONFIRM_GSTIN` is in `nextActions`, and `422 GSTIN_TOO_DIFFERENT` if the number is more than a few characters from what was read, so this route can't look up another business or overturn a rejection.
 
 ### `POST /kyc-applications/{id}/reassessment`
 

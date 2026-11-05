@@ -10,7 +10,7 @@ import {
 } from '../../../domain/kyc/documents';
 import { newPublicId } from '../../../lib/ids';
 import { blurScore } from '../../adapters/images/blur-score';
-import { OcrUnavailableError, type OcrResult } from '../../adapters/ocr/ocr-provider';
+import { isOcrUnavailable, type OcrResult } from '../../adapters/ocr/ocr-provider';
 import { MAX_UPLOAD_BYTES, UploadRejectedError, validateUpload } from '../../adapters/images/upload-validation';
 import type { AppContext } from '../../app-context';
 import { recordAudit } from '../../db/repositories/audit-repository';
@@ -130,7 +130,7 @@ async function readWithOcr(
   try {
     ocr = await app.ocr.read(image);
   } catch (error) {
-    if (!(error instanceof OcrUnavailableError)) throw error;
+    if (!isOcrUnavailable(error)) throw error;
     app.logger.error('ocr.unavailable', { error });
     return null;
   }

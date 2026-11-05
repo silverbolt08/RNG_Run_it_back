@@ -151,7 +151,7 @@ async function completeJourney(page: Page, words: Words, locale: 'en' | 'hi'): P
   await checkScreen(page);
 }
 
-test('the whole journey in English at 360 px, with the LLM off', async ({ page }) => {
+test('the whole journey in English at 360 px, with the LLM failing', async ({ page }) => {
   await completeJourney(page, ENGLISH, 'en');
   await expect(page.getByTestId('tracker-next')).toHaveText('Accel Business schedules your installation');
 });

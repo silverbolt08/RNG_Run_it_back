@@ -324,7 +324,7 @@
     "gstin": "GST number (optional)",
     "gstinHint": "We'll read it from your certificate if you skip this.",
     "businessName": "Business name",
-    "businessNameHint": "Needed because your bundle doesn't use a GST registration.",
+    "businessNameHint": "Only needed if you have no GST registration.",
     "continue": "Continue",
     "documentsTitle": "Upload your documents",
     "documentsIntro": "Take a clear photo of each one, or choose a file. JPEG or PNG, up to 10 MB.",
@@ -454,7 +454,7 @@
       "INSTALLING": "Installing",
       "ACTIVATED": "Active"
     },
-    "stageStatus": { "DONE": "Done", "CURRENT": "In progress", "UPCOMING": "Coming up", "FAILED": "Needs attention" },
+    "stageStatus": { "DONE": "Done", "CURRENT": "Latest step", "UPCOMING": "Coming up", "FAILED": "Needs attention" },
     "delayTitle": "Your order is delayed",
     "delayBody": "The new date is {date}, moved from {previous}.",
     "delayReason": {

@@ -1,10 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = 3100;
+const OCR_DOWN_PORT = 3101;
 
 /**
- * The real app, built for production, on its own copy of the database. The LLM is off by default,
- * so these tests are exact and spend no quota. LLM quality has its own live evaluation.
+ * The real app, built for production, on its own copy of the database. The LLM key is deliberately
+ * invalid, so these tests are exact, spend no quota and prove the journey survives a failing LLM.
+ * LLM quality has its own live evaluation.
  */
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -21,17 +23,9 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: `npx tsx tests/e2e/prepare-db.ts && npx next build && npx next start -p ${PORT}`,
-    url: `http://localhost:${PORT}`,
+    command: 'npx tsx tests/e2e/start-servers.ts',
+    url: `http://localhost:${OCR_DOWN_PORT}`,
     timeout: 300_000,
     reuseExistingServer: false,
-    env: {
-      DATABASE_URL: 'file:storage/e2e.db',
-      DOCUMENT_DIR: './storage/e2e-documents',
-      LLM_PROVIDER: 'off',
-      COOKIE_SECURE: 'false',
-      ADMIN_TOKEN: 'e2e-admin-token-not-a-secret',
-      NEXT_TELEMETRY_DISABLED: '1',
-    },
   },
 });

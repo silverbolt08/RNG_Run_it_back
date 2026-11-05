@@ -20,7 +20,7 @@ import { RATE_LIMITS } from '../../http/rate-limiter';
 import type { LlmProvider } from '../../llm/provider';
 import { conversations } from '../../db/schema';
 import { invalidRequest, notFound } from '../../http/errors';
-import { LlmUnavailableError } from '../../llm/provider';
+import { isLlmUnavailable } from '../../llm/provider';
 import { cleanWords, readOwnerTurn, type OwnerLanguage, type OwnerTurn } from '../../llm/read-owner-turn';
 import { fillSlots, writeReply } from '../../llm/write-reply';
 import { recommend } from '../recommendation-service';
@@ -160,7 +160,7 @@ export async function sendMessage(
       if (written.text !== null) reply = { role: 'advisor', source: 'LLM', text: written.text };
       else app.logger.info('advisor.guard_refused', { reason: written.failure });
     } catch (error) {
-      if (!(error instanceof LlmUnavailableError)) throw error;
+      if (!isLlmUnavailable(error)) throw error;
       app.logger.error('advisor.llm_unavailable', { reason: error.reason });
       llmUsable = false;
     }
@@ -234,7 +234,7 @@ async function understand(
     // The model's reading wins. Plain patterns only fill what it dropped.
     return { update: { ...plain, ...turn.update }, turn, llmDown: false };
   } catch (error) {
-    if (!(error instanceof LlmUnavailableError)) throw error;
+    if (!isLlmUnavailable(error)) throw error;
     app.logger.error('advisor.llm_unavailable', { reason: error.reason });
     return { update: plain, turn: null, llmDown: true };
   }

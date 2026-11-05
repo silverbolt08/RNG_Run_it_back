@@ -58,6 +58,21 @@ async function main(): Promise<void> {
   ];
 
   for (const item of script) {
+    try {
+      await runOne(item, results);
+    } catch (error) {
+      results.push({ id: item.id, title: item.title, failed: error instanceof Error ? error.message : 'unknown' });
+      console.log(`${item.id} FAILED`);
+    }
+  }
+
+  const replies = results.flatMap((item) => [item.firstReply, item.lastReply]).filter(Boolean) as Array<{ source: string }>;
+  const fromLlm = replies.filter((reply) => reply.source === 'LLM').length;
+  const failures = results.filter((item) => item.failed).length;
+  console.log(`Model's words used in ${fromLlm} of ${replies.length} replies, ${failures} conversations failed`);
+}
+
+async function runOne(item: { id: string; title: string; says: string; ui: string }, results: Array<Record<string, unknown>>): Promise<void> {
     const call = await newOwner();
     let view = await call<View>('POST', '/conversations', { language: item.ui });
     view = await call<View>('POST', `/conversations/${view.id}/messages`, { text: item.says, language: item.ui });
@@ -85,11 +100,6 @@ async function main(): Promise<void> {
     });
     console.log(`${item.id} first:${first?.source} last:${last?.source} lines:${view.recommendation?.lines.map((line) => line.productId).join(',') ?? '-'}`);
     writeFileSync('analytics/output/advisor-live-replies.json', JSON.stringify(results, null, 2));
-  }
-
-  const sources = results.flatMap((item) => [item.firstReply, item.lastReply]) as Array<{ source: string }>;
-  const fromLlm = sources.filter((reply) => reply?.source === 'LLM').length;
-  console.log(`Model's words used in ${fromLlm} of ${sources.length} replies`);
 }
 
 void main();

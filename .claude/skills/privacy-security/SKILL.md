@@ -37,6 +37,7 @@ NOT_ASKED -> NOTICE_SHOWN -> GRANTED -> WITHDRAWN -> ERASURE_PENDING -> ERASED
 | Purpose ID | Covers | Required for |
 |---|---|---|
 | `advisor_profile` | Business details for a recommendation | Advisor |
+| `ai_chat` | An outside AI service reading typed chat | Typed advisor chat only. Tapped answers and the short form work without it |
 | `kyc_verification` | Documents and registry lookups | Activation |
 | `service_updates` | Order status messages | Optional |
 | `marketing` | Promotions | Optional; **never bundled** |

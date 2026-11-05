@@ -1,0 +1,58 @@
+{
+  "Clean PNG, the baseline": {
+    "fields": 95,
+    "right": 95,
+    "refused": 0,
+    "wrongType": 0,
+    "documents": 20
+  },
+  "JPEG, quality 80": {
+    "fields": 95,
+    "right": 94,
+    "refused": 0,
+    "wrongType": 0,
+    "documents": 20
+  },
+  "JPEG, quality 50": {
+    "fields": 95,
+    "right": 95,
+    "refused": 0,
+    "wrongType": 0,
+    "documents": 20
+  },
+  "Tilted 2 degrees": {
+    "fields": 95,
+    "right": 87,
+    "refused": 0,
+    "wrongType": 0,
+    "documents": 20
+  },
+  "Tilted 5 degrees": {
+    "fields": 95,
+    "right": 87,
+    "refused": 0,
+    "wrongType": 1,
+    "documents": 20
+  },
+  "Lower resolution, 800 px wide": {
+    "fields": 95,
+    "right": 93,
+    "refused": 0,
+    "wrongType": 0,
+    "documents": 20
+  },
+  "Dim light": {
+    "fields": 95,
+    "right": 87,
+    "refused": 0,
+    "wrongType": 1,
+    "documents": 20
+  },
+  "Slightly soft focus": {
+    "fields": 95,
+    "right": 93,
+    "refused": 0,
+    "wrongType": 0,
+    "documents": 20
+  }
+}

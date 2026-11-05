@@ -56,9 +56,10 @@ The back office is at `/backoffice`, and asks for `ADMIN_TOKEN` from `.env.local
 | Command | Covers |
 |---|---|
 | `npm test` | Unit, data regression, API integration and advisor scenarios with a mocked LLM |
-| `npm run test:e2e` | Browser journeys at 360 px in English and Hindi, K01 to K12 with real OCR, accessibility checks |
+| `npm run test:e2e` | Browser journeys at 360 px in English and Hindi, K01 to K12 with real OCR, a failing LLM, an OCR outage, accessibility checks |
 | `npx tsx scripts/advisor-live-eval.ts gemini-3.5-flash-lite` | Our scenarios on a real model. Spends free quota |
 | `npx tsx scripts/advisor-live-conversations.ts http://localhost:3000` | Full conversations with a running app. Spends free quota |
+| `npx tsx scripts/ocr-phone-sim.ts` | OCR on simulated phone photos |
 
 Browser tests need `npx playwright install chromium` once.
 

@@ -324,7 +324,7 @@
     "gstin": "GST नंबर (वैकल्पिक)",
     "gstinHint": "इसे छोड़ने पर हम आपके प्रमाणपत्र से पढ़ लेंगे।",
     "businessName": "व्यवसाय का नाम",
-    "businessNameHint": "यह ज़रूरी है क्योंकि आपके बंडल में GST रजिस्ट्रेशन का उपयोग नहीं होता।",
+    "businessNameHint": "केवल तब ज़रूरी है जब आपका GST रजिस्ट्रेशन न हो।",
     "continue": "आगे बढ़ें",
     "documentsTitle": "अपने दस्तावेज़ अपलोड करें",
     "documentsIntro": "हर एक की साफ़ फ़ोटो लें, या फ़ाइल चुनें। JPEG या PNG, 10 MB तक।",
@@ -454,7 +454,7 @@
       "INSTALLING": "इंस्टॉल हो रहा है",
       "ACTIVATED": "चालू"
     },
-    "stageStatus": { "DONE": "पूरा", "CURRENT": "जारी है", "UPCOMING": "आगे", "FAILED": "ध्यान दें" },
+    "stageStatus": { "DONE": "पूरा", "CURRENT": "नवीनतम चरण", "UPCOMING": "आगे", "FAILED": "ध्यान दें" },
     "delayTitle": "आपके ऑर्डर में देरी है",
     "delayBody": "नई तारीख़ {date} है, पहले {previous} थी।",
     "delayReason": {

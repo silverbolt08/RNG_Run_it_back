@@ -13,3 +13,11 @@ export class OcrUnavailableError extends Error {
     this.name = 'OcrUnavailableError';
   }
 }
+
+/**
+ * By name, not instanceof: Next.js can load the shared OCR client and each route as separate copies of
+ * this module, and a class from one copy isn't an instance of the class from another.
+ */
+export function isOcrUnavailable(error: unknown): error is OcrUnavailableError {
+  return error instanceof Error && error.name === 'OcrUnavailableError';
+}

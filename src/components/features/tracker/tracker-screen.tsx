@@ -93,7 +93,9 @@ export function TrackerScreen({ orderId }: { orderId: string }) {
       {cancelled ? null : (
         <Section title={t('tracker.paymentHeading')}>
           {order.payment.status === 'PAID' ? (
-            <Badge tone="success">{t('tracker.paid', { amount: formatInr(order.payment.amountDueInr) })}</Badge>
+            <div>
+              <Badge tone="success">{t('tracker.paid', { amount: formatInr(order.payment.amountDueInr) })}</Badge>
+            </div>
           ) : (
             <Card className="flex flex-col gap-3">
               <p className="font-medium tabular-nums">{t('tracker.paymentAmount', { amount: formatInr(order.payment.amountDueInr) })}</p>

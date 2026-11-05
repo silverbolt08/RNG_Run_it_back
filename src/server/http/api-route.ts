@@ -1,7 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import { newRequestId } from '../../lib/ids';
 import { createLogger, type Logger } from '../../lib/logger';
-import { OcrUnavailableError } from '../adapters/ocr/ocr-provider';
+import { isOcrUnavailable } from '../adapters/ocr/ocr-provider';
 import { UploadRejectedError } from '../adapters/images/upload-validation';
 import { getAppContext, type AppContext } from '../app-context';
 import { readSessionCookie } from '../auth/session-cookie';
@@ -194,7 +194,7 @@ function toErrorResponse(error: unknown, requestId: string, route: string, logge
   if (error instanceof UploadRejectedError) {
     return json(errorBody(requestId, error.code, UPLOAD_MESSAGES[error.code], {}), 422);
   }
-  if (error instanceof OcrUnavailableError) {
+  if (isOcrUnavailable(error)) {
     logger.error('ocr.unavailable', { requestId, route, error });
     return json(errorBody(requestId, 'OCR_UNAVAILABLE', 'We could not read documents just now. Please try again.', {}), 503);
   }

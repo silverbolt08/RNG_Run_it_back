@@ -41,11 +41,31 @@ The app is built and runs end to end, so nothing here blocks further work.
 |---|---|
 | The mock OTP lets anyone who knows a phone number sign in as that owner | Inherent to a mock, and the privacy note says so |
 | PDF uploads are rejected, though `smart-kyc` lists them as accepted | JPEG and PNG work. Rasterising PDFs needs a heavy dependency |
-| Phone photos are untested | OCR was measured only on the provided specimens, and the OCR accuracy note says so |
+| Real phone photos are untested | Simulated ones read 91.6% to 100% of fields the same as clean scans. See the [OCR note](spikes/ocr-accuracy.md). Try a few real photos before the demo |
 | Chat works in any language the model reads, but only English and Hindi have screens and fallback wording | Replies in other languages haven't been tested |
 | No local LLM backup | If Gemini is down, the owner continues on tappable answers and the short form |
 | The back office's propensity score uses the fields the leads table holds | Turnover, current internet and provider aren't seeded, so the live ranking is rougher than the model tested in `analytics/propensity.py` |
 | The content security policy has no script nonce | Noted in `next.config.ts`. A production hardening step |
+
+## Security review
+
+A read-only review found no critical issues, 2 high and 7 medium. All of those are fixed, with tests where behaviour changed, and they are:
+
+- Gaps in identifier removal, including spaced numbers, Hindi digits and UPI IDs
+- GSTIN confirmation, which could overturn a rejection or look up a stranger
+- The reply guard, which missed spelled-out amounts and promises
+- Consent, which could be granted without its notice, and an AI clause bundled with the short form
+- Retention wording and timing, rate limit bypass, and ID numbers kept with no use for them
+
+Left open, because they are low risk or need a decision:
+
+| Item | Why it's open |
+|---|---|
+| Owners can overwrite their own contact name to clear a signatory mismatch | The change is audited, but a real product would send it to a person |
+| A name typed as a business type or city can reach the back office | It shows facts read from chat, and mapping every value to a known list would refuse real businesses |
+| The guard covers amounts in words in English and Hindi only | Numerals are caught in every script, and the brief holds no numbers. Other languages are untested anyway |
+| 15 fictional GSTINs from the pack sit in tracked test files | Your test data decision. Check the platform's rules before a public push |
+| 12 moderate `npm audit` findings in development tools | None in production dependencies |
 
 ## Choices I made that you may want to check
 
@@ -60,7 +80,7 @@ The app is built and runs end to end, so nothing here blocks further work.
 | Documents uploaded during an OCR outage are kept encrypted and read later, in place of manual entry | Typed details couldn't verify a document anyway, and this loses nothing | `src/server/services/kyc/kyc-upload.ts` |
 | A name from the leads data is used only after a matching certificate, and never shown | Otherwise typing a GSTIN could reveal a stranger's name | `src/server/services/kyc/kyc-assessment.ts` |
 | A blocked add-on returns `200` with `applied: false`, not an error | Toggling is normal use, and the owner needs the reason and the alternatives | `docs/architecture/api.md` |
-| The advisor needs the short consent notice before chat starts | Otherwise that consent purpose would protect nothing | `docs/architecture/api.md` |
+| The advisor needs the short consent notice before chat starts, and typed chat needs a separate AI consent | The short form then involves no outside AI service at all | `docs/architecture/api.md` |
 | An order under manual review can be placed, but is held and can't be paid until cleared. `RETAKE` and `NEEDS_CONFIRMATION` can't order | The owner keeps their place without paying for something that may not go through | `src/server/services/order-service.ts` |
 | Fibre is treated as a rule for Fibre 100, 300 and 1G, but not leased lines | The catalogue has no fibre flag, so this is an assumption | `src/domain/eligibility/eligibility.ts` |
 | 3 or more sites counts as multi-site, whatever the business type | Matches all 5,000 leads | `src/domain/bundle/segments.ts` |

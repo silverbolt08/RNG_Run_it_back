@@ -95,3 +95,19 @@ On K02's GST certificate, that tag made auto-rotation measure 0° instead of -6.
 - **One font and clean digital images.** Real phone photos will be harder. Test photos of the specimens in Phase 6, and recalibrate the blur threshold on them.
 - **Our own reading of the specimens,** not the judges' answer key.
 - **Field extraction only.** The verdict logic isn't built yet.
+
+## Simulated phone photos
+
+`scripts/ocr-phone-sim.ts` damages the 20 documents of five clean applicants (K02, K03, K08, K09, K12) and runs each through the real upload pipeline. The share is of fields that read the same as on the clean scan. These are simulations, so real phone photos are still untested.
+
+| Condition | Fields the same | Not recognised |
+|---|---|---|
+| JPEG, quality 80 | 98.9% | 0 of 20 |
+| JPEG, quality 50 | 100% | 0 of 20 |
+| Tilted 2 degrees | 91.6% | 0 of 20 |
+| Tilted 5 degrees | 91.6% | 1 of 20 |
+| 800 px wide | 97.9% | 0 of 20 |
+| Dim light | 91.6% | 1 of 20 |
+| Slightly soft focus | 97.9% | 0 of 20 |
+
+So JPEG itself isn't a problem. Tilt and dim light cost the most, and a misread there leads to a retake or a check for the owner to confirm, rather than a wrong approval. None of these was refused as blurred.
