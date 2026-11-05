@@ -1,4 +1,4 @@
-import type { Connectivity, DiscoveryProfile, Need } from '../bundle/recommend-bundle';
+import { productsForNeed, type Connectivity, type DiscoveryProfile, type Need } from '../bundle/recommend-bundle';
 import { inferSegment, lookupCityTier } from '../bundle/segments';
 import type { SegmentCode } from '../catalogue/catalogue';
 import type { GstinStatus } from '../eligibility/eligibility';
@@ -11,6 +11,8 @@ import type { UnitCounts } from '../pricing/pricing';
 export type AdvisorFacts = {
   businessType: string | null;
   segment: SegmentCode | null;
+  /** Kept apart from the segment, so moving down from 3 sites returns to it. */
+  segmentGuess: SegmentCode | null;
   city: string | null;
   cityTier: number | null;
   employeeCount: number | null;
@@ -21,6 +23,8 @@ export type AdvisorFacts = {
   needs: Need[];
   /** Products the owner named outright, which get checked even if no stated need leads to them. */
   requestedProducts: string[];
+  /** Products the owner said they don't want, which stay out even if a stated need leads to them. */
+  excludedProducts: string[];
   /** The owner has said what they need, even if that was "nothing else". */
   needsAnswered: boolean;
   counts: UnitCounts;
@@ -60,6 +64,7 @@ export type FactChange = {
 export const EMPTY_FACTS: AdvisorFacts = {
   businessType: null,
   segment: null,
+  segmentGuess: null,
   city: null,
   cityTier: null,
   employeeCount: null,
@@ -69,6 +74,7 @@ export const EMPTY_FACTS: AdvisorFacts = {
   connectivity: null,
   needs: [],
   requestedProducts: [],
+  excludedProducts: [],
   needsAnswered: false,
   counts: {},
   declined: [],
@@ -99,10 +105,16 @@ export function applyFactUpdate(facts: AdvisorFacts, update: FactUpdate): { fact
   const removed = new Set(update.removeNeeds ?? []);
   const needs = [...new Set([...facts.needs, ...(update.addNeeds ?? [])])].filter((need) => !removed.has(need));
 
-  const removedProducts = new Set(update.removeProducts ?? []);
+  // Dropping a need drops what was asked for by name to meet it, or it would stay in the bundle.
+  const removedProducts = new Set([
+    ...(update.removeProducts ?? []),
+    ...[...removed].flatMap((need) => productsForNeed(need, facts.segment)),
+  ]);
   const requestedProducts = [...new Set([...facts.requestedProducts, ...(update.addProducts ?? [])])].filter(
     (id) => !removedProducts.has(id),
   );
+  const added = new Set(update.addProducts ?? []);
+  const excludedProducts = [...new Set([...facts.excludedProducts, ...(update.removeProducts ?? [])])].filter((id) => !added.has(id));
 
   const answered = new Set<DeclinableFact>();
   if (update.city !== undefined || update.cityTier !== undefined) answered.add('city');
@@ -120,7 +132,8 @@ export function applyFactUpdate(facts: AdvisorFacts, update: FactUpdate): { fact
       businessType,
       city,
       cityTier: resolveCityTier(city, cityChanged, facts.cityTier, update.cityTier),
-      segment: resolveSegment(businessType, numSites, update.segmentGuess ?? facts.segment),
+      segment: resolveSegment(businessType, numSites, update.segmentGuess ?? facts.segmentGuess),
+      segmentGuess: update.segmentGuess ?? facts.segmentGuess,
       employeeCount,
       numSites,
       gstinStatus,
@@ -128,6 +141,7 @@ export function applyFactUpdate(facts: AdvisorFacts, update: FactUpdate): { fact
       connectivity: update.connectivity ?? facts.connectivity,
       needs,
       requestedProducts,
+      excludedProducts,
       needsAnswered: facts.needsAnswered || update.needsAnswered === true || needs.length > 0 || requestedProducts.length > 0,
       counts: { ...facts.counts, ...update.counts },
       declined,
@@ -167,7 +181,9 @@ export function nextSlot(facts: AdvisorFacts): AdvisorSlot | null {
   if (!isSettled(facts, 'gstinStatus', facts.gstinStatus)) return 'GSTIN';
   // An owner who only wants a mobile plan has no use for the fibre question.
   if (facts.connectivity !== 'NONE' && !isSettled(facts, 'fibreAvailable', facts.fibreAvailable)) return 'FIBRE';
-  if (!facts.needsAnswered) return 'NEEDS';
+  // With no connection and nothing else, there is nothing to recommend yet.
+  const wantsNothing = facts.connectivity === 'NONE' && facts.needs.length === 0 && facts.requestedProducts.length === 0;
+  if (!facts.needsAnswered || wantsNothing) return 'NEEDS';
   return null;
 }
 
@@ -187,6 +203,7 @@ export function toDiscoveryProfile(facts: AdvisorFacts): DiscoveryProfile {
     connectivity: facts.connectivity ?? 'STANDARD',
     needs: facts.needs,
     requestedProducts: facts.requestedProducts,
+    excludedProducts: facts.excludedProducts,
     counts: facts.counts,
   };
 }

@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Notice, Skeleton } from '@/components/ui/feedback';
 import { Card, Screen, Section, StickyBar } from '@/components/ui/layout';
 import { useLocale } from '@/i18n/locale-provider';
+import { daysText, monthsText } from '@/i18n/units';
 import { api, ApiFailure, ensureSession } from '@/lib/api-client';
 import { formatInr } from '@/lib/money';
 import type { QuoteView } from '@/server/services/quote-view';
@@ -28,16 +29,16 @@ function ChangeNotices({ quote }: { quote: QuoteView }) {
           {t('quote.strandedBody', { names: stranded.map((item) => item.name).join(', ') })}
         </Notice>
       ) : null}
-      {comparison?.contractChanged ? (
+      {comparison?.contractChanged && comparison.contractMonthsAfter > 0 ? (
         <Notice tone="warning">
           {t(comparison.contractMonthsAfter > comparison.contractMonthsBefore ? 'quote.contractChanged' : 'quote.contractReduced', {
-            after: comparison.contractMonthsAfter,
-            before: comparison.contractMonthsBefore,
+            after: monthsText(t, comparison.contractMonthsAfter),
+            before: monthsText(t, comparison.contractMonthsBefore),
           })}
         </Notice>
       ) : null}
-      {comparison?.installChanged ? (
-        <Notice tone="neutral">{t('quote.installChanged', { after: comparison.installDaysAfter, before: comparison.installDaysBefore })}</Notice>
+      {comparison?.installChanged && comparison.installDaysAfter > 0 ? (
+        <Notice tone="neutral">{t('quote.installChanged', { after: daysText(t, comparison.installDaysAfter), before: daysText(t, comparison.installDaysBefore) })}</Notice>
       ) : null}
       {blocked.map((item) => (
         <Notice key={item.productId} tone="warning" title={item.name}>
@@ -62,6 +63,7 @@ export function QuoteScreen() {
   const [busy, setBusy] = useState(false);
   const [accepting, setAccepting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const totalRef = useRef<HTMLSpanElement>(null);
 
   const refreshAddOns = useCallback(async (id: string) => setAddOns(await api.get<AddOns>(`/quotes/${id}/add-ons`)), []);
 
@@ -80,7 +82,7 @@ export function QuoteScreen() {
     })().catch((caught: unknown) => setError(errorMessage(caught)));
   }, [errorMessage, refreshAddOns]);
 
-  const change = async (run: () => Promise<QuoteView>) => {
+  const change = async (run: () => Promise<QuoteView>): Promise<boolean> => {
     setBusy(true);
     setError(null);
     setSaved(false);
@@ -88,10 +90,16 @@ export function QuoteScreen() {
       const updated = await run();
       setQuote(updated);
       await refreshAddOns(updated.id);
+      return true;
     } catch (caught) {
       setError(errorMessage(caught));
+      return false;
     } finally {
       setBusy(false);
+      // The control that was tapped may be gone once this renders, so keyboard users land on what changed.
+      setTimeout(() => {
+        if (document.activeElement === document.body) totalRef.current?.focus({ preventScroll: true });
+      }, 0);
     }
   };
 
@@ -111,8 +119,7 @@ export function QuoteScreen() {
 
   const save = async () => {
     if (!quote) return;
-    await change(() => api.post<QuoteView>(`/quotes/${quote.id}/save`));
-    setSaved(true);
+    if (await change(() => api.post<QuoteView>(`/quotes/${quote.id}/save`))) setSaved(true);
   };
 
   const groups = useMemo(() => {
@@ -134,6 +141,25 @@ export function QuoteScreen() {
 
   const locked = quote.status === 'ACCEPTED';
   const hasLines = quote.lines.length > 0;
+
+  // One decision per screen. Lower down the page, this opened out of sight and Accept seemed to do nothing.
+  if (askPhone && !phoneVerified) {
+    return (
+      <Screen title={t('quote.title')}>
+        {error ? <Notice tone="danger" live>{error}</Notice> : null}
+        <PhoneStep
+          onVerified={() => {
+            setPhoneVerified(true);
+            setAskPhone(false);
+            void accept();
+          }}
+        />
+        <Button variant="ghost" onClick={() => setAskPhone(false)}>
+          {t('app.back')}
+        </Button>
+      </Screen>
+    );
+  }
 
   return (
     <Screen title={t('quote.title')}>
@@ -179,24 +205,14 @@ export function QuoteScreen() {
         </Section>
       ) : null}
 
-      {askPhone && !phoneVerified ? (
-        <PhoneStep
-          onVerified={() => {
-            setPhoneVerified(true);
-            setAskPhone(false);
-            void accept();
-          }}
-        />
-      ) : null}
-
       <Section title={t('quote.detailsHeading')}>
         <Card className="flex flex-col gap-1 text-sm tabular-nums">
           <p>{t('quote.beforeGst', { amount: formatInr(quote.monthlyTotalInr), gst: formatInr(quote.monthlyGstInr), rate: quote.gstRatePercent })}</p>
           <p>
             {t('quote.setupLabel')}: {formatInr(quote.setupFinalInr)}
           </p>
-          <p>{t('quote.contract', { months: quote.contractMonths })}</p>
-          <p>{t('quote.install', { days: quote.installDays })}</p>
+          {hasLines ? <p>{t('quote.contract', { months: monthsText(t, quote.contractMonths) })}</p> : null}
+          {hasLines ? <p>{t('quote.install', { days: daysText(t, quote.installDays) })}</p> : null}
         </Card>
         {locked ? null : (
           <>
@@ -214,7 +230,7 @@ export function QuoteScreen() {
         <div aria-live="polite" className="flex items-end justify-between gap-3">
           <div className="flex flex-col">
             <span className="text-sm text-ink-muted">{t('quote.monthlyLabel')}</span>
-            <span data-testid="monthly-total" className="text-[28px] font-bold leading-9 tabular-nums">
+            <span ref={totalRef} tabIndex={-1} data-testid="monthly-total" className="text-[28px] font-bold leading-9 tabular-nums">
               {formatInr(quote.monthlyFinalInr)}
             </span>
           </div>

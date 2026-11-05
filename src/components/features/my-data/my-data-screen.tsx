@@ -16,6 +16,8 @@ type Application = { contact: { name: string | null; source: string | null }; gs
 type Conversation = { facts: { businessType: string | null; city: string | null; employeeCount: number | null; numSites: number | null } };
 type Withdrawal = { effects?: { documentsDeleted?: number; ordersCancelled?: number } };
 
+const BUSINESS_CHIPS: Readonly<Record<string, string>> = { shop: 'SHOP', office: 'OFFICE', chain: 'CHAIN', factory: 'FACTORY' };
+
 // These need their full notice read first, so they can't be granted from a bare button here.
 const FULL_NOTICE: Readonly<Record<string, string>> = { advisor_profile: '/', ai_chat: '/', kyc_verification: '/verify' };
 
@@ -88,6 +90,9 @@ export function MyDataScreen() {
     }
   };
 
+  // The tapped choices have wording of their own. Anything else is what the owner said.
+  const businessLabel = (type: string | null) => (type && BUSINESS_CHIPS[type] ? tDynamic(`advisor.chip.${BUSINESS_CHIPS[type]}`) : type);
+
   if (!consents) return error ? <Notice tone="danger" live>{error}</Notice> : <Skeleton label={t('app.loading')} />;
 
   return (
@@ -102,7 +107,7 @@ export function MyDataScreen() {
         {chat ? (
           <p className="text-sm">
             {t('myData.holdBusiness', {
-              details: [chat.facts.businessType, chat.facts.city, chat.facts.employeeCount, chat.facts.numSites].filter((value) => value !== null).join(', ') || '—',
+              details: [businessLabel(chat.facts.businessType), chat.facts.city, chat.facts.employeeCount, chat.facts.numSites].filter((value) => value !== null).join(', ') || '—',
             })}
           </p>
         ) : null}

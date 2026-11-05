@@ -47,7 +47,8 @@ export function cleanWords(value: string): string | undefined {
 }
 
 // Each field is judged alone, so one odd value costs that value and not the whole turn.
-const optionalInt = z.number().int().min(0).max(100_000).optional().catch(undefined);
+// Zero people, sites or cameras is a slip, not a fact to act on.
+const positiveInt = z.number().int().min(1).max(100_000).optional().catch(undefined);
 const words = z
   .string()
   .optional()
@@ -67,8 +68,8 @@ const turnSchema = z.object({
   segmentGuess: z.enum(['micro', 'prof', 'multi', 'mfg']).optional().catch(undefined),
   city: words,
   cityTier: z.number().int().min(1).max(3).optional().catch(undefined),
-  employeeCount: optionalInt,
-  numSites: optionalInt,
+  employeeCount: positiveInt,
+  numSites: positiveInt,
   gstinStatus: z.enum(['ACTIVE', 'CANCELLED', 'SUSPENDED', 'NONE', 'UNKNOWN']).optional().catch(undefined),
   fibreAvailable: z.boolean().optional().catch(undefined),
   connectivity: z.enum(['NONE', 'STANDARD', 'HIGH_SPEED', 'DEDICATED', 'DEDICATED_HIGH']).optional().catch(undefined),
@@ -79,14 +80,14 @@ const turnSchema = z.object({
   noOtherNeeds: z.boolean().optional().catch(undefined),
   counts: z
     .object({
-      lines: optionalInt,
-      users: optionalInt,
-      devices: optionalInt,
-      cameras: optionalInt,
-      counters: optionalInt,
-      vehicles: optionalInt,
-      channels: optionalInt,
-      machines: optionalInt,
+      lines: positiveInt,
+      users: positiveInt,
+      devices: positiveInt,
+      cameras: positiveInt,
+      counters: positiveInt,
+      vehicles: positiveInt,
+      channels: positiveInt,
+      machines: positiveInt,
     })
     .optional()
     .catch(undefined),
@@ -167,6 +168,8 @@ const RECORD_TURN: LlmTool = {
   },
 };
 
+const WORKS_WITHOUT_CONNECTION: ReadonlySet<string> = new Set(['PHONE_LINES', 'BULK_SMS', 'CUSTOMER_OUTREACH', 'TOLL_FREE', 'EMAIL', 'BACKUP', 'WEBSITE', 'POS', 'FLEET', 'MACHINE_MONITORING']);
+
 const SYSTEM = `You read one message from a small business owner in India who is talking to a telecom advisor, and record what it states by calling record_turn.
 
 Rules:
@@ -222,10 +225,15 @@ export async function readOwnerTurn(
   const call = response.toolCalls.find((item) => item.name === RECORD_TURN.name);
   const parsed = turnSchema.parse(call?.input ?? {});
 
-  // Someone naming only what they want, and nothing else, hasn't asked for broadband. The NEEDS
-  // question is about extras on top of the connection, so it doesn't count there.
+  // Someone naming only what they want, and nothing else, hasn't asked for broadband, unless what
+  // they want runs over a connection. The NEEDS question is about extras on top of the connection.
   const wantsNoConnection =
-    parsed.noOtherNeeds === true && parsed.addNeeds.length > 0 && parsed.connectivity === undefined && input.facts.connectivity === null && input.askedSlot !== 'NEEDS';
+    parsed.noOtherNeeds === true &&
+    parsed.addNeeds.length > 0 &&
+    parsed.addNeeds.every((need) => WORKS_WITHOUT_CONNECTION.has(need)) &&
+    parsed.connectivity === undefined &&
+    input.facts.connectivity === null &&
+    input.askedSlot !== 'NEEDS';
 
   const declined: DeclinableFact[] = parsed.declined;
   const counts = parsed.counts ? stripUndefined(parsed.counts) : undefined;

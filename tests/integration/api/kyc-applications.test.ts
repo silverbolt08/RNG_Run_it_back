@@ -528,6 +528,15 @@ describe('KYC applications', () => {
         expect(response.body.checks).toEqual([]);
       });
 
+      it('asks for a retake of a blurred certificate, even when the bundle needs no GSTIN', async () => {
+        await seedRegistryFor(app, 'K04');
+        const quoteId = await acceptedQuote(owner, noGstinLines);
+        const created = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, contactName: applicant('K04').contactName });
+        const { body } = await uploadAll(app, owner, created.body.id, 'K04');
+        expect(body.application.verdict).toBe('RETAKE');
+        expect(body.application.nextActions).not.toContain('PLACE_ORDER');
+      });
+
       it('requires the adult declaration', async () => {
         const quoteId = await acceptedQuote(owner);
         expectApiError(await owner.post(APPLICATIONS, { quoteId, contactName: 'Some Person' }), 400, 'INVALID_REQUEST');

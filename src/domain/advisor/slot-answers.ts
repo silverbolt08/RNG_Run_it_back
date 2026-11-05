@@ -1,5 +1,5 @@
 import type { Need } from '../bundle/recommend-bundle';
-import { inferSegment, KNOWN_CITIES, lookupCityTier } from '../bundle/segments';
+import { canonicalCity, inferSegment, KNOWN_CITIES } from '../bundle/segments';
 import type { SegmentCode } from '../catalogue/catalogue';
 import type { GstinStatus } from '../eligibility/eligibility';
 import type { AdvisorSlot, FactUpdate } from './advisor-facts';
@@ -113,8 +113,8 @@ export function parseSlotText(slot: AdvisorSlot, raw: string): FactUpdate | null
       return count === null ? null : { numSites: count };
     }
     case 'CITY': {
-      const tier = lookupCityTier(text);
-      return tier === null ? null : { city: titleCase(text) };
+      const city = canonicalCity(text);
+      return city === null ? null : { city: titleCase(city) };
     }
     case 'BUSINESS':
       return inferSegment(text, null) ? { businessType: text.toLowerCase() } : null;
@@ -148,9 +148,10 @@ const NO_GST = /\bno gst\b|\bgst nahi\b|\bgst nahin\b|without gst|gst नही�
 export function readPlainFacts(raw: string): FactUpdate {
   const update: FactUpdate = {};
   const people = PEOPLE_COUNT.exec(raw);
-  if (people) update.employeeCount = Number(people[1] ?? people[2]);
+  const peopleCount = Number(people?.[1] ?? people?.[2] ?? 0);
+  if (peopleCount >= 1) update.employeeCount = peopleCount;
   const sites = SITE_COUNT.exec(raw);
-  if (sites) update.numSites = Number(sites[1]);
+  if (sites && Number(sites[1]) >= 1) update.numSites = Number(sites[1]);
   if (NO_GST.test(raw)) update.gstinStatus = 'NONE';
   if (/leased line|dedicated (?:line|internet|bandwidth)|लीज़्ड लाइन/iu.test(raw)) {
     update.connectivity = /\b100\s?mbps\b/iu.test(raw) ? 'DEDICATED_HIGH' : 'DEDICATED';
@@ -164,9 +165,21 @@ export function readPlainFacts(raw: string): FactUpdate {
   return update;
 }
 
+/**
+ * A town we don't know, typed as the answer to the city question while the LLM is down. Letters and
+ * at most three words, so a sentence isn't taken for a place. Its tier is then asked for.
+ */
+export function readTypedTown(raw: string): FactUpdate | null {
+  const text = raw.trim();
+  const looksLikeAPlace = /^[\p{L}\p{M}]+(?:[ .-][\p{L}\p{M}]+){0,2}$/u.test(text) && text.length <= 30;
+  return looksLikeAPlace ? { city: titleCase(text) } : null;
+}
+
 function wholeNumberOnly(text: string): number | null {
   if (!/^\d{1,6}$/.test(text)) return null;
-  return Number(text);
+  // A business has at least one person and one site, so zero is a slip to ask about again.
+  const value = Number(text);
+  return value >= 1 ? value : null;
 }
 
 function titleCase(text: string): string {

@@ -69,6 +69,49 @@ const TIER_BY_CITY: Readonly<Record<string, number>> = {
 
 export const KNOWN_CITIES: readonly string[] = Object.keys(TIER_BY_CITY);
 
+// Other spellings owners use, so that "Bombay" or "पुणे" reaches the same tier as the listed name.
+const CITY_ALIASES: Readonly<Record<string, string>> = {
+  bombay: 'mumbai',
+  bangalore: 'bengaluru',
+  calcutta: 'kolkata',
+  madras: 'chennai',
+  'new delhi': 'delhi',
+  poona: 'pune',
+  mysore: 'mysuru',
+  cochin: 'kochi',
+  baroda: 'vadodara',
+  vizag: 'visakhapatnam',
+  अहमदाबाद: 'ahmedabad',
+  बेंगलुरु: 'bengaluru',
+  चेन्नई: 'chennai',
+  दिल्ली: 'delhi',
+  हैदराबाद: 'hyderabad',
+  कोलकाता: 'kolkata',
+  मुंबई: 'mumbai',
+  पुणे: 'pune',
+  भोपाल: 'bhopal',
+  कोयंबटूर: 'coimbatore',
+  इंदौर: 'indore',
+  जयपुर: 'jaipur',
+  कोच्चि: 'kochi',
+  लखनऊ: 'lucknow',
+  लुधियाना: 'ludhiana',
+  मैसूर: 'mysuru',
+  नागपुर: 'nagpur',
+  नासिक: 'nashik',
+  पटना: 'patna',
+  सूरत: 'surat',
+  वडोदरा: 'vadodara',
+  विशाखापत्तनम: 'visakhapatnam',
+};
+
+/** The listed name for a city, or null if we don't know it. */
+export function canonicalCity(city: string): string | null {
+  const key = normalise(city);
+  const name = Object.hasOwn(CITY_ALIASES, key) ? (CITY_ALIASES[key] ?? key) : key;
+  return Object.hasOwn(TIER_BY_CITY, name) ? name : null;
+}
+
 /** A starting guess the advisor confirms with the owner. Segment guides ranking, never eligibility. */
 export function inferSegment(businessType: string, numSites: number | null): SegmentCode | null {
   const key = normalise(businessType);
@@ -79,8 +122,8 @@ export function inferSegment(businessType: string, numSites: number | null): Seg
 }
 
 export function lookupCityTier(city: string): number | null {
-  const key = normalise(city);
-  return Object.hasOwn(TIER_BY_CITY, key) ? (TIER_BY_CITY[key] ?? null) : null;
+  const name = canonicalCity(city);
+  return name === null ? null : (TIER_BY_CITY[name] ?? null);
 }
 
 function normalise(text: string): string {

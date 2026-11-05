@@ -67,14 +67,14 @@ Public. No body. Returns `201` and sets the cookie, or `200` if a valid session 
 
 ### `GET /sessions/current`
 
-As above, plus where the owner got to. Each ID is `null` if there is none yet.
+As above, plus where the owner got to. Each ID is `null` if there is none yet. `quoteId` is the latest quote and `kycApplicationId` is the application for that quote, because a new bundle needs its own verification. `orderId` is the latest order, and `orderForQuote` says whether it is for the latest quote.
 
 ```json
 {
   "phoneVerified": true,
   "phoneMasked": "••••••1234",
   "expiresAt": "...",
-  "journey": { "quoteId": "qt_...", "kycApplicationId": "kyc_...", "orderId": "ord_..." }
+  "journey": { "quoteId": "qt_...", "kycApplicationId": "kyc_...", "orderId": "ord_...", "orderForQuote": true }
 }
 ```
 
@@ -265,6 +265,10 @@ Send text, a tapped answer, or both. A tapped answer's text is only what the cha
 | `llmAvailable` | `false` means typed text can't be read just now, so point to the tappable answers and the short form |
 
 The LLM never fails this route. When it is down, the reply comes from a template.
+
+### `POST /conversations/{id}/quote`
+
+No body. Returns `{ "quoteId": "qt_..." }` for the current recommendation. While the facts are unchanged it returns the same quote, so going back and forward keeps the owner's edits. Error: `422 EMPTY_QUOTE` until the questions are answered and something can be sold.
 
 ### `POST /conversations/{id}/handoff`
 

@@ -2,7 +2,9 @@
 
 import { Ban } from 'lucide-react';
 import { Card } from '@/components/ui/layout';
+import { Notice } from '@/components/ui/feedback';
 import { useLocale } from '@/i18n/locale-provider';
+import { daysText, monthsText } from '@/i18n/units';
 import { formatInr } from '@/lib/money';
 import type { Recommendation } from '@/server/services/advisor/reply-plan';
 import { blockerText } from '../quote/blocker-text';
@@ -15,6 +17,8 @@ const reasonKey = (line: Line) => `reason.${line.reason.kind === 'NEED' ? line.r
 export function BundleCard({ recommendation }: { recommendation: Recommendation }) {
   const { t, tDynamic } = useLocale();
   const { lines, blocked, quote, alternativeNames } = recommendation;
+
+  if (lines.length === 0 && blocked.length === 0) return <Notice tone="neutral">{t('advisor.emptyBundle')}</Notice>;
 
   return (
     <div className="flex flex-col gap-3" data-testid="bundle-card">
@@ -40,9 +44,9 @@ export function BundleCard({ recommendation }: { recommendation: Recommendation 
             <dt>{t('advisor.setup')}</dt>
             <dd className="text-right tabular-nums">{formatInr(quote.setupFinalInr)}</dd>
             <dt>{t('advisor.contract')}</dt>
-            <dd className="text-right">{t('advisor.contractMonths', { months: quote.contractMonths })}</dd>
+            <dd className="text-right">{monthsText(t, quote.contractMonths)}</dd>
             <dt>{t('advisor.install')}</dt>
-            <dd className="text-right">{t('advisor.installDays', { days: quote.installDays })}</dd>
+            <dd className="text-right">{daysText(t, quote.installDays)}</dd>
           </dl>
         </Card>
       ) : null}

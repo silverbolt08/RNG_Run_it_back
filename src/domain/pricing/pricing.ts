@@ -16,6 +16,9 @@ export const PRICE_POSITION = 0.5;
  */
 export const GST_RATE_PERCENT = 18;
 
+/** The most one line can hold, which is also what the API accepts. */
+export const MAX_LINE_QUANTITY = 1000;
+
 export type BundleLine = { productId: string; quantity: number };
 
 export type QuoteLine = BundleLine & {
@@ -121,8 +124,8 @@ export function compareQuotes(before: Quote, after: Quote): QuoteComparison {
 
 /** A starting quantity the owner can always edit. */
 export function defaultQuantity(product: Product, size: BusinessSize, counts: UnitCounts = {}): number {
-  if (product.id === MACHINE_MONITORING_ID && counts.machines !== undefined) return counts.machines;
-  return quantityForUnit(product.unit, size, counts);
+  const quantity = product.id === MACHINE_MONITORING_ID && counts.machines !== undefined ? counts.machines : quantityForUnit(product.unit, size, counts);
+  return Math.min(MAX_LINE_QUANTITY, Math.max(1, quantity));
 }
 
 function quantityForUnit(unit: ProductUnit, size: BusinessSize, counts: UnitCounts): number {

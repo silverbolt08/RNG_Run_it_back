@@ -1,6 +1,7 @@
 'use client';
 
 import { CalendarClock } from 'lucide-react';
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge, Notice, Skeleton } from '@/components/ui/feedback';
@@ -41,7 +42,19 @@ export function TrackerScreen({ orderId }: { orderId: string }) {
     }
   };
 
-  if (!order) return error ? <Notice tone="danger" live>{error}</Notice> : <Skeleton label={t('app.loading')} />;
+  if (!order) {
+    if (!error) return <Skeleton label={t('app.loading')} />;
+    return (
+      <div className="flex flex-col gap-3">
+        <Notice tone="danger" live>
+          {error}
+        </Notice>
+        <Link href="/sign-in" className="inline-flex min-h-12 items-center justify-center rounded-control border border-line-strong px-4 py-2 font-medium">
+          {t('home.signInTitle')}
+        </Link>
+      </div>
+    );
+  }
 
   const date = (iso: string) => formatDate(iso, locale);
   const paymentFailed = order.payment.status === 'FAILED';
@@ -65,7 +78,16 @@ export function TrackerScreen({ orderId }: { orderId: string }) {
     <Screen title={t('tracker.title')}>
       {error ? <Notice tone="danger" live>{error}</Notice> : null}
 
-      {cancelled ? <Notice tone="danger" title={t('tracker.cancelled')} /> : null}
+      {cancelled ? (
+        <div className="flex flex-col gap-3">
+          <Notice tone="danger" title={t('tracker.cancelled')}>
+            {t('tracker.cancelledBody')}
+          </Notice>
+          <Link href="/" className="inline-flex min-h-12 items-center justify-center rounded-control border border-line-strong px-4 py-2 font-medium">
+            {t('tracker.startAgain')}
+          </Link>
+        </div>
+      ) : null}
       {activated ? <Notice tone="success" live title={t('tracker.activated')} /> : null}
 
       {order.next ? (
@@ -117,11 +139,14 @@ export function TrackerScreen({ orderId }: { orderId: string }) {
         </Section>
       )}
 
+      {cancelled ? null : (
       <Section title={t('tracker.stagesHeading')}>
         <Stepper steps={steps} />
         <p className="text-sm text-ink-muted">{t('tracker.dateNote')}</p>
       </Section>
+      )}
 
+      {cancelled ? null : (
       <Section title={t('tracker.productsHeading')}>
         <ul className="flex flex-col gap-2">
           {order.products.map((product) => (
@@ -134,6 +159,7 @@ export function TrackerScreen({ orderId }: { orderId: string }) {
         <p className="font-medium tabular-nums">{t('tracker.summaryMonthly', { amount: formatInr(order.monthlyFinalInr) })}</p>
         <p className="text-sm">{t('tracker.summaryContract', { months: order.contractMonths })}</p>
       </Section>
+      )}
 
       <Section title={t('tracker.updatesHeading')}>
         {statusMessages.length === 0 ? (

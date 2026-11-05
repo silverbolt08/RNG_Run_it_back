@@ -11,9 +11,21 @@
     "prototypeBanner": "Prototype. All data is made up, and no real money, SMS or registry is involved.",
     "genericError": "Something went wrong on our side. Your progress is saved, so please try again.",
     "offlineError": "We couldn't reach the server. Check your connection and try again.",
-    "rateLimited": "Too many tries in a short time. Please wait a moment and try again."
+    "rateLimited": "Too many tries in a short time. Please wait a moment and try again.",
+    "consentNeeded": "This needs an agreement that isn't active now. You can review it under My data.",
+    "notFound": "We couldn't find that. If it's yours, please sign in with your phone number."
+  },
+  "units": {
+    "oneDay": "1 day",
+    "days": "{count} days",
+    "oneMonth": "1 month",
+    "months": "{count} months"
   },
   "home": {
+    "signInLink": "Already have an order? Sign in",
+    "signInTitle": "Sign in",
+    "signInBody": "Use the mobile number on your order, and we'll bring you back to it.",
+    "trackOrder": "Track my existing order",
     "title": "The right business connection, in one sitting",
     "intro": "Tell us about your business. We'll suggest what fits, with one clear monthly price. Then finish verification and track your order on your phone.",
     "point1": "One price, including GST",
@@ -50,9 +62,8 @@
     "monthly": "per month, including GST",
     "setup": "One-time setup, including GST",
     "contract": "Contract",
-    "contractMonths": "{months} months",
     "install": "Installed in about",
-    "installDays": "{days} days",
+    "emptyBundle": "Nothing is selected yet. Tell me what you need.",
     "blockedTitle": "Not available for you right now",
     "greeting": "Namaste! I'm the Accel Business advisor. A few quick questions, and I'll suggest what fits your business with one clear price. You can type in any language.",
     "ask": {
@@ -81,8 +92,8 @@
       "UNKNOWN_PRODUCT_CLOSEST": "We don't sell {thing}. The closest thing we have is {closest}."
     },
     "recommend": {
-      "summary": "Here's what I'd suggest. It comes to {monthly} a month including GST, plus {setup} one-time setup, on a {contract}-month contract, installed in about {install} days.",
-      "summaryNoSetup": "Here's what I'd suggest. It comes to {monthly} a month including GST, with no setup fee, on a {contract}-month contract, installed in about {install} days.",
+      "summary": "Here's what I'd suggest. It comes to {monthly} a month including GST, plus {setup} one-time setup, on a {contract}-month contract, installed in about {install}.",
+      "summaryNoSetup": "Here's what I'd suggest. It comes to {monthly} a month including GST, with no setup fee, on a {contract}-month contract, installed in about {install}.",
       "empty": "As things stand, I can't offer what you asked for. You can change your answers, or ask for a person."
     },
     "blocked": {
@@ -91,7 +102,7 @@
       "MIN_SITES": "{name} is for businesses with at least {min} sites.",
       "GSTIN_REQUIRED": "{name} needs an active GST registration. Getting registered would unlock it.",
       "FIBRE_NOT_AVAILABLE": "{name} needs fibre at your premises.",
-      "DEPENDENCY": "{name} only works with certain connections, and this bundle doesn't include one.",
+      "DEPENDENCY": "{name} only works with certain connections, and this bundle doesn't include one. Tell me if you'd like to add one.",
       "OTHER": "{name} isn't available for you right now.",
       "ALTERNATIVE": "The closest option is {alternative}."
     },
@@ -237,8 +248,8 @@
     "detailsHeading": "Price details",
     "beforeGst": "{amount} + {gst} GST ({rate}%)",
     "setupLabel": "One-time setup, including GST",
-    "contract": "Contract: {months} months",
-    "install": "Installed in about {days} days",
+    "contract": "Contract: {months}",
+    "install": "Installed in about {days}",
     "bundleHeading": "In your bundle",
     "addOnsHeading": "Add or remove",
     "quantity": "Quantity",
@@ -263,9 +274,9 @@
     "empty": "Your bundle is empty. Add something below to continue.",
     "strandedTitle": "Removed with it",
     "strandedBody": "{names} needed that connection, so it has been removed too.",
-    "contractChanged": "Your contract is now {after} months, up from {before}.",
-    "contractReduced": "Your contract is now {after} months, down from {before}.",
-    "installChanged": "Installation now takes about {after} days, not {before}.",
+    "contractChanged": "Your contract is now {after}, up from {before}.",
+    "contractReduced": "Your contract is now {after}, down from {before}.",
+    "installChanged": "Installation now takes about {after}, not {before}.",
     "blockedBecause": "Not available: {reason}",
     "alternatives": "Closest option: {names}",
     "save": "Save for later",
@@ -323,6 +334,7 @@
     "contactName": "Your full name, as on your ID",
     "gstin": "GST number (optional)",
     "gstinHint": "We'll read it from your certificate if you skip this.",
+    "gstinInvalid": "A GST number has 15 letters and digits. Please check it, or leave this empty.",
     "businessName": "Business name",
     "businessNameHint": "Only needed if you have no GST registration.",
     "continue": "Continue",
@@ -399,6 +411,7 @@
       "SIGNATORY_VALID": "ID format is valid",
       "SIGNATORY_BUSINESS": "Signatory is linked to the business"
     },
+    "gstStatus": { "CANCELLED": "cancelled", "SUSPENDED": "suspended", "NONE": "not found", "ACTIVE": "active", "UNKNOWN": "unknown" },
     "outcome": { "PASS": "Passed", "FAIL": "Needs attention", "SKIPPED": "Not needed", "PENDING": "Waiting" },
     "explain": {
       "GST_STATUS": "Your GST registration shows as {status}, so it counts as no GST for bundles that need one.",
@@ -444,6 +457,8 @@
     },
     "activated": "Everything is active. Welcome to Accel Business.",
     "cancelled": "This order was cancelled.",
+    "cancelledBody": "Nothing more will happen on it, and nothing is due. You can start again whenever you like.",
+    "startAgain": "Start again",
     "expected": "Expected to be active by {date}",
     "stagesHeading": "Every step",
     "stage": {

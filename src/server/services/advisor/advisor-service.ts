@@ -8,7 +8,7 @@ import {
   type AdvisorSlot,
   type FactUpdate,
 } from '../../../domain/advisor/advisor-facts';
-import { parseSlotText, readPlainFacts, updateFromSlotAnswer, type SlotAnswer } from '../../../domain/advisor/slot-answers';
+import { parseSlotText, readPlainFacts, readTypedTown, updateFromSlotAnswer, type SlotAnswer } from '../../../domain/advisor/slot-answers';
 import { productsForNeed } from '../../../domain/bundle/recommend-bundle';
 import { getProduct } from '../../../domain/catalogue/catalogue';
 import { translate, type Locale } from '../../../i18n/messages';
@@ -19,10 +19,11 @@ import { hasActiveConsent } from '../../consent/consent-service';
 import { RATE_LIMITS } from '../../http/rate-limiter';
 import type { LlmProvider } from '../../llm/provider';
 import { conversations } from '../../db/schema';
-import { invalidRequest, notFound } from '../../http/errors';
+import { ApiError, invalidRequest, notFound } from '../../http/errors';
 import { isLlmUnavailable } from '../../llm/provider';
 import { cleanWords, readOwnerTurn, type OwnerLanguage, type OwnerTurn } from '../../llm/read-owner-turn';
 import { fillSlots, writeReply } from '../../llm/write-reply';
+import { createQuote, getQuote } from '../quote-service';
 import { recommend } from '../recommendation-service';
 import { composeReply, type HandoffReason, type Recommendation, type ReplyNext, type ReplyNote } from './reply-plan';
 
@@ -39,6 +40,8 @@ type StoredState = {
   facts: AdvisorFacts;
   stuckTurns: number;
   uiLanguage: Locale;
+  /** The quote made from these facts, so going back and forward keeps the owner's changes. */
+  quote?: { id: string; factsKey: string };
 };
 
 export type ConversationView = {
@@ -169,7 +172,7 @@ export async function sendMessage(
 
   const ownerMessage: StoredMessage | null = redacted ? { role: 'owner', source: 'OWNER', text: redacted } : null;
   const handedOff = next.kind === 'HANDOFF';
-  const newState: StoredState = { facts, stuckTurns, uiLanguage: input.language };
+  const newState: StoredState = { ...state, facts, stuckTurns, uiLanguage: input.language };
 
   const [updated] = await app.db
     .update(conversations)
@@ -207,6 +210,35 @@ export async function requestHandoff(app: AppContext, owner: Owner, id: string, 
   return toView(app, updated, (await usableLlm(app, owner.subjectRef)) !== null);
 }
 
+/** The quote for this recommendation, made once. A change to the facts makes a new one. */
+export async function quoteFromConversation(app: AppContext, owner: Owner, id: string): Promise<{ quoteId: string }> {
+  const row = await loadConversation(app, owner.ownerId, id);
+  const state = readState(row);
+  const factsKey = JSON.stringify(state.facts);
+
+  if (state.quote?.factsKey === factsKey) {
+    const existing = await getQuote(app, owner.ownerId, state.quote.id).catch(() => null);
+    if (existing) return { quoteId: existing.id };
+  }
+
+  // Only once the questions are answered, so a quote can't be made from half the facts.
+  const recommendation = nextSlot(state.facts) === null ? await recommendFor(app, state.facts) : null;
+  if (!recommendation || recommendation.lines.length === 0) throw new ApiError(422, 'EMPTY_QUOTE', 'There is nothing to quote yet.');
+
+  const { cityTier, employeeCount, numSites, gstinStatus, fibreAvailable } = recommendation.profile;
+  const quote = await createQuote(app, owner.ownerId, {
+    profile: { cityTier, employeeCount, numSites, gstinStatus, fibreAvailable },
+    lines: recommendation.lines.map((line) => ({ productId: line.productId, quantity: line.quantity })),
+  });
+
+  const newState: StoredState = { ...state, quote: { id: quote.id, factsKey } };
+  await app.db
+    .update(conversations)
+    .set({ facts: JSON.stringify(newState), updatedAt: app.clock.now().toISOString() })
+    .where(eq(conversations.id, id));
+  return { quoteId: quote.id };
+}
+
 type Understood = { update: FactUpdate; turn: OwnerTurn | null; llmDown: boolean };
 
 /** A tapped answer, then plain text for the question asked, and only then the LLM. */
@@ -229,7 +261,8 @@ async function understand(
   if (direct) return { update: direct, turn: null, llmDown: false };
 
   const plain = readPlainFacts(redactedText);
-  if (!llm) return { update: plain, turn: null, llmDown: true };
+  const typedTown = askedSlot === 'CITY' ? readTypedTown(redactedText) : null;
+  if (!llm) return { update: { ...plain, ...typedTown }, turn: null, llmDown: true };
   try {
     const turn = await readOwnerTurn(llm, { facts, askedSlot, redactedText });
     // The model's reading wins. Plain patterns only fill what it dropped.
@@ -237,7 +270,7 @@ async function understand(
   } catch (error) {
     if (!isLlmUnavailable(error)) throw error;
     app.logger.error('advisor.llm_unavailable', { reason: error.reason });
-    return { update: plain, turn: null, llmDown: true };
+    return { update: { ...plain, ...typedTown }, turn: null, llmDown: true };
   }
 }
 
@@ -316,6 +349,7 @@ async function recommendFor(app: AppContext, facts: AdvisorFacts): Promise<Recom
     connectivity: profile.connectivity,
     needs: profile.needs,
     requestedProducts: profile.requestedProducts ?? [],
+    excludedProducts: profile.excludedProducts ?? [],
     counts: profile.counts,
   });
 }

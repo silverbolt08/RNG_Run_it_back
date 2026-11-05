@@ -17,6 +17,13 @@ const CHOICES: Partial<Record<AdvisorSlot, readonly Choice[]>> = {
     { labelKey: 'advisor.chip.CHAIN', answer: { slot: 'BUSINESS', value: 'CHAIN' } },
     { labelKey: 'advisor.chip.FACTORY', answer: { slot: 'BUSINESS', value: 'FACTORY' } },
   ],
+  // A typed city is best, but with the LLM down an unknown town must still have a way forward.
+  CITY: [
+    { labelKey: 'advisor.chip.TIER_1', answer: { slot: 'CITY_TIER', value: 1 } },
+    { labelKey: 'advisor.chip.TIER_2', answer: { slot: 'CITY_TIER', value: 2 } },
+    { labelKey: 'advisor.chip.TIER_3', answer: { slot: 'CITY_TIER', value: 3 } },
+    { labelKey: 'advisor.chip.DECLINE', answer: { slot: 'CITY_TIER', value: 'DECLINED' } },
+  ],
   CITY_TIER: [
     { labelKey: 'advisor.chip.TIER_1', answer: { slot: 'CITY_TIER', value: 1 } },
     { labelKey: 'advisor.chip.TIER_2', answer: { slot: 'CITY_TIER', value: 2 } },
@@ -57,7 +64,8 @@ const CHOICES: Partial<Record<AdvisorSlot, readonly Choice[]>> = {
 // The needs most owners have, so the list stays short on a phone. Typing reaches the rest.
 export const COMMON_NEEDS: readonly Need[] = ['UPTIME', 'CUSTOMER_OUTREACH', 'GUEST_WIFI', 'POS', 'CCTV', 'EMAIL', 'SECURITY', 'PHONE_LINES', 'WEBSITE', 'BUSINESS_CALLS', 'BACKUP'];
 
-const CHIP = 'min-h-12 rounded-pill border border-line-strong bg-surface px-4 py-2 text-left font-medium hover:bg-surface-alt disabled:opacity-50';
+const CHIP_SHAPE = 'min-h-12 rounded-pill border px-4 py-2 text-left font-medium disabled:opacity-50';
+const CHIP = `${CHIP_SHAPE} border-line-strong bg-surface hover:bg-surface-alt`;
 
 export function SlotChoices({
   slot,
@@ -89,7 +97,7 @@ export function SlotChoices({
                 aria-pressed={on}
                 disabled={disabled}
                 onClick={() => setPicked(on ? picked.filter((item) => item !== need) : [...picked, need])}
-                className={`${CHIP} inline-flex items-center gap-1 ${on ? 'border-brand-strong bg-brand-tint text-brand-strong' : ''}`}
+                className={`${CHIP_SHAPE} inline-flex items-center gap-1 ${on ? 'border-brand-strong bg-brand-tint text-brand-strong' : 'border-line-strong bg-surface hover:bg-surface-alt'}`}
               >
                 {on ? <Check aria-hidden className="size-4" /> : null}
                 {tDynamic(`need.${need}`)}
@@ -97,7 +105,7 @@ export function SlotChoices({
             );
           })}
         </div>
-        <button type="button" disabled={disabled} onClick={finish} className={`${CHIP} self-start border-ink bg-ink text-surface hover:bg-ink`}>
+        <button type="button" disabled={disabled} onClick={finish} className={`${CHIP_SHAPE} self-start border-ink bg-ink text-surface`}>
           {picked.length > 0 ? t('advisor.needsDone') : t('advisor.chip.NEEDS_NONE')}
         </button>
       </div>

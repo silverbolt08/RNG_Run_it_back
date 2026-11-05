@@ -38,7 +38,9 @@ export function gstChecks(input: KycInput): KycCheck[] {
   ];
 
   if (gst.quality !== 'OK') {
-    const documentCheck = input.bundleNeedsGstin
+    // A blurred certificate needs a retake even when the bundle needs no GSTIN, because the owner
+    // chose to give one. Only a certificate that was never uploaded can be skipped.
+    const documentCheck = input.bundleNeedsGstin || gst.quality !== 'MISSING'
       ? make('GST_DOCUMENT', 'HARD', 'RETAKE', false, documentProblem(gst))
       : skipped('GST_DOCUMENT', 'HARD', 'RETAKE');
     return [documentCheck, ...skippedAfterDocument];

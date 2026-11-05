@@ -36,6 +36,8 @@ export type DiscoveryProfile = BusinessProfile & {
   needs: readonly Need[];
   /** Products named outright. Checked even when no need leads to them, so a refusal is always explained. */
   requestedProducts?: readonly string[];
+  /** Products the owner said they don't want, whatever need would lead to them. */
+  excludedProducts?: readonly string[];
   counts: UnitCounts;
 };
 
@@ -102,6 +104,7 @@ export function recommendBundle(catalogue: Catalogue, profile: DiscoveryProfile)
 
   for (const need of profile.needs) {
     for (const productId of productsForNeed(need, profile.segment)) {
+      if (profile.excludedProducts?.includes(productId)) continue;
       if (lines.some((line) => line.productId === productId)) continue;
       if (blocked.some((item) => item.productId === productId)) continue;
 

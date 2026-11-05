@@ -67,6 +67,14 @@ Left open, because they are low risk or need a decision:
 | 15 fictional GSTINs from the pack sit in tracked test files | Your test data decision. Check the platform's rules before a public push |
 | 12 moderate `npm audit` findings in development tools | None in production dependencies |
 
+## QA review
+
+An independent QA pass found 24 defects that the other tests had missed, 3 of them blocking the journey on a phone. All are fixed, and its probes are kept in `tests/qa`. A few are worth knowing about:
+
+- **Sign-in:** there is now a sign-in page, so an owner can get back to an order after signing out or changing phone. It uses the same mock OTP.
+- **A second bundle:** a new quote now gets its own verification, so documents are uploaded again.
+- **Not tested by anyone:** real phones, on-screen keyboards, screen readers and iPhone HEIC photos.
+
 ## Choices I made that you may want to check
 
 | Choice | Reasoning | Where |

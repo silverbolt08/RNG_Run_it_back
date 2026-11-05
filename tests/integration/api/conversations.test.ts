@@ -178,6 +178,21 @@ describe('the advisor conversation', () => {
       expect(response.body.recommendation.blocked[0]).toMatchObject({ productId: 'P03', blockers: [{ rule: 'CITY_TIER' }] });
     });
 
+    it('ignores a zero count from the model, rather than failing', async () => {
+      const id = await start();
+      llm.willRead({ ...READY_FACTS, addNeeds: ['CCTV'], counts: { cameras: 0 } });
+      const response = await say(id, 'cameras please, zero for now');
+      expect(response.status).toBe(200);
+      expect(response.body.recommendation.lines.find((line: { productId: string }) => line.productId === 'P23').quantity).toBe(4);
+    });
+
+    it('keeps the connection when someone wants Wi-Fi and cameras and nothing else', async () => {
+      const id = await start();
+      llm.willRead({ ...READY_FACTS, addNeeds: ['GUEST_WIFI', 'CCTV'], noOtherNeeds: true });
+      const response = await say(id, 'guest wifi and cameras, nothing else');
+      expect(response.body.recommendation.lines.map((line: { productId: string }) => line.productId)).toEqual(['P01', 'P22', 'P23']);
+    });
+
     it('survives nonsense from the model', async () => {
       const id = await start();
       llm.willRead({ employeeCount: 'lots', numSites: -4, gstinStatus: 'MAYBE', addNeeds: ['UNICORNS'], city: 42 });
@@ -186,6 +201,37 @@ describe('the advisor conversation', () => {
       expect(response.body.facts.employeeCount).toBeNull();
       expect(response.body.facts.needs).toEqual([]);
       expect(response.body.askedSlot).toBe('BUSINESS');
+    });
+  });
+
+  describe('from chat to quote', () => {
+    const toQuote = (id: string) => owner.post(`${CONVERSATIONS}/${id}/quote`);
+
+    it('keeps the same quote, with its edits, while the facts are unchanged', async () => {
+      const id = await start();
+      llm.willRead({ ...READY_FACTS, noOtherNeeds: true });
+      await say(id, 'my salon, all the details');
+
+      const first = await toQuote(id);
+      await owner.put(`/api/v1/quotes/${first.body.quoteId}/lines/P22`, {});
+      const second = await toQuote(id);
+      expect(second.body.quoteId).toBe(first.body.quoteId);
+      const quote = await owner.get(`/api/v1/quotes/${second.body.quoteId}`);
+      expect(quote.body.lines.map((line: { productId: string }) => line.productId)).toEqual(['P01', 'P22']);
+    });
+
+    it('makes a new quote once the facts change', async () => {
+      const id = await start();
+      llm.willRead({ ...READY_FACTS, noOtherNeeds: true });
+      await say(id, 'my salon, all the details');
+      const first = await toQuote(id);
+      await tap(id, 'EMPLOYEES', 12);
+      expect((await toQuote(id)).body.quoteId).not.toBe(first.body.quoteId);
+    });
+
+    it('refuses when there is nothing to quote', async () => {
+      const id = await start();
+      expectApiError(await toQuote(id), 422, 'EMPTY_QUOTE');
     });
   });
 

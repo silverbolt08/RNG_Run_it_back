@@ -36,6 +36,15 @@ export function GuidedForm() {
   const [connectivity, setConnectivity] = useState('STANDARD');
   const [needs, setNeeds] = useState<readonly Need[]>([]);
   const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
+  const [resultFor, setResultFor] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [failedTries, setFailedTries] = useState(0);
+
+  // After the render that marks the fields, so focus lands on the first one with a problem.
+  useEffect(() => {
+    if (failedTries > 0) formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+  }, [failedTries]);
+  const answers = JSON.stringify([segment, city, cityTier, employees, sites, gstin, fibre, connectivity, needs]);
   const [problems, setProblems] = useState<Record<string, boolean>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,9 +55,13 @@ export function GuidedForm() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    const missing = { city: city === '', employees: !/^\d+$/.test(employees), sites: !/^\d+$/.test(sites), gstin: gstin === '', fibre: fibre === '' };
+    const wholePositive = (value: string) => /^\d{1,6}$/.test(value) && Number(value) >= 1;
+    const missing = { city: city === '', employees: !wholePositive(employees), sites: !wholePositive(sites), gstin: gstin === '', fibre: fibre === '' };
     setProblems(missing);
-    if (Object.values(missing).some(Boolean)) return;
+    if (Object.values(missing).some(Boolean)) {
+      setFailedTries((tries) => tries + 1);
+      return;
+    }
 
     setBusy(true);
     setError(null);
@@ -65,6 +78,7 @@ export function GuidedForm() {
         counts: {},
       });
       setRecommendation(result);
+      setResultFor(answers);
       setTimeout(() => resultRef.current?.scrollIntoView?.({ block: 'start' }), 0);
     } catch (caught) {
       if (caught instanceof ApiFailure && caught.code === 'CONSENT_REQUIRED') router.replace('/');
@@ -75,7 +89,7 @@ export function GuidedForm() {
   };
 
   const seeQuote = async () => {
-    if (!recommendation) return;
+    if (resultFor !== answers || !recommendation) return;
     setBusy(true);
     setError(null);
     try {
@@ -88,11 +102,13 @@ export function GuidedForm() {
   };
 
   const required = t('form.required');
+  // A result answers the form as it was. Changing any answer hides it, so an old bundle can't be quoted.
+  const current = resultFor === answers ? recommendation : null;
 
   return (
     <Screen title={t('form.title')}>
       <p className="text-ink-muted">{t('form.intro')}</p>
-      <form onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-4">
+      <form ref={formRef} onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-4">
         <SelectField
           label={t('form.business')}
           value={segment}
@@ -173,18 +189,18 @@ export function GuidedForm() {
             />
           ))}
         </fieldset>
-        <Button type="submit" fullWidth variant={recommendation ? 'secondary' : 'primary'} loading={busy && !recommendation}>
+        <Button type="submit" fullWidth variant={current ? 'secondary' : 'primary'} loading={busy && !current}>
           {t('form.submit')}
         </Button>
       </form>
 
       {error ? <Notice tone="danger" live>{error}</Notice> : null}
 
-      {recommendation ? (
+      {current ? (
         <div ref={resultRef}>
           <Section title={t('advisor.bundleTitle')}>
-            <BundleCard recommendation={recommendation} />
-            {recommendation.lines.length > 0 ? (
+            <BundleCard recommendation={current} />
+            {current.lines.length > 0 ? (
               <StickyBar>
                 <Button fullWidth loading={busy} onClick={() => void seeQuote()}>
                   {t('advisor.seeBundle')}

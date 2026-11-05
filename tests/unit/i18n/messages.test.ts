@@ -29,7 +29,7 @@ describe('message catalogues', () => {
 
 describe('translate', () => {
   it('fills in values', () => {
-    expect(translate('en', 'quote.contract', { months: 12 })).toBe('Contract: 12 months');
+    expect(translate('en', 'quote.contract', { months: '12 months' })).toBe('Contract: 12 months');
   });
 
   it('falls back to the key rather than blanking a screen', () => {

@@ -2,6 +2,7 @@
 
 import { Lock, Minus, Plus } from 'lucide-react';
 import { Card } from '@/components/ui/layout';
+import { MAX_LINE_QUANTITY } from '@/domain/pricing/pricing';
 import { Toggle } from '@/components/ui/toggle';
 import { useLocale } from '@/i18n/locale-provider';
 import { formatInr } from '@/lib/money';
@@ -12,19 +13,19 @@ import { blockerText } from './blocker-text';
 export type AddOns = Awaited<ReturnType<typeof listAddOns>>;
 export type AddOn = AddOns['items'][number];
 
-function QuantityStepper({ line, disabled, onChange }: { line: QuoteLineView; disabled: boolean; onChange(quantity: number): void }) {
+function QuantityStepper({ line, busy, onChange }: { line: QuoteLineView; busy: boolean; onChange(quantity: number): void }) {
   const { t } = useLocale();
   const button = 'flex size-12 items-center justify-center rounded-control border border-line-strong disabled:opacity-40';
   return (
     <div className="flex items-center gap-2">
-      <button type="button" aria-label={t('quote.decrease', { name: line.name })} disabled={disabled || line.quantity <= 1} onClick={() => onChange(line.quantity - 1)} className={button}>
+      <button type="button" aria-label={t('quote.decrease', { name: line.name })} disabled={line.quantity <= 1} onClick={() => !busy && onChange(line.quantity - 1)} className={button}>
         <Minus aria-hidden className="size-5" />
       </button>
       <span aria-live="polite" className="min-w-8 text-center font-semibold tabular-nums">
         <span className="sr-only">{t('quote.quantity')} </span>
         {line.quantity}
       </span>
-      <button type="button" aria-label={t('quote.increase', { name: line.name })} disabled={disabled} onClick={() => onChange(line.quantity + 1)} className={button}>
+      <button type="button" aria-label={t('quote.increase', { name: line.name })} disabled={line.quantity >= MAX_LINE_QUANTITY} onClick={() => !busy && onChange(line.quantity + 1)} className={button}>
         <Plus aria-hidden className="size-5" />
       </button>
     </div>
@@ -52,7 +53,7 @@ export function BundleLineRow({
           <span className="font-semibold">{line.name}</span>
           <span className="text-sm text-ink-muted">{tDynamic(`productText.${line.productId}`)}</span>
         </div>
-        {locked ? null : <Toggle checked label={line.name} disabled={busy} onChange={onRemove} />}
+        {locked ? null : <Toggle checked label={line.name} busy={busy} onChange={onRemove} />}
       </div>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-col">
@@ -61,7 +62,7 @@ export function BundleLineRow({
             {t('quote.unit', { price: formatInr(line.unitPriceInr), unit: tDynamic(`quote.perUnit.${line.unit}`) })}
           </span>
         </div>
-        {locked ? <span className="font-medium tabular-nums">× {line.quantity}</span> : <QuantityStepper line={line} disabled={busy} onChange={onQuantity} />}
+        {locked ? <span className="font-medium tabular-nums">× {line.quantity}</span> : <QuantityStepper line={line} busy={busy} onChange={onQuantity} />}
       </div>
     </Card>
   );
@@ -86,7 +87,7 @@ export function AddOnRow({ addOn, names, busy, onAdd }: { addOn: AddOn; names: A
           <span className="text-sm">{t('quote.alternatives', { names: addOn.alternatives.map((id) => names[id] ?? '').filter(Boolean).join(' + ') })}</span>
         ) : null}
       </div>
-      <Toggle checked={false} label={addOn.name} disabled={busy || !addOn.eligible} onChange={onAdd} />
+      <Toggle checked={false} label={addOn.name} busy={busy} disabled={!addOn.eligible} onChange={onAdd} />
     </li>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckboxField, TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/feedback';
@@ -18,6 +18,14 @@ export function ContactStep({ quoteId, onCreated }: { quoteId: string; onCreated
   const [business, setBusiness] = useState('');
   const [adult, setAdult] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [gstinError, setGstinError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [failedTries, setFailedTries] = useState(0);
+
+  // After the render that marks the fields, so focus lands on the first one with a problem.
+  useEffect(() => {
+    if (failedTries > 0) formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"], input[type="checkbox"]:not(:checked)')?.focus();
+  }, [failedTries]);
   const [adultError, setAdultError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,9 +33,14 @@ export function ContactStep({ quoteId, onCreated }: { quoteId: string; onCreated
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const nameOk = name.trim().length >= 2;
+    const gstinOk = gstin.trim() === '' || /^[0-9A-Za-z]{15}$/.test(gstin.trim());
     setNameError(nameOk ? null : t('form.required'));
+    setGstinError(gstinOk ? null : t('kyc.gstinInvalid'));
     setAdultError(!adult);
-    if (!nameOk || !adult) return;
+    if (!nameOk || !gstinOk || !adult) {
+      setFailedTries((tries) => tries + 1);
+      return;
+    }
 
     setBusy(true);
     setError(null);
@@ -49,11 +62,11 @@ export function ContactStep({ quoteId, onCreated }: { quoteId: string; onCreated
   };
 
   return (
-    <form onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-4">
+    <form ref={formRef} onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-4">
       <h2 className="text-lg font-semibold">{t('kyc.contactTitle')}</h2>
-      <TextField label={t('kyc.contactName')} hint={t('kyc.contactIntro')} autoComplete="name" value={name} error={nameError} onChange={(event) => setName(event.target.value)} />
-      <TextField label={t('kyc.gstin')} hint={t('kyc.gstinHint')} autoComplete="off" autoCapitalize="characters" maxLength={15} className="font-mono" value={gstin} onChange={(event) => setGstin(event.target.value)} />
-      <TextField label={t('kyc.businessName')} hint={t('kyc.businessNameHint')} autoComplete="organization" value={business} onChange={(event) => setBusiness(event.target.value)} />
+      <TextField label={t('kyc.contactName')} hint={t('kyc.contactIntro')} autoComplete="name" maxLength={120} value={name} error={nameError} onChange={(event) => setName(event.target.value)} />
+      <TextField label={t('kyc.gstin')} hint={t('kyc.gstinHint')} autoComplete="off" autoCapitalize="characters" maxLength={15} className="font-mono" value={gstin} error={gstinError} onChange={(event) => setGstin(event.target.value)} />
+      <TextField label={t('kyc.businessName')} hint={t('kyc.businessNameHint')} autoComplete="organization" maxLength={160} value={business} onChange={(event) => setBusiness(event.target.value)} />
       <CheckboxField label={t('kyc.consentAdult')} checked={adult} onChange={setAdult} />
       {adultError && !adult ? <Notice tone="danger" live>{t('kyc.adultRequired')}</Notice> : null}
       {error ? <Notice tone="danger" live>{error}</Notice> : null}

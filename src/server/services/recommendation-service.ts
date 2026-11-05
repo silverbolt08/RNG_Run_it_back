@@ -18,6 +18,7 @@ export type DiscoveryInput = {
   connectivity: DiscoveryProfile['connectivity'];
   needs: readonly Need[];
   requestedProducts?: readonly string[];
+  excludedProducts?: readonly string[];
   counts: DiscoveryProfile['counts'];
 };
 
@@ -37,6 +38,7 @@ export async function recommend(app: AppContext, input: DiscoveryInput) {
     connectivity: input.connectivity,
     needs: input.needs,
     requestedProducts: input.requestedProducts ?? [],
+    excludedProducts: input.excludedProducts ?? [],
     counts: input.counts,
   };
 

@@ -60,6 +60,8 @@ The back office is at `/backoffice`, and asks for `ADMIN_TOKEN` from `.env.local
 | `npx tsx scripts/advisor-live-eval.ts gemini-3.5-flash-lite` | Our scenarios on a real model. Spends free quota |
 | `npx tsx scripts/advisor-live-conversations.ts http://localhost:3000` | Full conversations with a running app. Spends free quota |
 | `npx tsx scripts/ocr-phone-sim.ts` | OCR on simulated phone photos |
+| `npm run test:qa:logic` | Awkward advisor and quote logic |
+| `npm run test:qa:browser` | Awkward journeys in the browser. Run `npx next build` and `npx tsx tests/qa/start-server.ts` first |
 
 Browser tests need `npx playwright install chromium` once.
 

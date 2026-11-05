@@ -81,7 +81,7 @@ test.describe('K01 to K12 through the real screens and real OCR', () => {
   test('K01: a Cancelled GSTIN changes the quote, and the owner can go on with the new one', async ({ page }) => {
     await applyAs(page, 'K01');
     await expectVerdict(page, 'REJECTED');
-    await expect(page.getByText(/Your GST registration shows as Cancelled/).first()).toBeVisible();
+    await expect(page.getByText(/Your GST registration shows as cancelled/).first()).toBeVisible();
     await expect(page.getByText(/WhatsApp Business API Starter/)).toBeVisible();
     await checkScreen(page);
 

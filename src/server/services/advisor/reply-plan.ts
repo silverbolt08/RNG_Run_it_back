@@ -154,15 +154,15 @@ function composeRecommendation(
     brief.push(
       `Recommend this bundle, giving each item's reason in a few words:\n${lineBrief.join('\n')}`,
       quote.setupFinalInr > 0
-        ? 'State the totals once: {{MONTHLY}} a month including GST, {{SETUP}} one-time setup including GST, a contract of {{CONTRACT}} months, installed in about {{INSTALL}} days.'
-        : 'State the totals once: {{MONTHLY}} a month including GST, no one-time setup fee, a contract of {{CONTRACT}} months, installed in about {{INSTALL}} days.',
+        ? 'State the totals once: {{MONTHLY}} a month including GST, {{SETUP}} one-time setup including GST, a contract of {{CONTRACT}} months, installed in about {{INSTALL}} days. Write the words naturally if a number is one.'
+        : 'State the totals once: {{MONTHLY}} a month including GST, no one-time setup fee, a contract of {{CONTRACT}} months, installed in about {{INSTALL}} days. Write the words naturally if a number is one.',
     );
     template.push(
       translate(locale, quote.setupFinalInr > 0 ? 'advisor.recommend.summary' : 'advisor.recommend.summaryNoSetup', {
         monthly: values.MONTHLY,
         setup: values.SETUP,
         contract: values.CONTRACT,
-        install: values.INSTALL,
+        install: quote.installDays === 1 ? translate(locale, 'units.oneDay') : translate(locale, 'units.days', { count: quote.installDays }),
       }),
     );
   } else {
@@ -202,7 +202,7 @@ function blockerGloss(blocker: Blocker | undefined, index: number): string {
     case 'FIBRE_NOT_AVAILABLE':
       return 'fibre does not reach their premises, or they are not sure it does';
     case 'DEPENDENCY':
-      return 'it only works on top of a connection type they do not have in this bundle';
+      return 'it only works on top of a connection type they do not have in this bundle, and they can ask to add one';
     default:
       return 'the eligibility rules do not allow it';
   }

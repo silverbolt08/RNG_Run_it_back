@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/feedback';
@@ -21,6 +21,13 @@ export function PhoneStep({ onVerified }: { onVerified(): void }) {
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Opened by a tap elsewhere, so bring it into view and put the cursor in the field.
+  useEffect(() => {
+    window.scrollTo?.(0, 0);
+    cardRef.current?.querySelector('input')?.focus();
+  }, [challenge]);
 
   const requestCode = async (event: FormEvent) => {
     event.preventDefault();
@@ -61,7 +68,8 @@ export function PhoneStep({ onVerified }: { onVerified(): void }) {
   };
 
   return (
-    <Card className="flex flex-col gap-3" >
+    <div ref={cardRef}>
+    <Card className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold">{challenge ? t('phone.codeTitle') : t('phone.title')}</h2>
       {error ? <Notice tone="danger" live>{error}</Notice> : null}
       {challenge ? (
@@ -103,5 +111,6 @@ export function PhoneStep({ onVerified }: { onVerified(): void }) {
         </form>
       )}
     </Card>
+    </div>
   );
 }

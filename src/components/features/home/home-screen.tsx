@@ -13,7 +13,7 @@ import { api, ensureSession } from '@/lib/api-client';
 import { useErrorMessage } from '../shell/use-error-message';
 
 type ConsentItem = { purpose: string; status: string; currentNoticeVersion: string };
-type Journey = { journey: { quoteId: string | null; kycApplicationId: string | null; orderId: string | null } };
+type Journey = { phoneVerified: boolean; journey: { quoteId: string | null; kycApplicationId: string | null; orderId: string | null; orderForQuote: boolean } };
 
 const POINTS = [
   { icon: BadgeIndianRupee, key: 'home.point1' },
@@ -32,6 +32,8 @@ export function HomeScreen() {
 
   const [consents, setConsents] = useState<ConsentItem[] | null>(null);
   const [resume, setResume] = useState<string | null>(null);
+  const [olderOrder, setOlderOrder] = useState<string | null>(null);
+  const [signedIn, setSignedIn] = useState(false);
   const [agreedBusiness, setAgreedBusiness] = useState(false);
   const [agreedAi, setAgreedAi] = useState(false);
   const [busy, setBusy] = useState<'advisor' | 'form' | null>(null);
@@ -47,8 +49,11 @@ export function HomeScreen() {
       ]);
       if (!active) return;
       setConsents(list.items);
-      const { orderId, kycApplicationId, quoteId } = current.journey;
-      setResume(orderId ? `/orders/${orderId}` : kycApplicationId ? '/verify' : quoteId ? '/quote' : null);
+      const { orderId, kycApplicationId, quoteId, orderForQuote } = current.journey;
+      // The newest work first. An older order stays one link away.
+      setResume(orderForQuote && orderId ? `/orders/${orderId}` : kycApplicationId ? '/verify' : quoteId ? '/quote' : null);
+      setOlderOrder(orderId && !orderForQuote ? `/orders/${orderId}` : null);
+      setSignedIn(current.phoneVerified);
     })().catch((caught: unknown) => {
       if (active) setError(errorMessage(caught));
     });
@@ -105,6 +110,18 @@ export function HomeScreen() {
       {resume ? (
         <Link href={resume} className="inline-flex min-h-12 items-center justify-center rounded-control border border-line-strong px-4 py-2 font-medium">
           {t('home.resume')}
+        </Link>
+      ) : null}
+
+      {olderOrder ? (
+        <Link href={olderOrder} className="inline-flex min-h-12 items-center justify-center rounded-control border border-line-strong px-4 py-2 font-medium">
+          {t('home.trackOrder')}
+        </Link>
+      ) : null}
+
+      {consents !== null && !signedIn ? (
+        <Link href="/sign-in" className="inline-flex min-h-12 items-center justify-center font-medium underline underline-offset-4">
+          {t('home.signInLink')}
         </Link>
       ) : null}
 

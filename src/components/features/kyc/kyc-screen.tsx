@@ -14,7 +14,7 @@ import { ContactStep } from './contact-step';
 import { UploadTile } from './upload-tile';
 import { VerdictPanel } from './verdict-panel';
 
-type SessionView = { journey: { quoteId: string | null; kycApplicationId: string | null; orderId: string | null } };
+type SessionView = { journey: { quoteId: string | null; kycApplicationId: string | null; orderId: string | null; orderForQuote: boolean } };
 type Step = 'CONSENT' | 'CONTACT' | 'DOCUMENTS';
 
 const ALL_DOCUMENTS = ['GST_CERTIFICATE', 'SIGNATORY_ID', 'ADDRESS_PROOF', 'UDYAM_CERTIFICATE'] as const;
@@ -34,12 +34,29 @@ export function KycScreen() {
   const [accepting, setAccepting] = useState(false);
   const [retrying, setRetrying] = useState(false);
   const orderKey = useRef(newIdempotencyKey());
+  const progressRef = useRef<HTMLParagraphElement>(null);
+
+  // The control that led here has gone, so keyboard and screen reader users start at the new step.
+  useEffect(() => {
+    if (step) progressRef.current?.focus({ preventScroll: true });
+  }, [step]);
 
   const load = useCallback(async () => {
     await ensureSession();
     const session = await api.get<SessionView>('/sessions/current');
     if (!session.journey.quoteId) {
       router.replace('/');
+      return;
+    }
+    // An order for this quote is already on its way, so the tracker is the place to be.
+    if (session.journey.orderForQuote && session.journey.orderId) {
+      router.replace(`/orders/${session.journey.orderId}`);
+      return;
+    }
+    // A new bundle starts at its own quote, rather than at the last one's verification.
+    const quote = await api.get<{ status: string }>(`/quotes/${session.journey.quoteId}`);
+    if (quote.status !== 'ACCEPTED' && quote.status !== 'NEEDS_ACCEPTANCE') {
+      router.replace('/quote');
       return;
     }
     setQuoteId(session.journey.quoteId);
@@ -128,7 +145,7 @@ export function KycScreen() {
 
   return (
     <Screen title={t('kyc.title')}>
-      <p className="text-sm font-medium text-ink-muted" aria-live="polite">
+      <p ref={progressRef} tabIndex={-1} className="text-sm font-medium text-ink-muted" aria-live="polite">
         {t('kyc.progress', { step: STEP_NUMBER[step], total: 3 })}
       </p>
       {error ? <Notice tone="danger" live>{error}</Notice> : null}

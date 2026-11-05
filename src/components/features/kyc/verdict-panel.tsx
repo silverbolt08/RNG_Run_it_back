@@ -39,7 +39,11 @@ function CheckRow({ check }: { check: CheckView }) {
         <span>{tDynamic(`kyc.check.${check.id}`)}</span>
         <Badge tone={OUTCOME_TONE[check.outcome] ?? 'neutral'}>{tDynamic(`kyc.outcome.${check.outcome}`)}</Badge>
       </div>
-      {check.outcome === 'FAIL' && EXPLAINED.has(check.id) ? <p className="text-sm text-ink-muted">{tDynamic(`kyc.explain.${check.id}`, check.evidence)}</p> : null}
+      {check.outcome === 'FAIL' && EXPLAINED.has(check.id) ? (
+        <p className="text-sm text-ink-muted">
+          {tDynamic(`kyc.explain.${check.id}`, { ...check.evidence, status: tDynamic(`kyc.gstStatus.${(check.evidence.status ?? '').toUpperCase()}`) })}
+        </p>
+      ) : null}
     </li>
   );
 }
@@ -184,7 +188,7 @@ export function VerdictPanel({
       {change ? (
         <Card className="flex flex-col gap-2" selected>
           <h3 className="text-lg font-semibold">{t('kyc.quoteChangedTitle')}</h3>
-          <p>{t('kyc.quoteChangedBody', { status: change.gstinStatus })}</p>
+          <p>{t('kyc.quoteChangedBody', { status: tDynamic(`kyc.gstStatus.${change.gstinStatus.toUpperCase()}`) })}</p>
           <p>{t('kyc.quoteChangedDropped', { names: change.dropped.map((item) => item.name).join(', ') })}</p>
           <p className="font-semibold tabular-nums">{t('kyc.quoteChangedNew', { amount: formatInr(change.after.monthlyFinalInr) })}</p>
           <Button fullWidth loading={accepting} onClick={onAcceptChanged}>

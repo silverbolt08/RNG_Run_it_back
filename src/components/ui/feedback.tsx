@@ -25,7 +25,7 @@ export function Badge({ tone, children, icon }: { tone: Tone; children: ReactNod
 export function Notice({ tone, title, children, live = false }: { tone: Tone; title?: string; children?: ReactNode; live?: boolean }) {
   const { box, text, icon: Icon } = TONES[tone];
   return (
-    <div role={live ? 'status' : undefined} className={`flex gap-3 rounded-card border p-4 ${box}`}>
+    <div role={live ? (tone === 'danger' ? 'alert' : 'status') : undefined} className={`flex gap-3 rounded-card border p-4 ${box}`}>
       <Icon aria-hidden className={`mt-0.5 size-5 shrink-0 ${text}`} />
       <div className="flex min-w-0 flex-col gap-1">
         {title ? <p className="font-semibold">{title}</p> : null}

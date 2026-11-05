@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { getProduct } from '../../domain/catalogue/catalogue';
 import type { AppContext } from '../app-context';
 import type { SessionInfo } from '../auth/session-service';
@@ -7,7 +7,14 @@ import { refreshApplicationForQuote } from './kyc/kyc-service';
 import { acceptQuote } from './quote-service';
 import type { QuoteView } from './quote-view';
 
-export type Journey = { quoteId: string | null; kycApplicationId: string | null; orderId: string | null };
+export type Journey = {
+  quoteId: string | null;
+  /** The application for the latest quote, because a new quote needs its own verification. */
+  kycApplicationId: string | null;
+  orderId: string | null;
+  /** Whether the latest order is for the latest quote. Otherwise a newer quote is still in progress. */
+  orderForQuote: boolean;
+};
 
 /** The owner's most recent work, so a return visit can pick up where they left off. */
 export async function findJourney(app: AppContext, ownerId: string): Promise<Journey> {
@@ -15,21 +22,26 @@ export async function findJourney(app: AppContext, ownerId: string): Promise<Jou
     .select({ id: quotes.id })
     .from(quotes)
     .where(eq(quotes.ownerId, ownerId))
-    .orderBy(desc(quotes.updatedAt))
+    .orderBy(desc(sql`rowid`))
     .limit(1);
   const [application] = await app.db
     .select({ id: kycApplications.id })
     .from(kycApplications)
-    .where(eq(kycApplications.ownerId, ownerId))
-    .orderBy(desc(kycApplications.updatedAt))
+    .where(and(eq(kycApplications.ownerId, ownerId), eq(kycApplications.quoteId, quote?.id ?? '')))
+    .orderBy(desc(sql`rowid`))
     .limit(1);
   const [order] = await app.db
-    .select({ id: orders.id })
+    .select({ id: orders.id, quoteId: orders.quoteId, status: orders.status })
     .from(orders)
     .where(eq(orders.ownerId, ownerId))
-    .orderBy(desc(orders.updatedAt))
+    .orderBy(desc(sql`rowid`))
     .limit(1);
-  return { quoteId: quote?.id ?? null, kycApplicationId: application?.id ?? null, orderId: order?.id ?? null };
+  return {
+    quoteId: quote?.id ?? null,
+    kycApplicationId: application?.id ?? null,
+    orderId: order?.id ?? null,
+    orderForQuote: order !== undefined && order.quoteId === quote?.id && order.status !== 'CANCELLED',
+  };
 }
 
 export type AcceptedQuoteView = QuoteView & { kycApplication: { id: string; verdict: string | null } | null };

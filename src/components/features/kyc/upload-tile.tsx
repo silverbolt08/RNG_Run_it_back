@@ -64,7 +64,7 @@ export function UploadTile({
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     event.target.value = '';
-    if (file) void upload(file);
+    if (file && !busy) void upload(file);
   };
 
   const done = document?.quality === 'OK';
@@ -79,35 +79,36 @@ export function UploadTile({
         {done ? <CheckCircle2 aria-hidden className="size-6 shrink-0 text-success" /> : null}
       </div>
 
-      {document ? (
-        <div aria-live="polite">
+      {/* Always present, so a screen reader hears the first result as well as later ones. */}
+      <div aria-live="polite">
+        {document ? (
           <Badge tone={STATUS_TONE[document.quality] ?? 'neutral'}>
             {document.quality === 'WRONG_TYPE' && document.detectedType
               ? t('kyc.wrongTypeFound', { found: tDynamic(`kyc.doc.${document.detectedType}`), wanted: label })
               : tDynamic(`kyc.docStatus.${document.quality}`)}
           </Badge>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
       {error ? <Notice tone="danger" live>{error}</Notice> : null}
 
-      <label
-        htmlFor={inputId}
-        className={`flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-control border px-4 py-2 text-center font-medium ${busy ? 'cursor-wait opacity-60' : ''} ${done ? 'border-line-strong' : 'border-ink bg-ink text-surface'}`}
-      >
-        {busy ? <LoaderCircle aria-hidden className="size-5 animate-spin" /> : <Camera aria-hidden className="size-5" />}
-        {busy ? t('kyc.uploading') : document ? t('kyc.replace') : t('kyc.upload', { document: label })}
-      </label>
+      {/* The input comes first, so its keyboard focus can show on the label that looks like the button. */}
       <input
         id={inputId}
         type="file"
         accept="image/jpeg,image/png"
-        disabled={busy}
         onChange={onChange}
         data-testid={`upload-${documentType}`}
-        className="sr-only"
-        aria-label={t('kyc.upload', { document: label })}
+        aria-busy={busy || undefined}
+        className="peer sr-only"
       />
+      <label
+        htmlFor={inputId}
+        className={`flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-control border px-4 py-2 text-center font-medium peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink ${busy ? 'cursor-wait opacity-60' : ''} ${done ? 'border-line-strong' : 'border-ink bg-ink text-surface'}`}
+      >
+        {busy ? <LoaderCircle aria-hidden className="size-5 animate-spin" /> : <Camera aria-hidden className="size-5" />}
+        {busy ? t('kyc.uploading') : document ? `${t('kyc.replace')}: ${label}` : t('kyc.upload', { document: label })}
+      </label>
     </Card>
   );
 }

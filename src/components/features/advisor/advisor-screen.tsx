@@ -3,7 +3,7 @@
 import { Send } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent, type RefObject } from 'react';
 import { Button } from '@/components/ui/button';
 import { Notice, Skeleton } from '@/components/ui/feedback';
 import { StickyBar } from '@/components/ui/layout';
@@ -13,13 +13,16 @@ import { api, ApiFailure, ensureSession } from '@/lib/api-client';
 import type { ConversationView, StoredMessage } from '@/server/services/advisor/advisor-service';
 import { useErrorMessage } from '../shell/use-error-message';
 import { BundleCard } from './bundle-card';
-import { createQuoteFrom } from './create-quote';
 import { SlotChoices } from './slot-choices';
 
-function ChatBubble({ message }: { message: Pick<StoredMessage, 'role' | 'text'> }) {
+function ChatBubble({ message, focusRef }: { message: Pick<StoredMessage, 'role' | 'text'>; focusRef?: RefObject<HTMLLIElement | null> }) {
   const mine = message.role === 'owner';
   return (
-    <li className={`max-w-[85%] rounded-card px-3 py-2 ${mine ? 'self-end bg-ink text-surface' : 'self-start border border-line bg-surface-alt'}`}>
+    <li
+      ref={focusRef}
+      tabIndex={focusRef ? -1 : undefined}
+      className={`max-w-[85%] rounded-card px-3 py-2 ${mine ? 'self-end bg-ink text-surface' : 'self-start border border-line bg-surface-alt'}`}
+    >
       {message.text}
     </li>
   );
@@ -45,7 +48,9 @@ export function AdvisorScreen() {
   const [busy, setBusy] = useState(false);
   const [goingToQuote, setGoingToQuote] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const endRef = useRef<HTMLDivElement>(null);
+  const latestReplyRef = useRef<HTMLLIElement>(null);
+  const answered = useRef(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const start = useCallback(
     async (restart = false) => {
@@ -65,15 +70,26 @@ export function AdvisorScreen() {
     });
   }, [errorMessage, router]);
 
+  // The newest reply goes to the top of the screen, with its answers below it. It takes keyboard
+  // focus when the chip that was tapped has just gone. Someone typing stays in the box.
+  const messageCount = view?.messages.length ?? 0;
   useEffect(() => {
-    endRef.current?.scrollIntoView?.({ block: 'end' });
-  }, [view?.messages.length, pendingText]);
+    const reply = latestReplyRef.current;
+    if (!reply) return;
+    if (answered.current) {
+      if (document.activeElement !== inputRef.current) reply.focus({ preventScroll: true });
+      reply.scrollIntoView?.({ block: 'start' });
+    } else {
+      reply.scrollIntoView?.({ block: 'nearest' });
+    }
+  }, [messageCount]);
 
   const send = async (body: { text?: string; answer?: SlotAnswer }, shown: string) => {
     if (!view || busy) return;
     setBusy(true);
     setError(null);
     setPendingText(shown);
+    answered.current = true;
     try {
       setView(await api.post<ConversationView>(`/conversations/${view.id}/messages`, { ...body, language: locale }));
       setDraft('');
@@ -92,11 +108,11 @@ export function AdvisorScreen() {
   };
 
   const seeQuote = async () => {
-    if (!view?.recommendation) return;
+    if (!view) return;
     setGoingToQuote(true);
     setError(null);
     try {
-      await createQuoteFrom(view.recommendation);
+      await api.post(`/conversations/${view.id}/quote`);
       router.push('/quote');
     } catch (caught) {
       setError(errorMessage(caught));
@@ -107,6 +123,7 @@ export function AdvisorScreen() {
   const talkToPerson = async () => {
     if (!view) return;
     setBusy(true);
+    answered.current = true;
     try {
       setView(await api.post<ConversationView>(`/conversations/${view.id}/handoff`, { language: locale }));
     } catch (caught) {
@@ -118,6 +135,7 @@ export function AdvisorScreen() {
 
   const restart = () => {
     setBusy(true);
+    answered.current = false;
     start(true)
       .catch((caught: unknown) => setError(errorMessage(caught)))
       .finally(() => setBusy(false));
@@ -129,18 +147,22 @@ export function AdvisorScreen() {
 
   const handedOff = view.status === 'HANDED_OFF';
   const canSeeQuote = !handedOff && (view.recommendation?.lines.length ?? 0) > 0;
+  const lastIndex = view.messages.length - 1;
 
   return (
     <div className="flex grow flex-col gap-3">
       <h1 className="sr-only">{t('advisor.title')}</h1>
 
-      <ul aria-live="polite" aria-relevant="additions" className="flex grow flex-col gap-2">
+      <ul aria-live="polite" aria-relevant="additions" className="flex flex-col gap-2">
         {view.messages.map((message, index) => (
-          <ChatBubble key={index} message={message} />
+          <ChatBubble key={index} message={message} focusRef={index === lastIndex ? latestReplyRef : undefined} />
         ))}
         {pendingText ? <ChatBubble message={{ role: 'owner', text: pendingText }} /> : null}
         {busy && pendingText ? <TypingIndicator label={t('advisor.typing')} /> : null}
       </ul>
+
+      {/* Answers sit in the page rather than in the sticky bar, so a long list can't cover the question. */}
+      {view.askedSlot && !handedOff ? <SlotChoices slot={view.askedSlot} disabled={busy} onAnswer={(answer, label) => void send({ answer, text: label }, label)} /> : null}
 
       {view.recommendation ? <BundleCard recommendation={view.recommendation} /> : null}
 
@@ -162,6 +184,23 @@ export function AdvisorScreen() {
       ) : null}
 
       {error ? <Notice tone="danger" live>{error}</Notice> : null}
+
+      {handedOff ? null : (
+        <div className="flex flex-wrap justify-between gap-x-3">
+          <Link href="/advisor/form" className="inline-flex min-h-12 items-center text-sm underline underline-offset-4">
+            {t('advisor.useForm')}
+          </Link>
+          <button type="button" disabled={busy} onClick={() => void talkToPerson()} className="min-h-12 text-sm underline underline-offset-4">
+            {t('advisor.talkToPerson')}
+          </button>
+          <button type="button" disabled={busy} onClick={restart} className="min-h-12 text-sm underline underline-offset-4">
+            {t('advisor.startOver')}
+          </button>
+        </div>
+      )}
+
+      <div className="grow" />
+
       <StickyBar>
         {handedOff ? (
           <Button fullWidth variant="secondary" disabled={busy} onClick={restart}>
@@ -169,7 +208,6 @@ export function AdvisorScreen() {
           </Button>
         ) : (
           <>
-            {view.askedSlot ? <SlotChoices slot={view.askedSlot} disabled={busy} onAnswer={(answer, label) => void send({ answer, text: label }, label)} /> : null}
             {canSeeQuote ? (
               <Button fullWidth loading={goingToQuote} onClick={() => void seeQuote()}>
                 {t('advisor.seeBundle')}
@@ -180,6 +218,7 @@ export function AdvisorScreen() {
                 {t('advisor.inputLabel')}
               </label>
               <input
+                ref={inputRef}
                 id="advisor-input"
                 value={draft}
                 maxLength={500}
@@ -197,22 +236,9 @@ export function AdvisorScreen() {
                 <Send aria-hidden className="size-5" />
               </button>
             </form>
-            <div className="flex flex-wrap justify-between gap-x-3">
-              <Link href="/advisor/form" className="inline-flex min-h-10 items-center text-sm underline underline-offset-4">
-                {t('advisor.useForm')}
-              </Link>
-              <button type="button" disabled={busy} onClick={() => void talkToPerson()} className="min-h-10 text-sm underline underline-offset-4">
-                {t('advisor.talkToPerson')}
-              </button>
-              <button type="button" disabled={busy} onClick={restart} className="min-h-10 text-sm underline underline-offset-4">
-                {t('advisor.startOver')}
-              </button>
-            </div>
           </>
         )}
       </StickyBar>
-      {/* After the bar, so the newest message scrolls clear of it rather than behind it. */}
-      <div ref={endRef} />
     </div>
   );
 }

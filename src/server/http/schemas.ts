@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { MAX_LINE_QUANTITY } from '../../domain/pricing/pricing';
 import { CONSENT_PURPOSES, DELAY_REASONS, DOCUMENT_TYPES, GSTIN_STATUSES } from '../db/schema/enums';
 
 // Request schemas for the API. Strict, so an unknown field is a 400 rather than silently ignored.
@@ -28,7 +29,6 @@ export const emptySchema = z.strictObject({});
 export const simulationSchema = z.strictObject({ enabled: z.boolean() });
 
 const MAX_COUNT = 100_000;
-const MAX_QUANTITY = 1000;
 
 const count = z.number().int().min(0).max(MAX_COUNT);
 
@@ -87,7 +87,7 @@ export const discoveryProfileSchema = z.strictObject({
     .default({}),
 });
 
-const quantity = z.number().int().min(1).max(MAX_QUANTITY);
+const quantity = z.number().int().min(1).max(MAX_LINE_QUANTITY);
 
 export const quoteCreateSchema = z.strictObject({
   profile: businessProfileSchema,
