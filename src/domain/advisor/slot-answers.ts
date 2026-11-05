@@ -152,6 +152,11 @@ export function readPlainFacts(raw: string): FactUpdate {
   const sites = SITE_COUNT.exec(raw);
   if (sites) update.numSites = Number(sites[1]);
   if (NO_GST.test(raw)) update.gstinStatus = 'NONE';
+  if (/leased line|dedicated (?:line|internet|bandwidth)|लीज़्ड लाइन/iu.test(raw)) {
+    update.connectivity = /\b100\s?mbps\b/iu.test(raw) ? 'DEDICATED_HIGH' : 'DEDICATED';
+  } else if (/\b1\s?gbps\b/iu.test(raw)) {
+    update.connectivity = 'HIGH_SPEED';
+  }
 
   const words = raw.toLowerCase();
   const city = KNOWN_CITIES.find((name) => new RegExp(`\\b${name}\\b`).test(words));

@@ -18,7 +18,16 @@
 - S01: "achha internet for UPI" was read as wanting a billing counter, which would have added an extra line for the owner to remove.
 - S23: "I want vehicle tracking and nothing else" still added broadband. Code now reads this as no connection.
 
-**What this measures and doesn't:** it tests reading only. Whether the model's words reach owners is measured separately by `scripts/advisor-live-conversations.ts`, recorded in the status section of the [blueprint](../blueprint.md). Quotas and model names on the free tier change without notice, so run the evaluation again before the demo.
+**Full conversations:** `scripts/advisor-live-conversations.ts` then ran all 31 through the running app, with follow-up answers tapped, on 2026-11-05.
+
+| Measure | Result |
+|---|---|
+| Conversations completed | 31 of 31 |
+| Replies using the model's words, after the guard | 62 of 62 sampled (first and last in each chat) |
+| Scenarios reaching the expected bundle | 24 of 25. S19's owner declined to give GST details, and was asked again. That is now fixed, and not yet re-run live |
+| Off-script messages that changed a rule or price | 0 of 6 |
+
+That was one run on one day. Quotas and model names on the free tier change without notice, and an earlier run hit a moment when both models were unavailable, so run this again before the demo. The replies are in `analytics/output/advisor-live-replies.json`, and read well in English and Hinglish. The Hindi needs a native speaker's review.
 
 **Local backup:** a local model through Ollama was proposed as a backup, but isn't installed or built. It would need its own adapter behind `LlmProvider` and about 5 GB. If the LLM is unavailable, the journey already continues on tappable answers and the short form.
 

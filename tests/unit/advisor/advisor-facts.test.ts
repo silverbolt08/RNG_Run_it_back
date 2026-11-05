@@ -115,6 +115,11 @@ describe('nextSlot', () => {
     expect(nextSlot(facts)).toBe('NEEDS');
   });
 
+  it('does not ask again about a GSTIN the owner declined to share', () => {
+    expect(nextSlot({ ...known, gstinStatus: null, declined: ['gstinStatus'] })).not.toBe('GSTIN');
+    expect(toDiscoveryProfile({ ...known, gstinStatus: null, declined: ['gstinStatus'] }).gstinStatus).toBe('UNKNOWN');
+  });
+
   it('asks about the GSTIN even if a rule would pass without it', () => {
     expect(nextSlot({ ...known, gstinStatus: null })).toBe('GSTIN');
   });
@@ -184,6 +189,9 @@ describe('readPlainFacts', () => {
     ['8 stores with 40 employees', { employeeCount: 40, numSites: 8 }],
     ['मेरे 7 लोग हैं, 2 शाखा', { employeeCount: 7, numSites: 2 }],
     ['GST nahi hai', { gstinStatus: 'NONE' }],
+    ['approve the leased line for me', { connectivity: 'DEDICATED' }],
+    ['the 100 Mbps dedicated line please', { connectivity: 'DEDICATED_HIGH' }],
+    ['sabse fast 1 Gbps wala', { connectivity: 'HIGH_SPEED' }],
   ])('reads "%s"', (text, expected) => {
     expect(readPlainFacts(text)).toEqual(expected);
   });

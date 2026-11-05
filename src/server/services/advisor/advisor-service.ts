@@ -141,6 +141,7 @@ export async function sendMessage(
     notUnderstood: !madeProgress && !handled && !couldNotRead && understood.turn !== null,
     offerPerson: stuckTurns >= STUCK_TURN_LIMIT,
     closestName: closestProductName(catalogue, understood.turn, facts),
+    hasRecommendation: next.kind === 'RECOMMEND',
   });
 
   const locale = replyLocale(input.language, understood.turn?.language);
@@ -262,6 +263,7 @@ function buildNotes(input: {
   notUnderstood: boolean;
   offerPerson: boolean;
   closestName: string | null;
+  hasRecommendation: boolean;
 }): ReplyNote[] {
   const notes: ReplyNote[] = input.changes.map((change) => ({ kind: 'CHANGED', change }));
   const intents = new Set(input.turn?.intents ?? []);
@@ -271,7 +273,8 @@ function buildNotes(input: {
   if (intents.has('COMPETITOR')) notes.push({ kind: 'COMPETITOR' });
   if (intents.has('OFF_TOPIC')) notes.push({ kind: 'OFF_TOPIC' });
   if (intents.has('SAVE_FOR_LATER')) notes.push({ kind: 'SAVE_FOR_LATER' });
-  if (intents.has('READY_TO_BUY')) notes.push({ kind: 'READY' });
+  // There's no quote button to point at until a recommendation exists.
+  if (intents.has('READY_TO_BUY') && input.hasRecommendation) notes.push({ kind: 'READY' });
   if (intents.has('UNKNOWN_PRODUCT')) {
     const thing = input.turn?.unknownProduct ? cleanWords(input.turn.unknownProduct) : undefined;
     if (thing) notes.push({ kind: 'UNKNOWN_PRODUCT', thing, closestName: input.closestName });

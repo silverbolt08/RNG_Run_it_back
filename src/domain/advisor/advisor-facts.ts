@@ -164,7 +164,7 @@ export function nextSlot(facts: AdvisorFacts): AdvisorSlot | null {
   if (facts.cityTier === null && !facts.declined.includes('city')) return 'CITY_TIER';
   if (!isSettled(facts, 'employeeCount', facts.employeeCount)) return 'EMPLOYEES';
   if (!isSettled(facts, 'numSites', facts.numSites)) return 'SITES';
-  if (facts.gstinStatus === null) return 'GSTIN';
+  if (!isSettled(facts, 'gstinStatus', facts.gstinStatus)) return 'GSTIN';
   // An owner who only wants a mobile plan has no use for the fibre question.
   if (facts.connectivity !== 'NONE' && !isSettled(facts, 'fibreAvailable', facts.fibreAvailable)) return 'FIBRE';
   if (!facts.needsAnswered) return 'NEEDS';
