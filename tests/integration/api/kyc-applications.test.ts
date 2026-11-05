@@ -28,7 +28,7 @@ describe('KYC applications', () => {
 
   const start = async (key: string, extra: object = {}) => {
     const quoteId = await acceptedQuote(owner);
-    const response = await owner.post(APPLICATIONS, { quoteId, contactName: applicant(key).contactName, ...extra });
+    const response = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, contactName: applicant(key).contactName, ...extra });
     expect(response.status, JSON.stringify(response.body)).toBe(201);
     return { quoteId, id: response.body.id as string, application: response.body };
   };
@@ -45,7 +45,7 @@ describe('KYC applications', () => {
 
   describe('creating', () => {
     it('refuses without consent', async () => {
-      const response = await owner.post(APPLICATIONS, { quoteId: 'qt_anything' });
+      const response = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId: 'qt_anything' });
       expectApiError(response, 403, 'CONSENT_REQUIRED');
       expect(response.body.error.details).toEqual({ purpose: 'kyc_verification' });
     });
@@ -54,24 +54,24 @@ describe('KYC applications', () => {
       const quoteId = await acceptedQuote(owner);
       const other = await newVisitor();
       await grant(other, 'kyc_verification');
-      expectApiError(await other.post(APPLICATIONS, { quoteId }), 404, 'NOT_FOUND');
+      expectApiError(await other.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId }), 404, 'NOT_FOUND');
     });
 
     it('needs an accepted quote', async () => {
       await grant(owner, 'advisor_profile');
       await grant(owner, 'kyc_verification');
       const quote = await owner.post('/api/v1/quotes', { profile: ACTIVE_PROFILE, lines: noGstinLines });
-      expectApiError(await owner.post(APPLICATIONS, { quoteId: quote.body.id }), 409, 'QUOTE_NOT_ACCEPTED');
+      expectApiError(await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId: quote.body.id }), 409, 'QUOTE_NOT_ACCEPTED');
     });
 
     it('rejects unknown fields', async () => {
       const quoteId = await acceptedQuote(owner);
-      expectApiError(await owner.post(APPLICATIONS, { quoteId, dateOfBirth: '1990-01-01' }), 400, 'INVALID_REQUEST');
+      expectApiError(await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, dateOfBirth: '1990-01-01' }), 400, 'INVALID_REQUEST');
     });
 
     it('returns the open application if asked twice for the same quote', async () => {
       const { id, quoteId } = await start('K03');
-      const again = await owner.post(APPLICATIONS, { quoteId });
+      const again = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId });
       expect(again.status).toBe(200);
       expect(again.body.id).toBe(id);
     });
@@ -86,7 +86,7 @@ describe('KYC applications', () => {
 
       const other = await newVisitor();
       const quoteId = await acceptedQuote(other, noGstinLines, ACTIVE_PROFILE, '9000000002');
-      const response = await other.post(APPLICATIONS, { quoteId, contactName: 'Asha Rao' });
+      const response = await other.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, contactName: 'Asha Rao' });
       expect(response.body.requiredDocuments).toEqual(['SIGNATORY_ID', 'ADDRESS_PROOF']);
     });
 
@@ -97,7 +97,7 @@ describe('KYC applications', () => {
 
     it('asks for a contact name when it has none', async () => {
       const quoteId = await acceptedQuote(owner);
-      const response = await owner.post(APPLICATIONS, { quoteId });
+      const response = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId });
       expect(response.body.contact).toEqual({ name: null, source: null });
       expect(response.body.nextActions).toContain('PROVIDE_CONTACT_NAME');
     });
@@ -105,7 +105,7 @@ describe('KYC applications', () => {
     it('reveals nothing about a lead when someone only types its GSTIN', async () => {
       await seedRegistryFor(app, 'K03');
       const quoteId = await acceptedQuote(owner);
-      const response = await owner.post(APPLICATIONS, { quoteId, gstin: applicant('K03').gstinOnFile });
+      const response = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, gstin: applicant('K03').gstinOnFile });
       expect(response.body.contact).toEqual({ name: null, source: null });
       expect(JSON.stringify(response.body)).not.toContain(applicant('K03').contactName);
     });
@@ -113,7 +113,7 @@ describe('KYC applications', () => {
     it('uses the name on file only after a matching certificate, and never shows it', async () => {
       await seedRegistryFor(app, 'K03');
       const quoteId = await acceptedQuote(owner);
-      const created = await owner.post(APPLICATIONS, { quoteId });
+      const created = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId });
       const uploaded = await uploadSpecimen(app, owner, created.body.id, 'K03', 'GST_CERTIFICATE');
       expect(uploaded.body.application.contact).toEqual({ name: null, source: 'LEAD_PREFILL' });
       expect(uploaded.body.application.nextActions).not.toContain('PROVIDE_CONTACT_NAME');
@@ -122,14 +122,14 @@ describe('KYC applications', () => {
 
     it('does not prefill from a GSTIN that matches nothing', async () => {
       const quoteId = await acceptedQuote(owner);
-      const response = await owner.post(APPLICATIONS, { quoteId, gstin: '29AAAAA0000A1ZY' });
+      const response = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, gstin: '29AAAAA0000A1ZY' });
       expect(response.body.contact).toEqual({ name: null, source: null });
     });
 
     it('lets the owner correct a prefilled name', async () => {
       await seedRegistryFor(app, 'K03');
       const quoteId = await acceptedQuote(owner);
-      const created = await owner.post(APPLICATIONS, { quoteId, gstin: applicant('K03').gstinOnFile });
+      const created = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, gstin: applicant('K03').gstinOnFile });
       const updated = await owner.put(`${APPLICATIONS}/${created.body.id}/contact`, { contactName: 'Corrected Name' });
       expect(updated.status).toBe(200);
       expect(updated.body.contact).toEqual({ name: 'Corrected Name', source: 'OWNER' });
@@ -151,8 +151,8 @@ describe('KYC applications', () => {
 
     it('rate limits GSTIN lookups, so they cannot enumerate businesses', async () => {
       const { quoteId } = await start('K03');
-      let last = await owner.post(APPLICATIONS, { quoteId, gstin: '29AAAAA0000A1ZY' });
-      for (let i = 0; i < 20; i++) last = await owner.post(APPLICATIONS, { quoteId, gstin: '29AAAAA0000A1ZY' });
+      let last = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, gstin: '29AAAAA0000A1ZY' });
+      for (let i = 0; i < 20; i++) last = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, gstin: '29AAAAA0000A1ZY' });
       expectApiError(last, 429, 'RATE_LIMITED');
     });
   });
@@ -412,7 +412,7 @@ describe('KYC applications', () => {
     it('will not verify without a contact name to check the signatory against', async () => {
       await seedRegistryFor(app, 'K03');
       const quoteId = await acceptedQuote(owner);
-      const created = await owner.post(APPLICATIONS, { quoteId });
+      const created = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId });
       const uploaded = await uploadAll(app, owner, created.body.id, 'K03');
       // The GSTIN on the certificate matched a lead, so the name was prefilled for the owner to check.
       expect(uploaded.body.application.contact).toEqual({ name: null, source: 'LEAD_PREFILL' });
@@ -422,7 +422,7 @@ describe('KYC applications', () => {
     it('holds the verdict when no name can be found at all', async () => {
       await addRegistryWithoutLead();
       const quoteId = await acceptedQuote(owner);
-      const created = await owner.post(APPLICATIONS, { quoteId });
+      const created = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId });
       const uploaded = await uploadAll(app, owner, created.body.id, 'K03');
       expect(uploaded.body.application.verdict).toBeNull();
       expect(uploaded.body.application.nextActions).toContain('PROVIDE_CONTACT_NAME');
@@ -495,6 +495,58 @@ describe('KYC applications', () => {
           read: ocrGstin('K10'),
           suggestion: applicant('K10').gstinOnFile,
         });
+      });
+
+      it('refuses a confirmation nobody asked for, so a rejection cannot be talked away', async () => {
+        await seedRegistryFor(app, 'K01', 'Cancelled');
+        const { id } = await start('K01');
+        const { body } = await uploadAll(app, owner, id, 'K01');
+        expect(body.application.verdict).toBe('REJECTED');
+
+        const stranger = applicant('K02').gstinOnFile;
+        const response = await owner.post(`${APPLICATIONS}/${id}/gstin-confirmation`, { gstin: stranger });
+        expectApiError(response, 409, 'CONFIRMATION_NOT_REQUESTED');
+        expect((await owner.get(`${APPLICATIONS}/${id}`)).body.verdict).toBe('REJECTED');
+      });
+
+      it('refuses a number too different from what was read, so a stranger cannot be looked up', async () => {
+        await seedRegistryFor(app, 'K10');
+        await seedRegistryFor(app, 'K02');
+        const { id } = await start('K10');
+        await uploadAll(app, owner, id, 'K10');
+
+        const response = await owner.post(`${APPLICATIONS}/${id}/gstin-confirmation`, { gstin: applicant('K02').gstinOnFile });
+        expectApiError(response, 422, 'GSTIN_TOO_DIFFERENT');
+        expect(JSON.stringify(response.body)).not.toContain('Active');
+      });
+
+      it('says nothing about a typed number until a document is in', async () => {
+        await seedRegistryFor(app, 'K01', 'Cancelled');
+        const quoteId = await acceptedQuote(owner);
+        const response = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, gstin: applicant('K01').gstinOnFile });
+        expect(response.body.verdict).toBeNull();
+        expect(response.body.checks).toEqual([]);
+      });
+
+      it('requires the adult declaration', async () => {
+        const quoteId = await acceptedQuote(owner);
+        expectApiError(await owner.post(APPLICATIONS, { quoteId, contactName: 'Some Person' }), 400, 'INVALID_REQUEST');
+      });
+
+      it('keeps no ID number, designation or consumer number', async () => {
+        await seedRegistryFor(app, 'K03');
+        const { id } = await start('K03');
+        await uploadAll(app, owner, id, 'K03');
+        const rows = await app.testDb.client.execute(`SELECT sealed_fields FROM kyc_documents WHERE document_type IN ('SIGNATORY_ID', 'ADDRESS_PROOF')`);
+        expect(rows.rows).toHaveLength(2);
+        const { kycDocuments } = await import('@/server/db/schema');
+        const { fieldsContext } = await import('@/server/services/kyc/kyc-repository');
+        const documents = await app.db.select().from(kycDocuments);
+        for (const document of documents) {
+          if (!document.sealedFields) continue;
+          const fields = app.sealer.openJson<Record<string, string>>(document.sealedFields, fieldsContext(document.id));
+          for (const key of ['idNumber', 'designation', 'consumerNumber']) expect(fields[key] ?? '').toBe('');
+        }
       });
 
       it('K10 reaches its real issue once the owner confirms the suggestion, and masks it again', async () => {
@@ -612,7 +664,7 @@ describe('KYC applications', () => {
       it('leaves a bundle that never needed a GSTIN alone', async () => {
         await seedRegistryFor(app, 'K01', 'Cancelled');
         const quoteId = await acceptedQuote(owner, noGstinLines);
-        const created = await owner.post(APPLICATIONS, { quoteId, contactName: applicant('K01').contactName });
+        const created = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, contactName: applicant('K01').contactName });
         const { body } = await uploadAll(app, owner, created.body.id, 'K01');
         expect(body.application.verdict).toBe('MANUAL_REVIEW');
         expect(body.application.quoteChange).toBeNull();
@@ -717,7 +769,7 @@ describe('KYC applications', () => {
       const { id, quoteId } = await start('K03');
       await owner.post('/api/v1/consents/kyc_verification/withdrawal');
       await grant(owner, 'kyc_verification');
-      const again = await owner.post(APPLICATIONS, { quoteId, contactName: applicant('K03').contactName });
+      const again = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, contactName: applicant('K03').contactName });
       expect(again.status).toBe(201);
       expect(again.body.id).not.toBe(id);
     });
@@ -756,7 +808,7 @@ describe('KYC applications', () => {
       const phone = '9123456780';
       await seedRegistryFor(app, 'K10');
       const quoteId = await acceptedQuote(owner, undefined, undefined, phone);
-      const created = await owner.post(APPLICATIONS, { quoteId, contactName: person.contactName });
+      const created = await owner.post(APPLICATIONS, { declaredAdultSignatory: true, quoteId, contactName: person.contactName });
       await uploadAll(app, owner, created.body.id, 'K10');
       await owner.post(`${APPLICATIONS}/${created.body.id}/gstin-confirmation`, { gstin: person.gstinOnFile });
       await owner.get(`${APPLICATIONS}/${created.body.id}`);

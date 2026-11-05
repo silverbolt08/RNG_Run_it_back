@@ -9,6 +9,6 @@ export const POST = sessionRoute<{ id: string }>(
   { consent: 'advisor_profile' },
   async ({ app, request, params, session }) => {
     const { language } = await readJson(request, conversationStartSchema);
-    return json(await requestHandoff(app, session.ownerId, params.id, language));
+    return json(await requestHandoff(app, session, params.id, language));
   },
 );

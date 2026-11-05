@@ -1,6 +1,6 @@
 # Waiting for you
 
-The work continues on the working defaults, so nothing is blocked yet.
+The app is built and runs end to end, so nothing here blocks further work.
 
 ## Settled
 
@@ -10,37 +10,42 @@ The work continues on the working defaults, so nothing is blocked yet.
 | Team name | RNG |
 | Deck | Paused until the product is finished. A draft and its script sit in `docs/business-case`, and aren't committed |
 | Prices | Show the final price including tax. Assumes catalogue prices exclude GST, and that GST is 18% |
-| Paid LLM key | Not available, so the advisor uses a free option |
+| LLM | Gemini on a free key, with `gemini-3.5-flash-lite` first. See [the test results](spikes/llm-choice.md) |
+| Segment order | Professional offices and multi-site first, micro digital-only, manufacturers led by people |
+| Targets | 15% activation, ₹7,000 acquisition cost, 10 days, 1 chase, 12% churn |
+| Impact assumptions | As in `analytics/impact_model.py`, with 60% of leads adopting the digital journey. They're judgement, not evidence, and the deck must say so |
+| Test data | `tests/fixtures/kyc/specimens.json` stays in the repo. It holds text from the fictional specimens, and the data pack stays out |
+| Payment | Labelled mock payment after KYC, with no card data |
+| Stack | Server-based Next.js as built. Deployment is decided later |
 
 ## Decisions for you
 
 | # | Decision | Current default | Why it needs you |
 |---|---|---|---|
-| 1 | **Free LLM** | Gemini free tier, with a local model as backup, settled by running our scenarios on each | You'd create the free key, and I'd install Ollama and download a model of about 5 GB |
-| 2 | **Hosting** | Later, as you said. GitHub Pages only serves static files, and this app needs a server for its database, OCR, encrypted documents and LLM key | Pages would mean a different design, so it's better settled before the screens are finished |
-| 3 | **Segment order** | Professional offices and multi-site first, micro digital-only, manufacturers led by people | Shapes the whole business case |
-| 4 | **Targets** | 15% activation, ₹7,000 acquisition cost, 10 days, 1 chase, 12% churn | These are the numbers you'll defend to judges |
-| 5 | **Impact assumptions** | See `analytics/impact_model.py`. The main one is 60% of leads adopting the digital journey | They're my judgement, not evidence, so please challenge them |
-| 6 | **Test data in the repo** | `tests/fixtures/kyc/specimens.json` is committed locally. It holds text from the fictional specimens, and the data pack itself stays out | Matters once the repo is pushed, especially if it's public |
-| 7 | **Payment** | Labelled mock payment after KYC, with no card data | Decides what the video shows |
+| 1 | **Hosting** | Runs on a laptop for now. It needs a host with Node and a persistent disk, so GitHub Pages won't work | Decides the demo URL. Judges run scenarios live, so a laptop on a hotspot is a real risk |
+| 2 | **Gemini's unpaid terms** | Use them, with the notice telling owners that Google may reuse chat and its reviewers may read it | All data here is synthetic, but judges will read the note. A paid tier would remove this limit, and you said one isn't possible |
 
 ## Only you can do these
 
 | Item | Why it matters |
 |---|---|
-| **Review the Hindi**, or find a native speaker | I can draft it, but I can't vouch for how it reads to an owner |
+| **Review the Hindi**, or find a native speaker | I drafted all of `src/i18n/hi.json`, and I can't vouch for how it reads to an owner |
 | **Record the exact deadline and upload limits** when you have them | Sets the freeze date |
+| **Record the demo video** | The script is in the blueprint's shot list. 3 minutes at most |
+| **Ask for the final deck** when you're happy with the product | You asked to make it last |
+| **Rotate the Gemini key** before the repo goes public, if it's ever been shared | It's only in `.env.local`, which git ignores |
 
-## Known gaps, for the next round
+## Known gaps
 
-| Gap | Plan |
+| Gap | Note |
 |---|---|
-| Typing a GSTIN can reveal the contact name on file, and new sessions make the rate limit easy to get around | Use the name on file only after a matching certificate is uploaded, and never show it |
-| The mock OTP lets anyone who knows a phone number sign in as that owner | Inherent to a mock. The privacy note must say so |
-| If OCR is down, the owner can retry but can't type the details by hand | Add manual entry, because the journey has to survive an OCR outage |
-| PDF uploads are rejected, though `smart-kyc` lists them as accepted | JPEG and PNG work. Rasterising PDFs needs a heavy dependency, so decide later |
-| No "My data" screen, adult signatory declaration or back-office logins yet | Build with the screens |
-| The README must list `npm run setup:env`, `db:migrate`, `seed` and `setup:ocr` | A fresh clone fails one test until the OCR file is installed |
+| The mock OTP lets anyone who knows a phone number sign in as that owner | Inherent to a mock, and the privacy note says so |
+| PDF uploads are rejected, though `smart-kyc` lists them as accepted | JPEG and PNG work. Rasterising PDFs needs a heavy dependency |
+| Phone photos are untested | OCR was measured only on the provided specimens, and the OCR accuracy note says so |
+| Chat works in any language the model reads, but only English and Hindi have screens and fallback wording | Replies in other languages haven't been tested |
+| No local LLM backup | If Gemini is down, the owner continues on tappable answers and the short form |
+| The back office's propensity score uses the fields the leads table holds | Turnover, current internet and provider aren't seeded, so the live ranking is rougher than the model tested in `analytics/propensity.py` |
+| The content security policy has no script nonce | Noted in `next.config.ts`. A production hardening step |
 
 ## Choices I made that you may want to check
 
@@ -48,12 +53,16 @@ The work continues on the working defaults, so nothing is blocked yet.
 |---|---|---|
 | GST is 18%, on prices assumed to exclude it, shown as final prices | You asked for the final price, and the catalogue doesn't state tax | `src/domain/pricing/pricing.ts` |
 | Mock checkout takes the setup fee plus the first month, including GST | A reasonable first payment, but the data doesn't state one | `src/server/services/order-service.ts` |
+| Two LLM steps per message: one reads facts, and another words a brief without seeing the owner's text | A prompt injection in chat then has nothing to work on when the reply is written. It costs two calls a message | `src/server/services/advisor/advisor-service.ts` |
+| A simple answer, such as a number or a known city, skips the LLM | Saves free quota, and keeps working when the LLM is down | `src/domain/advisor/slot-answers.ts` |
+| A typed number can't be a price, and the model writes prices only as slots | The strongest way to keep invented prices from owners | `src/server/llm/output-guard.ts` |
+| An unknown city asks for metro, large city or small town. A small town is told we don't serve it yet, and goes to a person | The catalogue offers every product only in tier 1 and 2 | `src/domain/advisor/advisor-facts.ts` |
+| Documents uploaded during an OCR outage are kept encrypted and read later, in place of manual entry | Typed details couldn't verify a document anyway, and this loses nothing | `src/server/services/kyc/kyc-upload.ts` |
+| A name from the leads data is used only after a matching certificate, and never shown | Otherwise typing a GSTIN could reveal a stranger's name | `src/server/services/kyc/kyc-assessment.ts` |
 | A blocked add-on returns `200` with `applied: false`, not an error | Toggling is normal use, and the owner needs the reason and the alternatives | `docs/architecture/api.md` |
-| The advisor needs the short consent notice before its first recommendation | Otherwise that consent purpose would protect nothing | `docs/architecture/api.md` |
+| The advisor needs the short consent notice before chat starts | Otherwise that consent purpose would protect nothing | `docs/architecture/api.md` |
 | An order under manual review can be placed, but is held and can't be paid until cleared. `RETAKE` and `NEEDS_CONFIRMATION` can't order | The owner keeps their place without paying for something that may not go through | `src/server/services/order-service.ts` |
-| TypeScript 5.9, not the latest 7.0 | 7.0 is a major rewrite, and I didn't want to risk Next's build | `package.json` |
-| ESLint 9, which npm warns is unsupported | It only runs during development, so it can't affect the demo. I haven't tried 10 | `package.json` |
 | Fibre is treated as a rule for Fibre 100, 300 and 1G, but not leased lines | The catalogue has no fibre flag, so this is an assumption | `src/domain/eligibility/eligibility.ts` |
-| Alternatives beyond those in the `msme-advisor` skill, such as a website when WhatsApp is blocked | Closest product doing a similar job that needs less | `src/domain/eligibility/eligibility.ts` |
 | 3 or more sites counts as multi-site, whatever the business type | Matches all 5,000 leads | `src/domain/bundle/segments.ts` |
 | Language and state left out of the propensity score | Including them didn't improve it, so they aren't worth the fairness concern | `analytics/propensity.py` |
+| TypeScript 5.9, not the latest 7.0, and ESLint 9 | 7.0 is a major rewrite, and I didn't want to risk Next's build. ESLint only runs during development | `package.json` |

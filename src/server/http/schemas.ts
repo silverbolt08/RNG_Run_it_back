@@ -115,7 +115,7 @@ export const kycApplicationCreateSchema = z.strictObject({
   businessName: z.string().trim().min(2).max(160).optional(),
   gstin: gstinInput.optional(),
   // The owner's tick on the consent screen, kept in the audit log. Only 	rue can be sent.
-  declaredAdultSignatory: z.literal(true).optional(),
+  declaredAdultSignatory: z.literal(true),
 });
 
 export const kycContactSchema = z.strictObject({ contactName: personName });

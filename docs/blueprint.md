@@ -1,5 +1,6 @@
 # Project Udyam Digital: delivery blueprint
 
+> **Status on 2026-11-05.** Phases 0 to 7 are built: rules, API, advisor on a live free LLM, all screens in English and Hindi, KYC, tracker, My data and the back office. From Phase 9, the architecture diagram, privacy note and README exist. Still to do: the video, the final deck, hosting, a native Hindi review and the final pre-demo run. Dates below are the original plan, and test results are in the [README](../README.md) and [the LLM results](spikes/llm-choice.md).
 ## Context
 
 We are entering Airtel SYNC, Track A. The folder holds the case, the data pack, the skills and the agents, but no application code yet. We need a plan from now to judging that names the major challenges in each phase and how to handle them.

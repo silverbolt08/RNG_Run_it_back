@@ -6,7 +6,7 @@ import { TextField } from '@/components/ui/field';
 import { Badge, Notice, type Tone } from '@/components/ui/feedback';
 import { Card, Identifier, Section } from '@/components/ui/layout';
 import { useLocale } from '@/i18n/locale-provider';
-import { api } from '@/lib/api-client';
+import { api, ApiFailure } from '@/lib/api-client';
 import { formatInr } from '@/lib/money';
 import type { CheckView, KycApplicationView } from '@/server/services/kyc/kyc-view';
 import { useErrorMessage } from '../shell/use-error-message';
@@ -63,7 +63,7 @@ function ConfirmGstin({ application, onUpdated }: { application: KycApplicationV
     try {
       onUpdated(await api.post<KycApplicationView>(`/kyc-applications/${application.id}/gstin-confirmation`, { gstin: value.trim() }));
     } catch (caught) {
-      setError(errorMessage(caught));
+      setError(caught instanceof ApiFailure && caught.code === 'GSTIN_TOO_DIFFERENT' ? t('kyc.confirmTooDifferent') : errorMessage(caught));
     } finally {
       setBusy(false);
     }

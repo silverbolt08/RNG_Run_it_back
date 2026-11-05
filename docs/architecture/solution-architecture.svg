@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 820" font-family="Arial, Helvetica, sans-serif" role="img" aria-labelledby="title desc">
+  <title id="title">Accel Business solution architecture</title>
+  <desc id="desc">An owner's phone calls one Next.js app. Code decides eligibility, prices and verdicts. Only redacted chat and business facts reach Gemini. Documents stay on the server, encrypted.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#1b1b1b"/></marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#c40000"/></marker>
+    <style>
+      .h { font-size: 15px; font-weight: 700; fill: #1b1b1b; }
+      .t { font-size: 12.5px; fill: #1b1b1b; }
+      .m { font-size: 11.5px; fill: #5a5a5a; }
+      .r { font-size: 12px; font-weight: 700; fill: #c40000; }
+      .box { fill: #ffffff; stroke: #8c8c8c; stroke-width: 1.2; rx: 8; }
+      .code { fill: #fff1f1; stroke: #c40000; stroke-width: 1.4; rx: 8; }
+      .zone { fill: #f5f5f5; stroke: #e3e3e3; rx: 12; }
+      .ext { fill: #ffffff; stroke: #1b1b1b; stroke-width: 1.2; stroke-dasharray: 6 4; rx: 8; }
+      .flow { stroke: #1b1b1b; stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
+      .risk { stroke: #c40000; stroke-width: 1.8; fill: none; marker-end: url(#arrow-red); }
+    </style>
+  </defs>
+
+  <rect width="1280" height="820" fill="#ffffff"/>
+  <text x="24" y="34" font-size="22" font-weight="700" fill="#1b1b1b">Accel Business: solution architecture</text>
+  <text x="24" y="56" class="m">One deployable app. Code decides, the LLM reads and words. All data is synthetic; registries, OTP, payment and messages are labelled mocks behind interfaces.</text>
+
+  <!-- Owner -->
+  <rect x="24" y="84" width="170" height="250" class="box"/>
+  <text x="38" y="108" class="h">Owner's phone</text>
+  <text x="38" y="130" class="t">Advisor chat or short form</text>
+  <text x="38" y="150" class="t">Quote with toggles</text>
+  <text x="38" y="170" class="t">Consent screens</text>
+  <text x="38" y="190" class="t">Document photos</text>
+  <text x="38" y="210" class="t">Order tracker</text>
+  <text x="38" y="230" class="t">My data</text>
+  <text x="38" y="258" class="m">English and Hindi</text>
+  <text x="38" y="274" class="m">Works at 360 px</text>
+  <text x="38" y="290" class="m">HttpOnly session cookie</text>
+  <text x="38" y="306" class="m">Identifiers masked</text>
+
+  <rect x="24" y="356" width="170" height="104" class="box"/>
+  <text x="38" y="380" class="h">Back office</text>
+  <text x="38" y="402" class="t">Advisor handoffs</text>
+  <text x="38" y="420" class="t">Propensity ranking</text>
+  <text x="38" y="438" class="m">Admin token, no documents</text>
+
+  <!-- App zone -->
+  <rect x="226" y="76" width="810" height="716" class="zone"/>
+  <text x="242" y="102" class="h">Next.js app (trust boundary: documents and full identifiers never leave this box)</text>
+
+  <!-- Guards -->
+  <rect x="242" y="116" width="778" height="62" class="box"/>
+  <text x="256" y="139" class="h">REST API /api/v1 and guards</text>
+  <text x="256" y="160" class="t">Session, ownership (404 for others' objects), server-enforced consent (403), strict schemas, rate limits, idempotency, allowlisted logs</text>
+
+  <!-- Advisor -->
+  <rect x="242" y="194" width="372" height="222" class="box"/>
+  <text x="256" y="218" class="h">Advisor service</text>
+  <text x="256" y="240" class="t">1. Redact identifiers from the owner's text</text>
+  <text x="256" y="260" class="t">2. Tapped answer or plain answer needs no LLM</text>
+  <text x="256" y="280" class="t">3. Reader: LLM records facts through one forced tool</text>
+  <text x="256" y="300" class="t">4. Code merges facts and picks the next step</text>
+  <text x="256" y="320" class="t">5. Writer: LLM words a brief, never sees owner text</text>
+  <text x="256" y="340" class="t">6. Output guard rejects numerals, money, promises,</text>
+  <text x="256" y="356" class="t">    product names and unknown slots; code fills slots</text>
+  <text x="256" y="380" class="r">If the LLM fails: templates, tappable answers, short form</text>
+  <text x="256" y="400" class="m">Models tried in order, with rests after a failure</text>
+
+  <!-- KYC -->
+  <rect x="630" y="194" width="390" height="222" class="box"/>
+  <text x="644" y="218" class="h">Smart KYC pipeline</text>
+  <text x="644" y="240" class="t">1. Consent gate, then file checks and re-encode</text>
+  <text x="644" y="260" class="t">2. Quality gate: blur score before any OCR</text>
+  <text x="644" y="280" class="t">3. Local OCR (tesseract.js), parse by label</text>
+  <text x="644" y="300" class="t">4. GSTIN repair and checksum, owner confirms a misread</text>
+  <text x="644" y="320" class="t">5. Registry lookups, cross-document checks</text>
+  <text x="644" y="340" class="t">6. Verdict from code. A Cancelled GSTIN changes the quote</text>
+  <text x="644" y="380" class="r">If OCR fails: keep encrypted, read later</text>
+  <text x="644" y="400" class="r">If a registry fails: verification pending, retry</text>
+
+  <!-- Domain -->
+  <rect x="242" y="432" width="778" height="120" class="code"/>
+  <text x="256" y="456" class="h">src/domain: pure rules with no framework, database or LLM imports. The only place decisions are made</text>
+  <text x="256" y="480" class="t">Catalogue and eligibility</text>
+  <text x="256" y="500" class="t">Bundle recommender</text>
+  <text x="256" y="520" class="t">Advisor facts and next question</text>
+  <text x="480" y="480" class="t">Pricing: midpoint, 18% GST, whole rupees</text>
+  <text x="480" y="500" class="t">Contract: longest. Install: longest</text>
+  <text x="480" y="520" class="t">Propensity score</text>
+  <text x="770" y="480" class="t">GSTIN and Udyam validation</text>
+  <text x="770" y="500" class="t">KYC checks and verdict order</text>
+  <text x="770" y="520" class="t">Order stages and dates</text>
+
+  <!-- Orders -->
+  <rect x="242" y="568" width="372" height="84" class="box"/>
+  <text x="256" y="592" class="h">Quote, order and tracker services</text>
+  <text x="256" y="614" class="t">Re-price on every toggle, stranded dependents, accept</text>
+  <text x="256" y="634" class="t">Mock payment with no card data, stages, delays, status log</text>
+
+  <rect x="630" y="568" width="390" height="84" class="box"/>
+  <text x="644" y="592" class="h">Consent, retention and audit</text>
+  <text x="644" y="614" class="t">Per-purpose consent, withdrawal triggers deletion</text>
+  <text x="644" y="634" class="t">Daily retention job, append-only consent and audit log</text>
+
+  <!-- Stores -->
+  <rect x="242" y="668" width="372" height="108" class="box"/>
+  <text x="256" y="692" class="h">SQLite through libSQL and Drizzle</text>
+  <text x="256" y="714" class="t">Catalogue, mock registries, leads, quotes, orders</text>
+  <text x="256" y="734" class="t">Chats (redacted), consents, audit log</text>
+  <text x="256" y="754" class="t">KYC fields and identity: sealed, in separate tables</text>
+
+  <rect x="630" y="668" width="390" height="108" class="box"/>
+  <text x="644" y="692" class="h">Encrypted document store</text>
+  <text x="644" y="714" class="t">AES-256-GCM per file, outside the database, not public</text>
+  <text x="644" y="734" class="t">Raw images deleted 30 days after verification,</text>
+  <text x="644" y="754" class="t">or at once on rejection or withdrawal</text>
+
+  <!-- External -->
+  <rect x="1068" y="194" width="188" height="150" class="ext"/>
+  <text x="1082" y="218" class="h">Google Gemini</text>
+  <text x="1082" y="240" class="t">Behind LlmProvider</text>
+  <text x="1082" y="260" class="t">Flash-Lite, then Flash</text>
+  <text x="1082" y="284" class="m">May be outside India. Free:</text>
+  <text x="1082" y="300" class="m">Google may reuse content,</text>
+  <text x="1082" y="316" class="m">and reviewers may read it</text>
+
+  <rect x="1068" y="372" width="188" height="118" class="ext"/>
+  <text x="1082" y="396" class="h">Replaceable mocks</text>
+  <text x="1082" y="418" class="t">GSTIN and Udyam registry</text>
+  <text x="1082" y="438" class="t">OTP, payment</text>
+  <text x="1082" y="458" class="t">SMS and WhatsApp log</text>
+  <text x="1082" y="478" class="m">Each behind an interface</text>
+
+  <!-- Flows -->
+  <path class="flow" d="M194 200H242"/>
+  <path class="flow" d="M194 410H226V170H242"/>
+  <path class="flow" d="M428 178V194"/>
+  <path class="flow" d="M825 178V194"/>
+  <path class="flow" d="M428 416V432"/>
+  <path class="flow" d="M825 416V432"/>
+  <path class="flow" d="M428 552V568"/>
+  <path class="flow" d="M825 552V568"/>
+  <path class="flow" d="M428 652V668"/>
+  <path class="flow" d="M825 652V668"/>
+  <path class="flow" d="M1020 340H1044V430H1068"/>
+  <path class="risk" d="M614 206H622V186H1052V260H1068"/>
+  <text x="1062" y="112" class="r">Crosses the boundary:</text>
+  <text x="1062" y="130" class="m">redacted text, business facts,</text>
+  <text x="1062" y="146" class="m">a brief with no prices or names</text>
+</svg>

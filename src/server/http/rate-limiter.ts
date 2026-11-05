@@ -55,4 +55,9 @@ export const RATE_LIMITS = {
   recommendation: { limit: 60, windowSeconds: 60 },
   // Each message can cost two LLM calls, and the free tier allows few a minute.
   advisorMessage: { limit: 20, windowSeconds: 60 },
+  // Across all owners, so new sessions can't drain the free quota. Past it, chat runs on tapped answers.
+  llmBudget: { limit: 600, windowSeconds: 3600 },
+  // Each can run OCR and registry lookups.
+  reassessment: { limit: 30, windowSeconds: 600 },
+  contactChange: { limit: 15, windowSeconds: 600 },
 } as const satisfies Record<string, RateLimitRule>;

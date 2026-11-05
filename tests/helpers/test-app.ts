@@ -66,6 +66,7 @@ export function testConfig(dir: string): AppConfig {
     allowedOrigins: [],
     secureCookies: true,
     registryTimeoutMs: 1000,
+    trustProxy: false,
     llm: { provider: 'off', models: [], apiKey: null, timeoutMs: 1000 },
   };
 }

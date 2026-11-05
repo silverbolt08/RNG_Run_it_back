@@ -86,13 +86,18 @@ export async function runRetention(app: AppContext, requestId?: string): Promise
   return report;
 }
 
-/** In-process, which is enough for one long-running server. A failed run waits for the next one. */
+/**
+ * In-process, which is enough for one long-running server. It also runs at startup, because a server
+ * restarted within a day would otherwise never reach its first run. A failed run waits for the next.
+ */
 export function startRetentionSchedule(app: AppContext, intervalMs: number = DEFAULT_INTERVAL_MS): () => void {
-  const timer = setInterval(() => {
+  const run = () => {
     runRetention(app).catch((error: unknown) => {
       app.logger.error('retention.failed', { job: 'retention', error });
     });
-  }, intervalMs);
+  };
+  run();
+  const timer = setInterval(run, intervalMs);
   // Mustn't be what keeps the process alive at shutdown.
   timer.unref?.();
   return () => clearInterval(timer);
@@ -134,9 +139,12 @@ async function eraseExpiredApplications(app: AppContext, now: Date, abandonedBef
     const live = linked.find((order) => order.status !== 'CANCELLED');
 
     const contractOver = live?.activatedAt ? addMonths(live.activatedAt, live.contractMonths) <= nowIso : false;
-    const abandoned = !live && application.updatedAt <= abandonedBefore;
+    // An order placed but never activated doesn't justify keeping KYC fields for ever.
+    const stalled = live && !live.activatedAt && live.updatedAt <= abandonedBefore;
+    const abandoned = (!live && application.updatedAt <= abandonedBefore) || Boolean(stalled);
     if (!contractOver && !abandoned) continue;
 
+    if (stalled) await app.db.update(orders).set({ status: 'CANCELLED', updatedAt: nowIso }).where(eq(orders.id, live.id));
     await eraseApplication(app, application);
     erased += 1;
     if (application.status === 'WITHDRAWN') await recordWithdrawnErasure(app, application.ownerId);

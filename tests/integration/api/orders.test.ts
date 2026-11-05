@@ -20,7 +20,7 @@ describe('orders and the tracker', () => {
   const verifiedApplication = async (key = 'K03') => {
     await seedRegistryFor(app, key);
     const quoteId = await acceptedQuote(owner);
-    const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: applicant(key).contactName });
+    const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: applicant(key).contactName });
     await uploadAll(app, owner, created.body.id, key);
     return { quoteId, kycApplicationId: created.body.id as string };
   };
@@ -141,7 +141,7 @@ describe('orders and the tracker', () => {
     it('frees the key after a refusal, so a retry can succeed', async () => {
       await seedRegistryFor(app, 'K03');
       const quoteId = await acceptedQuote(owner);
-      const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: applicant('K03').contactName });
+      const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: applicant('K03').contactName });
       const refs = { quoteId, kycApplicationId: created.body.id };
       const headers = { 'idempotency-key': 'order-key-retry' };
 
@@ -171,7 +171,7 @@ describe('orders and the tracker', () => {
       it('refuses while documents are missing', async () => {
         await seedRegistryFor(app, 'K03');
         const quoteId = await acceptedQuote(owner);
-        const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: applicant('K03').contactName });
+        const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: applicant('K03').contactName });
         const response = await tryOrder({ quoteId, kycApplicationId: created.body.id });
         expectApiError(response, 409, 'KYC_NOT_READY');
         expect(response.body.error.details).toEqual({ verdict: null });
@@ -180,7 +180,7 @@ describe('orders and the tracker', () => {
       it('refuses a retake', async () => {
         await seedRegistryFor(app, 'K11');
         const quoteId = await acceptedQuote(owner);
-        const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: applicant('K11').contactName });
+        const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: applicant('K11').contactName });
         await uploadAll(app, owner, created.body.id, 'K11');
         const response = await tryOrder({ quoteId, kycApplicationId: created.body.id });
         expectApiError(response, 409, 'KYC_NOT_READY');
@@ -191,7 +191,7 @@ describe('orders and the tracker', () => {
         await seedRegistryFor(app, 'K03');
         await admin.admin('PUT', '/api/v1/admin/simulations/registry-outage', { enabled: true });
         const quoteId = await acceptedQuote(owner);
-        const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: applicant('K03').contactName });
+        const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: applicant('K03').contactName });
         await uploadAll(app, owner, created.body.id, 'K03');
         const response = await tryOrder({ quoteId, kycApplicationId: created.body.id });
         expectApiError(response, 409, 'KYC_NOT_READY');
@@ -200,7 +200,7 @@ describe('orders and the tracker', () => {
       it('refuses a rejection', async () => {
         await seedRegistryFor(app, 'K01', 'Cancelled');
         const quoteId = await acceptedQuote(owner, noGstinLines);
-        const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: applicant('K01').contactName });
+        const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: applicant('K01').contactName });
         await uploadAll(app, owner, created.body.id, 'K01');
         // A bundle with no GSTIN needs doesn't reject K01, so force one to test the guard.
         await app.testDb.client.execute({
@@ -218,7 +218,7 @@ describe('orders and the tracker', () => {
         args: ['Neelgiri Physio Clinic', 'Neelgiri Physio Clinic', applicant('K07').gstinOnFile],
       });
       const quoteId = await acceptedQuote(owner);
-      const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: applicant('K07').contactName });
+      const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: applicant('K07').contactName });
       await uploadAll(app, owner, created.body.id, 'K07');
 
       const response = await owner.post(
@@ -446,7 +446,7 @@ describe('orders and the tracker', () => {
       await owner.post('/api/v1/consents/kyc_verification/withdrawal');
       await grant(owner, 'kyc_verification');
 
-      const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: applicant('K03').contactName });
+      const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: applicant('K03').contactName });
       await uploadAll(app, owner, created.body.id, 'K03');
       const again = await owner.post(
         ORDERS,

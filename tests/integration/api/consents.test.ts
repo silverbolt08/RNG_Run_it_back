@@ -3,7 +3,7 @@ import { consents } from '@/server/db/schema';
 import { ApiClient, expectApiError, grant, newVisitor } from '../../helpers/api-client';
 import { createTestApp, TEST_NOW, type TestApp } from '../../helpers/test-app';
 
-const PURPOSES = ['advisor_profile', 'kyc_verification', 'service_updates', 'marketing'];
+const PURPOSES = ['advisor_profile', 'ai_chat', 'kyc_verification', 'service_updates', 'marketing'];
 
 describe('consents', () => {
   let app: TestApp;
@@ -112,7 +112,7 @@ describe('consents', () => {
     const state = await statusOf('kyc_verification');
     expect(state.status).toBe('NOTICE_CHANGED');
 
-    const response = await client.post('/api/v1/kyc-applications', { quoteId: 'qt_anything00000000000000' });
+    const response = await client.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId: 'qt_anything00000000000000' });
     expectApiError(response, 403, 'CONSENT_REQUIRED');
     expect(response.body.error.details).toMatchObject({ purpose: 'kyc_verification' });
   });

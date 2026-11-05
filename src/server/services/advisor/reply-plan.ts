@@ -27,22 +27,22 @@ export type ReplyPlan = { notes: readonly ReplyNote[]; next: ReplyNext; facts: A
 export type ComposedReply = { values: Record<string, string>; brief: string; template: string };
 
 const NEED_GLOSS: Readonly<Record<Need, string>> = {
-  UPTIME: 'keeps them online if the main connection drops',
-  CUSTOMER_OUTREACH: 'lets them reach customers on WhatsApp with a catalogue',
+  UPTIME: 'keeps you online if the main connection drops',
+  CUSTOMER_OUTREACH: 'lets you reach customers on WhatsApp with a catalogue',
   BULK_SMS: 'sends alerts and offers to customers by SMS',
-  SECURITY: 'protects their devices and data',
+  SECURITY: 'protects your devices and data',
   GUEST_WIFI: 'gives customers separate, safe Wi-Fi',
-  CENTRAL_MANAGEMENT: 'runs all their sites from one place',
+  CENTRAL_MANAGEMENT: 'runs all your sites from one place',
   PHONE_LINES: 'business mobile lines',
   BUSINESS_CALLS: 'business phone lines with call recording',
   TOLL_FREE: 'a toll-free number for customers',
   EMAIL: 'business email and documents',
-  BACKUP: 'automatic backup of their files',
-  WEBSITE: 'a simple website of their own',
+  BACKUP: 'automatic backup of your files',
+  WEBSITE: 'a simple website of your own',
   POS: 'billing with UPI and card acceptance',
-  CCTV: 'cameras they can watch from their phone',
-  REMOTE_ACCESS: 'a fixed address for reaching their systems remotely',
-  FLEET: 'live location of their vehicles',
+  CCTV: 'cameras you can watch from your phone',
+  REMOTE_ACCESS: 'a fixed address for reaching your systems remotely',
+  FLEET: 'live location of your vehicles',
   MACHINE_MONITORING: 'tracks machine uptime and energy use',
 };
 
@@ -68,7 +68,7 @@ export function composeReply(plan: ReplyPlan, locale: Locale): ComposedReply {
 
   const { next } = plan;
   if (next.kind === 'ASK') {
-    brief.push(`Then ask exactly one question: "${SLOT_QUESTIONS[next.slot]}". End your reply with it. Tappable answers appear below your message, so do not list options.`);
+    brief.push(`Then ask one question, translated into the language of your reply: "${SLOT_QUESTIONS[next.slot]}". End your reply with it. Tappable answers appear below your message, so do not list options.`);
     template.push(translate(locale, `advisor.ask.${next.slot}`));
   } else if (next.kind === 'HANDOFF') {
     brief.push(`A person from Accel Business will take over, for this reason: ${next.reason}. Tell them so, and that their details are saved. Ask no question.`);
@@ -142,7 +142,7 @@ function composeRecommendation(
   const { lines, blocked, quote } = recommendation;
   const lineBrief = lines.map((line, index) => {
     values[`L${index}`] = line.name;
-    const why = line.reason.kind === 'NEED' ? NEED_GLOSS[line.reason.need] : line.reason.kind === 'CONNECTIVITY' ? 'their main internet connection' : 'they asked for it by name';
+    const why = line.reason.kind === 'NEED' ? NEED_GLOSS[line.reason.need] : line.reason.kind === 'CONNECTIVITY' ? 'your main internet connection' : 'you asked for it by name';
     return `{{L${index}}}: ${why}`;
   });
 
@@ -153,9 +153,18 @@ function composeRecommendation(
     values.INSTALL = String(quote.installDays);
     brief.push(
       `Recommend this bundle, giving each item's reason in a few words:\n${lineBrief.join('\n')}`,
-      'State the totals once: {{MONTHLY}} a month including GST, {{SETUP}} one-time setup including GST, a contract of {{CONTRACT}} months, installed in about {{INSTALL}} days.',
+      quote.setupFinalInr > 0
+        ? 'State the totals once: {{MONTHLY}} a month including GST, {{SETUP}} one-time setup including GST, a contract of {{CONTRACT}} months, installed in about {{INSTALL}} days.'
+        : 'State the totals once: {{MONTHLY}} a month including GST, no one-time setup fee, a contract of {{CONTRACT}} months, installed in about {{INSTALL}} days.',
     );
-    template.push(translate(locale, 'advisor.recommend.summary', { monthly: values.MONTHLY, setup: values.SETUP, contract: values.CONTRACT, install: values.INSTALL }));
+    template.push(
+      translate(locale, quote.setupFinalInr > 0 ? 'advisor.recommend.summary' : 'advisor.recommend.summaryNoSetup', {
+        monthly: values.MONTHLY,
+        setup: values.SETUP,
+        contract: values.CONTRACT,
+        install: values.INSTALL,
+      }),
+    );
   } else {
     brief.push('Nothing they asked for can be sold to them as things stand. Say so kindly, using the reasons below. Tell them they can change their answers or ask for a person.');
     template.push(translate(locale, 'advisor.recommend.empty'));
@@ -172,7 +181,7 @@ function composeRecommendation(
     if (blocker && 'required' in blocker && typeof blocker.required === 'number') values[`B${index}_MIN`] = String(blocker.required);
 
     brief.push(
-      `{{B${index}}} cannot be sold to them. Reason: ${blockerGloss(blocker, index)}.` +
+      `{{B${index}}} is not available to them. Reason: ${blockerGloss(blocker, index)}.` +
         (altNames.length > 0 ? ` Offer {{B${index}_ALT}} instead.` : ''),
     );
     template.push(blockedTemplate(blocker, item.name, values[`B${index}_MIN`] ?? '', locale));

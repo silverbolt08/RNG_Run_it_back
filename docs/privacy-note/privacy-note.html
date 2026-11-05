@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Accel Business: privacy and security note</title>
+<style>
+  @page { size: A4; margin: 9mm 12mm; }
+  * { box-sizing: border-box; }
+  body { font: 8.2pt/1.24 Arial, Helvetica, sans-serif; color: #1b1b1b; margin: 0; }
+  h1 { font-size: 15pt; margin: 0 0 1mm; color: #c40000; }
+  h2 { font-size: 10pt; margin: 2.6mm 0 0.8mm; }
+  p { margin: 0 0 1.2mm; }
+  .sub { color: #5a5a5a; margin-bottom: 1.6mm; }
+  table { border-collapse: collapse; width: 100%; margin: 0.6mm 0 1mm; }
+  th, td { border: 0.5pt solid #8c8c8c; padding: 0.7mm 1.3mm; text-align: left; vertical-align: top; }
+  th { background: #f5f5f5; font-weight: 700; }
+  ul { margin: 0 0 1mm; padding-left: 4mm; }
+  li { margin-bottom: 0.45mm; }
+</style>
+</head>
+<body>
+<h1>Accel Business: privacy and security note</h1>
+<p class="sub">Team RNG, Project Udyam Digital. A prototype on synthetic data, handled as if it were real. Each statement describes the code in this repository. This is an engineering note, not legal advice.</p>
+
+<p><strong>Position under the DPDP Act 2023.</strong> Accel Business is the Data Fiduciary, and the owner or signatory is the Data Principal, because business documents still hold personal data. The DPDP Rules 2025 phase in, with most operational duties due around May 2027. We build to them now, and consent is our basis for processing.</p>
+
+<h2>What we collect, when and why</h2>
+<table>
+  <tr><th style="width:17%">Step</th><th style="width:37%">Data</th><th style="width:26%">Why</th><th style="width:20%">Kept for</th></tr>
+  <tr><td>Advisor, form, quote</td><td>Business type, city, size, GST status, needs. No name or ID is asked for</td><td>To recommend and price a bundle</td><td>Chat 90 days; a quote with no order 180 days</td></tr>
+  <tr><td>Accepting a quote</td><td>Mobile number, stored only as a keyed hash and its last 4 digits, shown masked</td><td>To save the application</td><td>With the owner record</td></tr>
+  <tr><td>KYC, after consent</td><td>Document images, the fields read from them, the signatory's name</td><td>To verify the business before activation</td><td>Images 30 days after verification, or deleted on rejection. Fields for the contract term, or 180 days with no active order</td></tr>
+  <tr><td>Optional</td><td>Consent for order updates, and separately for offers</td><td>Only if ticked</td><td>Until withdrawn</td></tr>
+</table>
+
+<h2>Consent and rights</h2>
+<ul>
+  <li><strong>Notice first, enforced on the server.</strong> A KYC call without active consent returns 403 before anything is read or stored. Boxes start unticked, and each purpose is separate: business details, AI reading of chat, KYC, order updates and marketing. The short form works without the AI consent. Notices are in English and Hindi, and a new notice version asks again.</li>
+  <li><strong>Withdrawal is as easy as granting.</strong> My data states the effect first. Withdrawing KYC consent stops processing, deletes documents and cancels any order not yet active. On an active order, only raw documents go, and fields stay until the contract ends.</li>
+  <li><strong>Rights.</strong> My data shows what is held, and a grievance contact (a placeholder address in this prototype). Owners can correct a mismatched name and replace documents in verification. The owner must tick a declaration of being 18 or over and authorised, which is recorded but not otherwise checked.</li>
+</ul>
+
+<h2>What leaves the app</h2>
+<ul>
+  <li><strong>Only the advisor chat calls an outside service: Google Gemini, and only with the separate AI consent.</strong> It receives chat text after GSTIN, Udyam, PAN, voter ID, UPI and email patterns, any run of 8 or more digits and "my name is" phrases are removed, plus business facts, and a brief to word that holds no chat text. Documents, OCR text, KYC data and the verified phone number are never sent.</li>
+  <li><strong>Limits we state plainly.</strong> Pattern removal can't catch everything: a name or an unusual ID typed into chat can get through, so the notice asks owners not to type them. Gemini may process data outside India. On its unpaid tier, <em>Google may use content to improve its products and its reviewers may read it</em>, which the notice discloses. Real customer data would need a paid tier and a data processing agreement.</li>
+  <li><strong>The LLM decides nothing.</strong> Code decides eligibility, prices and KYC verdicts. Chat is treated as untrusted: the model that words replies never sees it. A guard rejects any reply with its own numerals in any script, and with its own amounts in words, promises, comparisons or product names in English and Hindi. Prices on screen always come from code. The journey still completes with the LLM off.</li>
+</ul>
+
+<h2>Security controls</h2>
+<ul>
+  <li><strong>Documents.</strong> Content-checked, re-encoded to strip metadata, read by OCR on our own server, and stored outside the database and web root with AES-256-GCM and a per-file key. Blurred or wrong documents aren't kept, and a rejection deletes images at once. Extracted fields and identity are sealed in the same way.</li>
+  <li><strong>Access.</strong> Signed HttpOnly session cookies with same-site checks, ownership checks on every object (another owner's object returns 404), random public IDs, strict request schemas, rate limits and idempotency keys. Admin routes share one separate token, with no roles yet.</li>
+  <li><strong>Masking and logs.</strong> Identifiers are masked on screen. The one exception is a GSTIN the owner must check against their own certificate. A name from our records is compared with the ID and never shown. Logs use an allowlist of fields, so a name or document value can't reach them.</li>
+  <li><strong>Minimisation and retention.</strong> ID numbers and consumer numbers on documents are never stored. KYC tables stay apart from analytics, the propensity score reads lead fields only, with no language, state or KYC tables, and the back office shows business facts with no documents, and its reads are audited. A retention job runs at startup and daily on a long-running server. Consent and audit records are append-only.</li>
+</ul>
+
+<h2>What is mocked or missing, and what production needs</h2>
+<table>
+  <tr><th style="width:36%">Today</th><th>Production needs</th></tr>
+  <tr><td>OTP is a fixed test code, so anyone who knows a number can sign in as that owner</td><td>Real OTP through a telecom gateway, with device and IP limits</td></tr>
+  <tr><td>GSTIN and Udyam are local mock registries; payment and messages are labelled mocks with no card data</td><td>Licensed GST and Udyam APIs, DigiLocker, a payment gateway, and DLT-registered messaging</td></tr>
+  <tr><td>Master key in an environment file, on one server, one admin token, no script nonce in the content policy, no breach process, DPO or independent audit</td><td>A key management service, hosting in India, staff accounts with roles, a strict content policy, a breach runbook for the Board and owners, a named grievance officer, and a security audit</td></tr>
+</table>
+</body>
+</html>

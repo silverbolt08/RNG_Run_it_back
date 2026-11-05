@@ -8,13 +8,16 @@ import {
   type AdvisorSlot,
   type FactUpdate,
 } from '../../../domain/advisor/advisor-facts';
-import { parseSlotText, updateFromSlotAnswer, type SlotAnswer } from '../../../domain/advisor/slot-answers';
+import { parseSlotText, readPlainFacts, updateFromSlotAnswer, type SlotAnswer } from '../../../domain/advisor/slot-answers';
 import { productsForNeed } from '../../../domain/bundle/recommend-bundle';
 import { getProduct } from '../../../domain/catalogue/catalogue';
 import { translate, type Locale } from '../../../i18n/messages';
 import { newPublicId } from '../../../lib/ids';
 import { redactIdentifiers } from '../../../lib/redact';
 import type { AppContext } from '../../app-context';
+import { hasActiveConsent } from '../../consent/consent-service';
+import { RATE_LIMITS } from '../../http/rate-limiter';
+import type { LlmProvider } from '../../llm/provider';
 import { conversations } from '../../db/schema';
 import { invalidRequest, notFound } from '../../http/errors';
 import { LlmUnavailableError } from '../../llm/provider';
@@ -51,17 +54,26 @@ export type ConversationView = {
   llmAvailable: boolean;
 };
 
+type Owner = { ownerId: string; subjectRef: string };
+
 const STUCK_TURN_LIMIT = 2;
 const MAX_OWNER_TURNS = 40;
+
+/** The LLM, if this owner agreed to it and the shared free quota has room. Otherwise chat runs on tapped answers. */
+async function usableLlm(app: AppContext, subjectRef: string): Promise<LlmProvider | null> {
+  if (!app.llm || !(await hasActiveConsent(app, subjectRef, 'ai_chat'))) return null;
+  return app.rateLimiter.hit('llm-budget', RATE_LIMITS.llmBudget) === null ? app.llm : null;
+}
 
 /** Returns the owner's open chat, or starts one with a greeting that spends no LLM call. */
 export async function startConversation(
   app: AppContext,
-  ownerId: string,
+  owner: Owner,
   input: { language: Locale; restart?: boolean },
 ): Promise<{ created: boolean; view: ConversationView }> {
-  const existing = await latestConversation(app, ownerId);
-  if (existing && !input.restart) return { created: false, view: await toView(app, existing, app.llm !== null) };
+  const llmOn = (await usableLlm(app, owner.subjectRef)) !== null;
+  const existing = await latestConversation(app, owner.ownerId);
+  if (existing && !input.restart) return { created: false, view: await toView(app, existing, llmOn) };
 
   if (existing) {
     await app.db.update(conversations).set({ status: 'CLOSED', updatedAt: app.clock.now().toISOString() }).where(eq(conversations.id, existing.id));
@@ -78,7 +90,7 @@ export async function startConversation(
     .insert(conversations)
     .values({
       id: newPublicId('cnv'),
-      ownerId,
+      ownerId: owner.ownerId,
       status: 'OPEN',
       language: input.language,
       redactedMessages: JSON.stringify([greeting]),
@@ -88,33 +100,34 @@ export async function startConversation(
     })
     .returning();
   if (!row) throw new Error('Inserting a conversation returned no row');
-  return { created: true, view: await toView(app, row, app.llm !== null) };
+  return { created: true, view: await toView(app, row, llmOn) };
 }
 
-export async function getCurrentConversation(app: AppContext, ownerId: string): Promise<ConversationView> {
-  const row = await latestConversation(app, ownerId);
+export async function getCurrentConversation(app: AppContext, owner: Owner): Promise<ConversationView> {
+  const row = await latestConversation(app, owner.ownerId);
   if (!row) throw notFound();
-  return toView(app, row, app.llm !== null);
+  return toView(app, row, (await usableLlm(app, owner.subjectRef)) !== null);
 }
 
 export async function sendMessage(
   app: AppContext,
-  ownerId: string,
+  owner: Owner,
   id: string,
   input: { text?: string; answer?: SlotAnswer; language: Locale },
 ): Promise<ConversationView> {
-  const row = await loadConversation(app, ownerId, id);
+  const row = await loadConversation(app, owner.ownerId, id);
+  const llm = await usableLlm(app, owner.subjectRef);
   const state = readState(row);
   const messages = readMessages(row);
   const askedSlot = nextSlot(state.facts);
 
   const redacted = input.text ? redactIdentifiers(input.text) : null;
-  const understood = await understand(app, state.facts, askedSlot, redacted, input.answer);
+  const understood = await understand(app, llm, state.facts, askedSlot, redacted, input.answer);
 
   const { facts, changes } = applyFactUpdate(state.facts, understood.update);
   const madeProgress = JSON.stringify(facts) !== JSON.stringify(state.facts);
   const handled = (understood.turn?.intents.length ?? 0) > 0;
-  const couldNotRead = understood.llmDown && !madeProgress;
+  const couldNotRead = understood.llmDown;
   const stuckTurns = madeProgress || handled || couldNotRead ? 0 : state.stuckTurns + 1;
 
   const ownerTurns = messages.filter((message) => message.role === 'owner').length + 1;
@@ -135,10 +148,10 @@ export async function sendMessage(
   const composed = composeReply({ notes, next, facts }, locale);
 
   let reply: StoredMessage = { role: 'advisor', source: 'TEMPLATE', text: fillSlots(composed.template, composed.values) };
-  let llmUsable = !understood.llmDown && app.llm !== null;
-  if (app.llm && llmUsable) {
+  let llmUsable = !understood.llmDown && llm !== null;
+  if (llm && llmUsable) {
     try {
-      const written = await writeReply(app.llm, {
+      const written = await writeReply(llm, {
         language,
         brief: composed.brief,
         values: composed.values,
@@ -175,8 +188,8 @@ export async function sendMessage(
   return toView(app, updated, llmUsable);
 }
 
-export async function requestHandoff(app: AppContext, ownerId: string, id: string, language: Locale): Promise<ConversationView> {
-  const row = await loadConversation(app, ownerId, id);
+export async function requestHandoff(app: AppContext, owner: Owner, id: string, language: Locale): Promise<ConversationView> {
+  const row = await loadConversation(app, owner.ownerId, id);
   const messages = readMessages(row);
   const reply: StoredMessage = { role: 'advisor', source: 'TEMPLATE', text: translate(language, 'advisor.handoff.REQUESTED') };
   const [updated] = await app.db
@@ -190,7 +203,7 @@ export async function requestHandoff(app: AppContext, ownerId: string, id: strin
     .where(eq(conversations.id, id))
     .returning();
   if (!updated) throw notFound();
-  return toView(app, updated, app.llm !== null);
+  return toView(app, updated, (await usableLlm(app, owner.subjectRef)) !== null);
 }
 
 type Understood = { update: FactUpdate; turn: OwnerTurn | null; llmDown: boolean };
@@ -198,6 +211,7 @@ type Understood = { update: FactUpdate; turn: OwnerTurn | null; llmDown: boolean
 /** A tapped answer, then plain text for the question asked, and only then the LLM. */
 async function understand(
   app: AppContext,
+  llm: LlmProvider | null,
   facts: AdvisorFacts,
   askedSlot: AdvisorSlot | null,
   redactedText: string | null,
@@ -213,14 +227,16 @@ async function understand(
   const direct = askedSlot ? parseSlotText(askedSlot, redactedText) : null;
   if (direct) return { update: direct, turn: null, llmDown: false };
 
-  if (!app.llm) return { update: {}, turn: null, llmDown: true };
+  const plain = readPlainFacts(redactedText);
+  if (!llm) return { update: plain, turn: null, llmDown: true };
   try {
-    const turn = await readOwnerTurn(app.llm, { facts, askedSlot, redactedText });
-    return { update: turn.update, turn, llmDown: false };
+    const turn = await readOwnerTurn(llm, { facts, askedSlot, redactedText });
+    // The model's reading wins. Plain patterns only fill what it dropped.
+    return { update: { ...plain, ...turn.update }, turn, llmDown: false };
   } catch (error) {
     if (!(error instanceof LlmUnavailableError)) throw error;
     app.logger.error('advisor.llm_unavailable', { reason: error.reason });
-    return { update: {}, turn: null, llmDown: true };
+    return { update: plain, turn: null, llmDown: true };
   }
 }
 

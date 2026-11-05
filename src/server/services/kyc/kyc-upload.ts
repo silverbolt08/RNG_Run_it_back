@@ -35,11 +35,12 @@ const MULTIPART_OVERHEAD_BYTES = 64 * 1024;
 
 const ALLOWED_FORM_FIELDS: ReadonlySet<string> = new Set(['file', 'documentType']);
 
+// No check reads the ID number, designation or consumer number, so they are never kept.
 const PARSERS: Readonly<Record<DocumentType, (text: string) => unknown>> = {
   GST_CERTIFICATE: parseGstCertificate,
   UDYAM_CERTIFICATE: parseUdyamCertificate,
-  SIGNATORY_ID: parseSignatoryId,
-  ADDRESS_PROOF: parseAddressProof,
+  SIGNATORY_ID: (text) => ({ ...parseSignatoryId(text), designation: '', idNumber: '' }),
+  ADDRESS_PROOF: (text) => ({ ...parseAddressProof(text), consumerNumber: '' }),
 };
 
 type ReadDocument = {
@@ -149,7 +150,12 @@ async function readWithOcr(
 export async function readPendingDocuments(app: AppContext, applicationId: string): Promise<void> {
   const documents = await listActiveDocuments(app, applicationId);
   for (const document of documents) {
-    if (document.quality !== 'PENDING_READ' || !document.storageKey) continue;
+    if (document.quality !== 'PENDING_READ') continue;
+    // Retention deleted the file before OCR came back, so the owner must upload it again.
+    if (!document.storageKey) {
+      await app.db.update(kycDocuments).set({ quality: 'UNREADABLE', updatedAt: app.clock.now().toISOString() }).where(eq(kycDocuments.id, document.id));
+      continue;
+    }
 
     const image = await app.storage.get(document.storageKey);
     const read = await readWithOcr(app, document.documentType as DocumentType, image, document.blurScore ?? 0);

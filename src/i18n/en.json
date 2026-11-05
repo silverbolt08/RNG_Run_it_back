@@ -23,8 +23,9 @@
     "useForm": "I prefer a short form",
     "resume": "Continue where I left off",
     "noticeTitle": "Before we start",
-    "noticeBody": "To suggest a bundle, we use what you tell us about your business, such as its type, city, size and needs. We keep the chat for 90 days.",
-    "noticeLlm": "Chat messages are read by an AI service, Google Gemini, after we remove ID numbers. On its free tier, Google may use them to improve its products, so please don't share personal names or anything private.",
+    "noticeBody": "To suggest a bundle, we use what you tell us about your business, such as its type, city, size and needs. We keep the chat for 90 days, and a quote with no order for 180 days.",
+    "noticeLlm": "For the chat only: what you type is read by an AI service, Google Gemini, which may process it outside India. We try to remove ID numbers first, but can't catch everything. On its free tier, Google may use it to improve its products and its reviewers may read it, so please don't type names, ID numbers or anything private. The short form doesn't use this service.",
+    "noticeLlmAgree": "I agree to Google Gemini reading what I type in the chat",
     "noticeNoId": "We don't ask for your name or any ID at this step.",
     "noticeAgree": "I agree to this use of my business details",
     "noticeWithdraw": "You can withdraw this at any time under My data."
@@ -81,6 +82,7 @@
     },
     "recommend": {
       "summary": "Here's what I'd suggest. It comes to {monthly} a month including GST, plus {setup} one-time setup, on a {contract}-month contract, installed in about {install} days.",
+      "summaryNoSetup": "Here's what I'd suggest. It comes to {monthly} a month including GST, with no setup fee, on a {contract}-month contract, installed in about {install} days.",
       "empty": "As things stand, I can't offer what you asked for. You can change your answers, or ask for a person."
     },
     "blocked": {
@@ -230,6 +232,9 @@
   "quote": {
     "title": "Your quote",
     "monthlyLabel": "Monthly total, including GST",
+    "barSetup": "Setup {amount}",
+    "barContract": "{months}-month contract",
+    "detailsHeading": "Price details",
     "beforeGst": "{amount} + {gst} GST ({rate}%)",
     "setupLabel": "One-time setup, including GST",
     "contract": "Contract: {months} months",
@@ -302,17 +307,17 @@
     "progress": "Step {step} of {total}",
     "consentTitle": "Your consent for verification",
     "consentIntro": "To verify your business, we need your documents. Here's what happens to them.",
-    "consentCollect": "What we collect: photos of your GST certificate (if you have one), Udyam certificate (optional), a signatory ID and an address proof, and the details we read from them.",
+    "consentCollect": "What we collect: photos of your GST certificate (if you have one), Udyam certificate (optional), a signatory ID and an address proof, and the details we read from them. We check these against the GST and Udyam registries and our own records.",
     "consentWhy": "Why: only to verify your business for this order, as required before activation.",
     "consentWhere": "Where: read on our own server and stored encrypted. They never go to the AI service.",
-    "consentRetention": "How long: raw documents for 30 days after verification. Extracted details for the contract term.",
+    "consentRetention": "How long: raw documents for 30 days after verification, or deleted at once if rejected. Extracted details for the contract term, or 180 days if no order goes ahead.",
     "consentRights": "You can withdraw at any time under My data. We then stop and delete your documents.",
     "consentAdult": "I am 18 or over and authorised to act for this business",
     "consentKyc": "I agree to this use of my documents for verification",
     "consentUpdates": "Send me order status updates (optional)",
     "consentMarketing": "Send me offers from Accel Business (optional)",
     "consentContinue": "Agree and continue",
-    "consentRequired": "Please tick both required boxes to continue.",
+    "consentRequired": "Please tick the box to continue.",
     "contactTitle": "About you",
     "contactIntro": "We check this against the ID you upload.",
     "contactName": "Your full name, as on your ID",
@@ -361,6 +366,8 @@
     "useSuggestion": "Use this number",
     "confirmLabel": "GST number on your certificate",
     "confirmSubmit": "Confirm number",
+    "confirmTooDifferent": "This is too different from your certificate. Please upload the certificate for this number.",
+    "adultRequired": "Please confirm you are 18 or over and authorised.",
     "resultTitle": "Your verification",
     "verdict": {
       "VERIFIED": "Verified. You can place your order.",
@@ -410,7 +417,7 @@
       "UDYAM_ACTIVITY": "The Udyam activity differs from the registry. This doesn't stop your order."
     },
     "rejectedGstin": "Your GST registration can't support part of this bundle. See the changed quote below.",
-    "rejectedOther": "Please contact us if you think this is a mistake. Your documents have been deleted.",
+    "rejectedOther": "Please contact us if you think this is a mistake. Your document images have been deleted.",
     "quoteChangedTitle": "Your quote needs to change",
     "quoteChangedBody": "Your GST registration shows as {status}, so we've removed what needs an active one.",
     "quoteChangedDropped": "Removed: {names}",
@@ -490,12 +497,14 @@
     "notSignedIn": "You haven't confirmed a phone number.",
     "purpose": {
       "advisor_profile": "Advisor and quote",
+      "ai_chat": "AI reading of the chat",
       "kyc_verification": "Document verification",
       "service_updates": "Order status updates",
       "marketing": "Offers from Accel Business"
     },
     "purposeBody": {
-      "advisor_profile": "Your business details and chat, used to suggest a bundle. Kept for 90 days.",
+      "advisor_profile": "Your business details and chat, used to suggest a bundle. Chat is kept for 90 days, and a quote with no order for 180 days.",
+      "ai_chat": "Google Gemini reads what you type in the chat. It may process it outside India, Google may use it to improve its products, and its reviewers may read it.",
       "kyc_verification": "Your documents and the details read from them, used to verify your business.",
       "service_updates": "Messages about your order.",
       "marketing": "Occasional offers. Never needed for anything else."
@@ -511,6 +520,7 @@
     "withdraw": "Withdraw",
     "effect": {
       "advisor_profile": "This deletes your chat and any draft quote. An accepted quote stays.",
+      "ai_chat": "Nothing more goes to Google Gemini. The advisor then works on tapped answers.",
       "kyc_verification": "This stops verification, deletes your documents and cancels any order not yet active. For an active order, only the raw documents go, and the details stay until the contract ends.",
       "service_updates": "You'll stop getting status messages. Nothing else changes.",
       "marketing": "You'll stop getting offers. Nothing else changes."
@@ -518,7 +528,20 @@
     "confirmWithdraw": "Yes, withdraw",
     "cancel": "Keep it",
     "withdrawn": "Withdrawn. {count} documents deleted, {orders} orders cancelled.",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "holdHeading": "What we hold about you",
+    "holdNothing": "Nothing beyond your agreements below.",
+    "holdName": "Name you gave: {name}",
+    "holdGstin": "GST number: {value}",
+    "holdDocuments": "Documents: {names}",
+    "holdNoDocuments": "Your documents have been deleted, or none were uploaded.",
+    "holdBusiness": "Business details from the advisor: {details}",
+    "holdCorrect": "To correct your name or a document, go to verification.",
+    "holdQuote": "A quote for your bundle, with no name or ID in it.",
+    "holdNameOnFile": "A name from our earlier records, used only to check your ID.",
+    "reviewNotice": "Review and agree",
+    "grievanceHeading": "Questions or complaints",
+    "grievanceBody": "Write to our grievance officer at grievance@accel-business.example (a placeholder in this prototype). If you are not satisfied, you can approach the Data Protection Board of India."
   },
   "backoffice": {
     "title": "Back office",

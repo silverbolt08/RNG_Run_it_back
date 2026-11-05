@@ -18,8 +18,16 @@ export const contactNameOf = (key: string): string => {
 export const specimenPath = (key: string, document: 'gst_certificate' | 'signatory_id' | 'address_proof' | 'udyam_certificate') =>
   path.join(SPECIMEN_DIR, `${key}_${document}.png`);
 
+let shot = 0;
+
 /** Every key screen must have no serious accessibility problem and no sideways scroll. */
 export async function checkScreen(page: Page): Promise<void> {
+  // Set E2E_SHOTS to save each checked screen, which is handy for reviewing the look.
+  if (process.env.E2E_SHOTS) {
+    shot += 1;
+    await page.screenshot({ path: path.join(process.env.E2E_SHOTS, `${String(shot).padStart(2, '0')}.png`), fullPage: true });
+  }
+
   const results = await new AxeBuilder({ page }).analyze();
   const serious = results.violations.filter((violation) => violation.impact === 'serious' || violation.impact === 'critical');
   expect(serious.map((violation) => `${violation.id}: ${violation.nodes[0]?.html ?? ''}`)).toEqual([]);

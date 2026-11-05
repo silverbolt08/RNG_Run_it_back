@@ -24,6 +24,7 @@ describe('the advisor conversation', () => {
     app = await createTestApp({ llm });
     owner = await newVisitor();
     await grant(owner, 'advisor_profile');
+    await grant(owner, 'ai_chat');
   });
   afterEach(() => app.dispose());
 
@@ -265,6 +266,32 @@ describe('the advisor conversation', () => {
       expect(response.body.llmAvailable).toBe(false);
       expect(response.body.askedSlot).toBe('BUSINESS');
       expect(response.body.messages.at(-1).text).toMatch(/tap/i);
+    });
+
+    it('sends nothing to the model without the separate AI consent', async () => {
+      const other = await newVisitor();
+      await grant(other, 'advisor_profile');
+      const started = await other.post(CONVERSATIONS, { language: 'en' });
+      expect(started.body.llmAvailable).toBe(false);
+      const before = llm.requests.length;
+      const response = await other.post(`${CONVERSATIONS}/${started.body.id}/messages`, { text: 'I run a small shop in my town', language: 'en' });
+      expect(response.status).toBe(200);
+      expect(llm.requests.length).toBe(before);
+    });
+
+    it('stops sending to the model as soon as that consent is withdrawn', async () => {
+      const id = await start();
+      await owner.post('/api/v1/consents/ai_chat/withdrawal');
+      const before = llm.requests.length;
+      await say(id, 'I run a small shop in my town');
+      expect(llm.requests.length).toBe(before);
+    });
+
+    it('still reads a plain stated fact when the LLM is down', async () => {
+      llm.down = true;
+      const id = await start();
+      const response = await say(id, 'A place in Pune with 40 people');
+      expect(response.body.facts).toMatchObject({ city: 'Pune', employeeCount: 40 });
     });
 
     it('works with no LLM configured', async () => {

@@ -162,8 +162,6 @@ export function AdvisorScreen() {
       ) : null}
 
       {error ? <Notice tone="danger" live>{error}</Notice> : null}
-      <div ref={endRef} />
-
       <StickyBar>
         {handedOff ? (
           <Button fullWidth variant="secondary" disabled={busy} onClick={restart}>
@@ -213,6 +211,8 @@ export function AdvisorScreen() {
           </>
         )}
       </StickyBar>
+      {/* After the bar, so the newest message scrolls clear of it rather than behind it. */}
+      <div ref={endRef} />
     </div>
   );
 }

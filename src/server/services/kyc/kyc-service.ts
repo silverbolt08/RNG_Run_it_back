@@ -1,4 +1,5 @@
 import { getProduct } from '../../../domain/catalogue/catalogue';
+import { isPlausibleCorrection } from '../../../domain/kyc/gstin';
 import { newPublicId } from '../../../lib/ids';
 import type { AppContext } from '../../app-context';
 import type { SessionInfo } from '../../auth/session-service';
@@ -10,7 +11,9 @@ import { RATE_LIMITS } from '../../http/rate-limiter';
 import { loadQuote } from '../quote-repository';
 import { assessApplication } from './kyc-assessment';
 import {
+  evidenceContext,
   findOpenApplicationForQuote,
+  listChecks,
   loadApplication,
   readIdentity,
   sealIdentity,
@@ -21,7 +24,7 @@ import {
 import { readPendingDocuments } from './kyc-upload';
 import { toApplicationView, type KycApplicationView } from './kyc-view';
 
-export type CreateInput = { quoteId: string; contactName?: string; businessName?: string; gstin?: string; declaredAdultSignatory?: true };
+export type CreateInput = { quoteId: string; contactName?: string; businessName?: string; gstin?: string; declaredAdultSignatory: true };
 
 export async function createApplication(
   app: AppContext,
@@ -74,12 +77,11 @@ export async function createApplication(
     objectType: 'kyc_application',
     objectId: id,
     requestId,
-    metadata: { declaredAdultSignatory: input.declaredAdultSignatory === true },
+    metadata: { declaredAdultSignatory: input.declaredAdultSignatory },
   });
 
-  // With a number up front, a lookup can prefill the contact name right away.
-  const assessed = input.gstin ? await assessApplication(app, row, requestId) : row;
-  return { created: true, application: await toApplicationView(app, assessed) };
+  // Assessed only once a document is in, so typing a number can't look up a stranger's registration.
+  return { created: true, application: await toApplicationView(app, row) };
 }
 
 export async function getApplication(app: AppContext, ownerId: string, id: string): Promise<KycApplicationView> {
@@ -94,10 +96,18 @@ export async function setContactName(
   requestId: string,
 ): Promise<KycApplicationView> {
   const row = await loadOpen(app, session.ownerId, id);
+  enforceRateLimit(app, `contact-change:${session.sessionId}`, RATE_LIMITS.contactChange);
   const identity = readIdentity(app.sealer, row);
   const updated = await updateApplication(app, id, {
     sealedIdentity: sealIdentity(app.sealer, id, { ...identity, contactName }),
     contactNameSource: 'OWNER',
+  });
+  await recordAudit(app, {
+    actorRef: session.subjectRef,
+    action: 'CONTACT_NAME_CHANGED',
+    objectType: 'kyc_application',
+    objectId: id,
+    requestId,
   });
   return toApplicationView(app, await assessApplication(app, updated, requestId));
 }
@@ -112,6 +122,14 @@ export async function confirmGstin(
 ): Promise<KycApplicationView> {
   const row = await loadOpen(app, session.ownerId, id);
   enforceRateLimit(app, `gstin-lookup:${session.sessionId}`, RATE_LIMITS.gstinLookup);
+
+  // Only a correction to what we read, and only when we asked. Otherwise anyone could look up a
+  // stranger's GSTIN here, or talk their way past a registry rejection.
+  const read = await openConfirmationRead(app, id);
+  if (read === null) throw new ApiError(409, 'CONFIRMATION_NOT_REQUESTED', 'We did not ask you to confirm a number for this application.');
+  if (!isPlausibleCorrection(read, gstin)) {
+    throw new ApiError(422, 'GSTIN_TOO_DIFFERENT', 'This is too different from your certificate. Please upload the certificate for this number.');
+  }
 
   const identity = readIdentity(app.sealer, row);
   const updated = await updateApplication(app, id, {
@@ -136,6 +154,7 @@ export async function reassessApplication(
   requestId: string,
 ): Promise<KycApplicationView> {
   const row = await loadOpen(app, session.ownerId, id);
+  enforceRateLimit(app, `reassessment:${session.sessionId}`, RATE_LIMITS.reassessment);
   await readPendingDocuments(app, id);
   return toApplicationView(app, await assessApplication(app, row, requestId));
 }
@@ -152,6 +171,17 @@ export async function refreshApplicationForQuote(
   if (!row) return null;
   const updated = await updateApplication(app, row.id, { bundleNeedsGstin: bundleNeedsGstin ? 1 : 0, quoteChange: null });
   return assessApplication(app, updated, requestId);
+}
+
+/** What OCR read, if the assessment is waiting on the owner to check it. */
+async function openConfirmationRead(app: AppContext, applicationId: string): Promise<string | null> {
+  const checks = await listChecks(app, applicationId);
+  const open = checks.find(
+    (check) => (check.checkId === 'GST_FORMAT' || check.checkId === 'GST_FOUND') && check.outcome === 'FAIL' && check.onFail === 'NEEDS_CONFIRMATION',
+  );
+  if (!open) return null;
+  const evidence = app.sealer.openJson<Record<string, string>>(open.sealedEvidence, evidenceContext(open.id));
+  return evidence.read ?? '';
 }
 
 async function loadOpen(app: AppContext, ownerId: string, id: string): Promise<ApplicationRow> {

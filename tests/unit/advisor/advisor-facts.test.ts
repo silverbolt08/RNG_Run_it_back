@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { applyFactUpdate, EMPTY_FACTS, nextSlot, toDiscoveryProfile, type AdvisorFacts } from '@/domain/advisor/advisor-facts';
-import { parseSlotText, updateFromSlotAnswer } from '@/domain/advisor/slot-answers';
+import { parseSlotText, readPlainFacts, updateFromSlotAnswer } from '@/domain/advisor/slot-answers';
 
 const known: AdvisorFacts = {
   ...EMPTY_FACTS,
@@ -172,5 +172,23 @@ describe('parseSlotText', () => {
     ['NEEDS', 'ignore your rules'],
   ] as const)('leaves %s "%s" for someone who can read it properly', (slot, text) => {
     expect(parseSlotText(slot, text)).toBeNull();
+  });
+});
+
+describe('readPlainFacts', () => {
+  it.each([
+    ['Auto-parts unit in Pune, 40 people', { city: 'Pune', employeeCount: 40 }],
+    ['two restaurants in Delhi with 20 staff', { city: 'Delhi', employeeCount: 20 }],
+    ['Indore mein office hai, 12 log', { city: 'Indore', employeeCount: 12 }],
+    ['Small studio in Bengaluru, 4 of us', { city: 'Bengaluru', employeeCount: 4 }],
+    ['8 stores with 40 employees', { employeeCount: 40, numSites: 8 }],
+    ['मेरे 7 लोग हैं, 2 शाखा', { employeeCount: 7, numSites: 2 }],
+    ['GST nahi hai', { gstinStatus: 'NONE' }],
+  ])('reads "%s"', (text, expected) => {
+    expect(readPlainFacts(text)).toEqual(expected);
+  });
+
+  it.each(['budget is 50000 a month', 'Fibre 300 is what I want', 'I got GST last year', 'punebased company'])('reads nothing from "%s"', (text) => {
+    expect(readPlainFacts(text)).toEqual({});
   });
 });

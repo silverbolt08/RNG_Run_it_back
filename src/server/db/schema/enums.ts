@@ -5,7 +5,9 @@ import { DELAY_REASONS, ORDER_STAGES, ORDER_STATUSES, PAYMENT_STATUSES } from '.
 // Enums are text columns with check constraints, per CLAUDE.md. Drizzle-kit reads this file
 // directly, so imports here stay relative.
 
-export const CONSENT_PURPOSES = ['advisor_profile', 'kyc_verification', 'service_updates', 'marketing'] as const;
+// ai_chat is separate from advisor_profile, so an owner can use the short form without agreeing to an
+// outside AI service reading their words.
+export const CONSENT_PURPOSES = ['advisor_profile', 'ai_chat', 'kyc_verification', 'service_updates', 'marketing'] as const;
 export type ConsentPurpose = (typeof CONSENT_PURPOSES)[number];
 
 export const CONSENT_STATUSES = ['GRANTED', 'DECLINED', 'WITHDRAWN', 'ERASURE_PENDING', 'ERASED', 'EXPIRED'] as const;

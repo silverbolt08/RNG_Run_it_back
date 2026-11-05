@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
-import { TextField } from '@/components/ui/field';
+import { CheckboxField, TextField } from '@/components/ui/field';
 import { Notice } from '@/components/ui/feedback';
 import { useLocale } from '@/i18n/locale-provider';
 import { api } from '@/lib/api-client';
@@ -16,17 +16,19 @@ export function ContactStep({ quoteId, onCreated }: { quoteId: string; onCreated
   const [name, setName] = useState('');
   const [gstin, setGstin] = useState('');
   const [business, setBusiness] = useState('');
+  const [adult, setAdult] = useState(false);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [adultError, setAdultError] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (name.trim().length < 2) {
-      setNameError(t('form.required'));
-      return;
-    }
-    setNameError(null);
+    const nameOk = name.trim().length >= 2;
+    setNameError(nameOk ? null : t('form.required'));
+    setAdultError(!adult);
+    if (!nameOk || !adult) return;
+
     setBusy(true);
     setError(null);
     try {
@@ -34,7 +36,8 @@ export function ContactStep({ quoteId, onCreated }: { quoteId: string; onCreated
         await api.post<KycApplicationView>('/kyc-applications', {
           quoteId,
           contactName: name.trim(),
-          declaredAdultSignatory: true,
+          // Sent only once the owner has ticked it, and the server refuses to start without it.
+          declaredAdultSignatory: adult,
           ...(gstin.trim() ? { gstin: gstin.trim() } : {}),
           ...(business.trim() ? { businessName: business.trim() } : {}),
         }),
@@ -51,6 +54,8 @@ export function ContactStep({ quoteId, onCreated }: { quoteId: string; onCreated
       <TextField label={t('kyc.contactName')} hint={t('kyc.contactIntro')} autoComplete="name" value={name} error={nameError} onChange={(event) => setName(event.target.value)} />
       <TextField label={t('kyc.gstin')} hint={t('kyc.gstinHint')} autoComplete="off" autoCapitalize="characters" maxLength={15} className="font-mono" value={gstin} onChange={(event) => setGstin(event.target.value)} />
       <TextField label={t('kyc.businessName')} hint={t('kyc.businessNameHint')} autoComplete="organization" value={business} onChange={(event) => setBusiness(event.target.value)} />
+      <CheckboxField label={t('kyc.consentAdult')} checked={adult} onChange={setAdult} />
+      {adultError && !adult ? <Notice tone="danger" live>{t('kyc.adultRequired')}</Notice> : null}
       {error ? <Notice tone="danger" live>{error}</Notice> : null}
       <Button type="submit" fullWidth loading={busy}>
         {t('kyc.continue')}

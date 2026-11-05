@@ -21,14 +21,19 @@ const POINTS = [
   { icon: MapPinned, key: 'home.point3' },
 ] as const;
 
+/**
+ * Two separate agreements. The short form needs only the first, so an owner who doesn't want an
+ * outside AI service reading their words can still buy.
+ */
 export function HomeScreen() {
   const { t, locale } = useLocale();
   const router = useRouter();
   const errorMessage = useErrorMessage();
 
-  const [consent, setConsent] = useState<ConsentItem | null>(null);
+  const [consents, setConsents] = useState<ConsentItem[] | null>(null);
   const [resume, setResume] = useState<string | null>(null);
-  const [agreed, setAgreed] = useState(false);
+  const [agreedBusiness, setAgreedBusiness] = useState(false);
+  const [agreedAi, setAgreedAi] = useState(false);
   const [busy, setBusy] = useState<'advisor' | 'form' | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,12 +41,12 @@ export function HomeScreen() {
     let active = true;
     (async () => {
       await ensureSession();
-      const [consents, current] = await Promise.all([
+      const [list, current] = await Promise.all([
         api.get<{ items: ConsentItem[] }>('/consents'),
         api.get<Journey>('/sessions/current'),
       ]);
       if (!active) return;
-      setConsent(consents.items.find((item) => item.purpose === 'advisor_profile') ?? null);
+      setConsents(list.items);
       const { orderId, kycApplicationId, quoteId } = current.journey;
       setResume(orderId ? `/orders/${orderId}` : kycApplicationId ? '/verify' : quoteId ? '/quote' : null);
     })().catch((caught: unknown) => {
@@ -52,15 +57,21 @@ export function HomeScreen() {
     };
   }, [errorMessage]);
 
-  const alreadyAgreed = consent?.status === 'GRANTED';
+  const consentFor = (purpose: string) => consents?.find((item) => item.purpose === purpose);
+  const hasBusiness = consentFor('advisor_profile')?.status === 'GRANTED';
+  const hasAi = consentFor('ai_chat')?.status === 'GRANTED';
+
+  const grant = async (purpose: string) => {
+    const item = consentFor(purpose);
+    if (item) await api.post('/consents', { purpose, noticeVersion: item.currentNoticeVersion, language: locale });
+  };
 
   const go = async (target: 'advisor' | 'form') => {
     setBusy(target);
     setError(null);
     try {
-      if (!alreadyAgreed && consent) {
-        await api.post('/consents', { purpose: 'advisor_profile', noticeVersion: consent.currentNoticeVersion, language: locale });
-      }
+      if (!hasBusiness) await grant('advisor_profile');
+      if (target === 'advisor' && !hasAi) await grant('ai_chat');
       router.push(target === 'advisor' ? '/advisor' : '/advisor/form');
     } catch (caught) {
       setError(errorMessage(caught));
@@ -68,7 +79,8 @@ export function HomeScreen() {
     }
   };
 
-  const canStart = alreadyAgreed || (agreed && consent !== null);
+  const canUseForm = consents !== null && (hasBusiness || agreedBusiness);
+  const canUseAdvisor = canUseForm && (hasAi || agreedAi);
 
   return (
     <div className="flex grow flex-col gap-6">
@@ -96,23 +108,32 @@ export function HomeScreen() {
         </Link>
       ) : null}
 
-      {alreadyAgreed ? null : (
+      {hasBusiness && hasAi ? null : (
         <Card className="flex flex-col gap-3">
           <h2 className="text-lg font-semibold">{t('home.noticeTitle')}</h2>
-          <p className="text-sm">{t('home.noticeBody')}</p>
-          <p className="text-sm">{t('home.noticeLlm')}</p>
-          <p className="text-sm">{t('home.noticeNoId')}</p>
-          <CheckboxField label={t('home.noticeAgree')} checked={agreed} onChange={setAgreed} />
+          {hasBusiness ? null : (
+            <>
+              <p className="text-sm">{t('home.noticeBody')}</p>
+              <p className="text-sm">{t('home.noticeNoId')}</p>
+              <CheckboxField label={t('home.noticeAgree')} checked={agreedBusiness} onChange={setAgreedBusiness} />
+            </>
+          )}
+          {hasAi ? null : (
+            <>
+              <p className="text-sm">{t('home.noticeLlm')}</p>
+              <CheckboxField label={t('home.noticeLlmAgree')} checked={agreedAi} onChange={setAgreedAi} />
+            </>
+          )}
           <p className="text-sm text-ink-muted">{t('home.noticeWithdraw')}</p>
         </Card>
       )}
 
       <div className="grow" />
       <StickyBar>
-        <Button fullWidth disabled={!canStart} loading={busy === 'advisor'} onClick={() => void go('advisor')}>
+        <Button fullWidth disabled={!canUseAdvisor} loading={busy === 'advisor'} onClick={() => void go('advisor')}>
           {t('home.start')}
         </Button>
-        <Button fullWidth variant="ghost" disabled={!canStart} loading={busy === 'form'} onClick={() => void go('form')}>
+        <Button fullWidth variant="secondary" disabled={!canUseForm} loading={busy === 'form'} onClick={() => void go('form')}>
           {t('home.useForm')}
         </Button>
       </StickyBar>

@@ -207,8 +207,69 @@ Public, with cursor pagination. Items are sorted by ID.
 
 Show `name` and `description`. Don't show product IDs to the owner. `unitPriceInr` is the one price to display.
 
-## Recommendations
+## Advisor conversations
 
+All need `advisor_profile` consent. The browser sends the language of its screens, and the reply follows the language of the owner's latest words.
+
+### `POST /conversations`
+
+Request `{ "language": "en" }`, or with `"restart": true` to start afresh. Returns `201` with a new chat, or `200` with the open one. The greeting spends no LLM call.
+
+### `GET /conversations/current`
+
+Returns the owner's latest chat that isn't closed, or `404`.
+
+### `POST /conversations/{id}/messages`
+
+Send text, a tapped answer, or both. A tapped answer's text is only what the chat shows. Limited to 20 a minute.
+
+```json
+{ "text": "Salon in Pune, 4 of us", "language": "en" }
+{ "answer": { "slot": "GSTIN", "value": "NONE" }, "text": "No GST", "language": "en" }
+```
+
+| `slot` | `value` |
+|---|---|
+| `BUSINESS` | `SHOP`, `OFFICE`, `CHAIN`, `FACTORY` |
+| `CITY_TIER` | `1`, `2`, `3` or `DECLINED` |
+| `EMPLOYEES`, `SITES` | A whole number or `DECLINED` |
+| `GSTIN` | `ACTIVE`, `CANCELLED`, `SUSPENDED`, `NONE`, `UNKNOWN` |
+| `FIBRE` | `true`, `false` or `DECLINED` |
+| `NEEDS` | A list of needs, which may be empty |
+
+`200` returns the conversation:
+
+```json
+{
+  "id": "cnv_...",
+  "status": "OPEN",
+  "messages": [{ "role": "advisor", "source": "LLM", "text": "..." }],
+  "askedSlot": "EMPLOYEES",
+  "facts": { "businessType": "salon", "city": "Pune" },
+  "recommendation": null,
+  "handoffReason": null,
+  "assistSuggested": false,
+  "llmAvailable": true
+}
+```
+
+| Field | Notes |
+|---|---|
+| `status` | `OPEN`, `HANDED_OFF`, `CLOSED` |
+| `messages[].source` | `OWNER`, `LLM`, or `TEMPLATE` if the LLM was down or its words were refused |
+| `askedSlot` | What to offer tappable answers for, or `null` once a recommendation is ready |
+| `recommendation` | The same shape as `POST /recommendations`. Show it from these values, not from the chat text |
+| `handoffReason` | `REQUESTED`, `NOT_SERVICEABLE_CITY`, `SITES_DIFFER`, `STUCK`, `TOO_MANY_TURNS` |
+| `assistSuggested` | A site check is likely to help, so offer a person without forcing one |
+| `llmAvailable` | `false` means typed text can't be read just now, so point to the tappable answers and the short form |
+
+The LLM never fails this route. When it is down, the reply comes from a template.
+
+### `POST /conversations/{id}/handoff`
+
+Request `{ "language": "en" }`. Passes the chat to a person.
+
+## Recommendations
 ### `POST /recommendations`
 
 Needs `advisor_profile` consent. Stores nothing.
@@ -399,6 +460,10 @@ No body. Needs a verified phone, so ask for one only at this point.
 
 Errors: `403 PHONE_VERIFICATION_REQUIRED`, `422 EMPTY_QUOTE`, `422 QUOTE_NOT_ELIGIBLE` with `details.blocked`.
 
+### `GET /quotes/{id}/add-ons`
+
+Needs `advisor_profile` consent. Everything not in the bundle, each with `eligible`, `blockers` and `alternatives` for this bundle right now, plus `names` for wording a dependency without a product code. Show a blocked one disabled, with its reason.
+
 ### `POST /quotes/{id}/save`
 
 No body, and no phone needed. Returns the quote as `SAVED`. It stays editable. Error: `409 QUOTE_LOCKED`.
@@ -448,8 +513,8 @@ All writes need `kyc_verification` consent, or they return `403 CONSENT_REQUIRED
 |---|---|
 | `status` | `OPEN`, `WITHDRAWN`, `ERASED` |
 | `verdict` | `VERIFIED`, `RETAKE`, `NEEDS_CONFIRMATION`, `VERIFICATION_PENDING`, `MANUAL_REVIEW`, `REJECTED`, or `null` |
-| `contact.source` | `OWNER`, or `LEAD_PREFILL` for a name to check with the owner |
-| `documents[].quality` | `OK`, `BLURRED`, `UNREADABLE`, `WRONG_TYPE`. A wrong document names what was found in `detectedType` |
+| `contact` | `name` is set only when `source` is `OWNER`. With `LEAD_PREFILL`, a name on file is used for the signatory check after a matching certificate, and is never returned |
+| `documents[].quality` | `OK`, `BLURRED`, `UNREADABLE`, `WRONG_TYPE`, `PENDING_READ`. A wrong document names what was found in `detectedType`. `PENDING_READ` was kept during an OCR outage, and needs no retake |
 | `gstin.masked` | Always safe to show |
 | `gstin.confirmation` | Set only while the owner must check the number. `read` and `suggestion` are the one place full identifiers appear, and either can be `null` |
 
@@ -495,7 +560,7 @@ Needs an accepted quote.
 { "quoteId": "qt_...", "contactName": "Joseph Singh", "businessName": "Ganesh Woodcraft", "gstin": "27XUIXG0767D1ZP" }
 ```
 
-Only `quoteId` is required. **Ask for `contactName` when the application starts,** because the signatory check compares against it. If `gstin` matches a seeded lead and there's no name, the response prefills `contact` with `source: "LEAD_PREFILL"`, for the owner to check. Send `businessName` only when there's no GSTIN.
+Only `quoteId` is required. **Ask for `contactName` when the application starts,** because the signatory check compares against it. Send `businessName` only when there's no GSTIN. Send `declaredAdultSignatory: true` once the owner has ticked that declaration, and it is kept in the audit log. Typing a `gstin` reveals nothing about any lead.
 
 `201`, or `200` with the existing application if one is already open for this quote. Requests with a `gstin` share a limit of 15 per 10 minutes with GSTIN confirmations. Error: `409 QUOTE_NOT_ACCEPTED`.
 
@@ -532,7 +597,6 @@ A repeat with the same key returns `200` with `replayed: true`, creates nothing 
 | `409 IDEMPOTENCY_KEY_REUSED` | Same key, different file |
 | `409 REQUEST_IN_PROGRESS` | The first request with this key is still running |
 | `409 APPLICATION_CLOSED` | Withdrawn or erased |
-| `503 OCR_UNAVAILABLE` | Retry with the same key. Nothing was stored |
 | `429 RATE_LIMITED` | 30 uploads per 10 minutes |
 
 Each upload took 0.3 to 1.1 seconds on this laptop, so show progress per document.
@@ -543,9 +607,9 @@ Request `{ "gstin": "27QHJXK0658U1ZL" }`: the number the owner read from their c
 
 ### `POST /kyc-applications/{id}/reassessment`
 
-No body. Re-runs verification. Use it after an outage.
+No body. Reads any document kept during an OCR outage, then re-runs verification. Use it after an outage.
 
-**During a registry outage nothing fails:** uploads and this route return `200` or `201` with `verdict: "VERIFICATION_PENDING"`, and every document is kept.
+**During a registry or OCR outage nothing fails:** uploads and this route return `200` or `201` with `verdict: "VERIFICATION_PENDING"` once everything is in, and every document is kept.
 
 ## Orders
 
@@ -682,6 +746,14 @@ No body. Runs the retention job now, which otherwise runs daily.
   "ranAt": "..."
 }
 ```
+
+### `GET /admin/handoffs`
+
+Chats the advisor handed to a person: business facts and a reason, with no chat text.
+
+### `GET /admin/leads`
+
+The top 25 past leads worth a call, by propensity score, with no name or identifier.
 
 ## Mock registry
 

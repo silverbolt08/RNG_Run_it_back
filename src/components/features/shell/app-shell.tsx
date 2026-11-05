@@ -2,6 +2,7 @@
 
 import { ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { useLocale } from '@/i18n/locale-provider';
 import { LOCALES, type Locale } from '@/i18n/messages';
@@ -31,13 +32,15 @@ function LanguageSwitcher() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useLocale();
+  // Owner screens stay one narrow column. Only the back office needs a table's width.
+  const width = usePathname().startsWith('/backoffice') ? 'max-w-[1200px]' : 'max-w-[560px]';
   return (
     <div className="flex min-h-dvh flex-col">
       <a href="#main" className="sr-only focus:not-sr-only focus:p-3">
         {t('app.skipToContent')}
       </a>
       <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex max-w-[560px] flex-wrap items-center justify-between gap-2 px-4 py-2 lg:max-w-[1200px]">
+        <div className={`mx-auto flex flex-wrap items-center justify-between gap-2 px-4 py-2 ${width}`}>
           <Link href="/" className="text-lg font-bold text-brand-strong">
             {t('app.name')}
           </Link>
@@ -50,7 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <main id="main" className="mx-auto flex w-full max-w-[560px] grow flex-col px-4 py-4 lg:max-w-[1200px]">
+      <main id="main" className={`mx-auto flex w-full grow flex-col px-4 py-4 ${width}`}>
         {children}
       </main>
       <footer className="border-t border-line bg-surface-alt px-4 py-2 text-center text-sm text-ink-muted">{t('app.prototypeBanner')}</footer>

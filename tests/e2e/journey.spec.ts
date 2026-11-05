@@ -3,6 +3,7 @@ import { checkScreen, contactNameOf, nextPhone, specimenPath } from './helpers';
 
 type Words = {
   agree: string | RegExp;
+  agreeAi: string | RegExp;
   start: string | RegExp;
   shop: string;
   size: string;
@@ -28,6 +29,7 @@ type Words = {
 
 const ENGLISH: Words = {
   agree: 'I agree to this use of my business details',
+  agreeAi: /Google Gemini reading what I type/,
   start: 'Start with the advisor',
   shop: 'Shop or small service',
   size: '5 to 9',
@@ -53,6 +55,7 @@ const ENGLISH: Words = {
 
 const HINDI: Words = {
   agree: 'मैं अपने व्यवसाय की जानकारी के इस उपयोग के लिए सहमत हूँ',
+  agreeAi: /Google Gemini चैट में मेरा लिखा पढ़े/,
   start: 'सलाहकार से शुरू करें',
   shop: 'दुकान या छोटी सेवा',
   size: '5 से 9',
@@ -96,6 +99,7 @@ async function completeJourney(page: Page, words: Words, locale: 'en' | 'hi'): P
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.getByRole('button', { name: words.start })).toBeDisabled();
   await page.getByRole('checkbox', { name: words.agree }).check();
+  await page.getByRole('checkbox', { name: words.agreeAi }).check();
   await checkScreen(page);
   await page.getByRole('button', { name: words.start }).click();
 
@@ -118,11 +122,11 @@ async function completeJourney(page: Page, words: Words, locale: 'en' | 'hi'): P
 
   await page.getByRole('checkbox', { name: words.consentKyc }).waitFor();
   await checkScreen(page);
-  await page.getByRole('checkbox', { name: words.consentAdult }).check();
   await page.getByRole('checkbox', { name: words.consentKyc }).check();
   await page.getByRole('button', { name: words.consentGo }).click();
 
   await page.getByLabel(words.name).fill(contactNameOf('K03'));
+  await page.getByRole('checkbox', { name: words.consentAdult }).check();
   await checkScreen(page);
   await page.getByRole('button', { name: words.next, exact: true }).click();
 
@@ -161,6 +165,7 @@ test('the whole journey in Hindi at 360 px', async ({ page }) => {
 test('toggling add-ons changes the price, and a blocked one stays disabled with its reason', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('checkbox', { name: ENGLISH.agree }).check();
+  await page.getByRole('checkbox', { name: ENGLISH.agreeAi }).check();
   await page.getByRole('button', { name: ENGLISH.start }).click();
   await page.getByRole('button', { name: ENGLISH.shop, exact: true }).click();
   await expect(page.getByRole('button', { name: ENGLISH.shop, exact: true })).toBeHidden();
@@ -192,6 +197,8 @@ test('toggling add-ons changes the price, and a blocked one stays disabled with 
 test('the short form reaches the same bundle and price without the advisor', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('checkbox', { name: ENGLISH.agree }).check();
+  // The short form never calls the LLM, so it needs only the first agreement.
+  await expect(page.getByRole('button', { name: ENGLISH.start })).toBeDisabled();
   await page.getByRole('button', { name: 'I prefer a short form' }).click();
 
   await page.getByLabel('City').selectOption('pune');
@@ -209,6 +216,7 @@ test('the short form reaches the same bundle and price without the advisor', asy
 test('owners can read what they agreed to and withdraw it', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('checkbox', { name: ENGLISH.agree }).check();
+  await page.getByRole('checkbox', { name: ENGLISH.agreeAi }).check();
   await page.getByRole('button', { name: ENGLISH.start }).click();
   await expect(page.getByRole('button', { name: ENGLISH.shop, exact: true })).toBeVisible();
 

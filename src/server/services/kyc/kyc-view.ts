@@ -80,7 +80,9 @@ const asksOwnerToConfirm = (check: CheckRow) => check.outcome === 'FAIL' && chec
  * certificate. Names in evidence come only from the owner's documents, never from a registry.
  */
 function toCheckView(app: AppContext, check: CheckRow): CheckView {
-  const raw = app.sealer.openJson<Record<string, string>>(check.sealedEvidence, evidenceContext(check.id));
+  const opened = app.sealer.openJson<Record<string, string>>(check.sealedEvidence, evidenceContext(check.id));
+  // A passed check needs no explaining, so a name from the document isn't echoed back.
+  const raw = check.outcome === 'FAIL' ? opened : Object.fromEntries(Object.entries(opened).filter(([key]) => key !== 'onDocument'));
   const showFull = asksOwnerToConfirm(check) && check.checkId.startsWith('GST_');
   const mask = check.checkId.startsWith('UDYAM') ? maskUdyam : maskGstin;
 

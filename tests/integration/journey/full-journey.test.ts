@@ -94,7 +94,7 @@ describe.skipIf(!hasPack)('the whole journey on the real specimens', () => {
     await verifyPhone(owner, `90000${String(phoneCounter).padStart(5, '0')}`);
     expect((await owner.post(`/api/v1/quotes/${quote.body.id}/acceptance`)).status).toBe(200);
 
-    expectApiError(await owner.post('/api/v1/kyc-applications', { quoteId: quote.body.id }), 403, 'CONSENT_REQUIRED');
+    expectApiError(await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId: quote.body.id }), 403, 'CONSENT_REQUIRED');
     await grant(owner, 'kyc_verification');
     return { owner, quoteId: quote.body.id as string, quote: quote.body };
   };
@@ -105,7 +105,7 @@ describe.skipIf(!hasPack)('the whole journey on the real specimens', () => {
     const person = applicant('K03');
     const { owner, quoteId, quote } = await reachKyc();
 
-    const created = await owner.post('/api/v1/kyc-applications', { quoteId, gstin: person.gstinOnFile });
+    const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, gstin: person.gstinOnFile });
     expect(created.status).toBe(201);
     // Typing a number reveals nothing. The name on file is used only once a certificate matches.
     expect(created.body.contact).toEqual({ name: null, source: null });
@@ -140,7 +140,7 @@ describe.skipIf(!hasPack)('the whole journey on the real specimens', () => {
   it('K11 is asked for a newer bill, and cannot order until it has one', async () => {
     const person = applicant('K11');
     const { owner, quoteId } = await reachKyc();
-    const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: person.contactName });
+    const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: person.contactName });
     const id = created.body.id as string;
 
     const { body } = await uploadAllReal(owner, id, 'K11');
@@ -157,7 +157,7 @@ describe.skipIf(!hasPack)('the whole journey on the real specimens', () => {
     const { owner, quoteId, quote } = await reachKyc();
     expect(quote.lines.map((line: { productId: string }) => line.productId)).toContain('P15');
 
-    const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: person.contactName });
+    const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: person.contactName });
     const id = created.body.id as string;
 
     const { body } = await uploadAllReal(owner, id, 'K01');
@@ -194,7 +194,7 @@ describe.skipIf(!hasPack)('the whole journey on the real specimens', () => {
   ])('%s gets %s through the real pipeline', async (key, verdict) => {
     const person = applicant(key);
     const { owner, quoteId } = await reachKyc();
-    const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: person.contactName });
+    const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: person.contactName });
     const { body } = await uploadAllReal(owner, created.body.id, key);
     const failed = body.application.checks.filter((check: { outcome: string; severity: string }) => check.outcome === 'FAIL' && check.severity !== 'ADVISORY');
     expect(body.application.verdict, JSON.stringify(failed)).toBe(verdict);
@@ -203,7 +203,7 @@ describe.skipIf(!hasPack)('the whole journey on the real specimens', () => {
   it('K06 asks the owner to check the number, then rejects what they confirm', async () => {
     const person = applicant('K06');
     const { owner, quoteId } = await reachKyc();
-    const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: person.contactName });
+    const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: person.contactName });
     const { body } = await uploadAllReal(owner, created.body.id, 'K06');
     expect(body.application.verdict).toBe('NEEDS_CONFIRMATION');
 
@@ -216,7 +216,7 @@ describe.skipIf(!hasPack)('the whole journey on the real specimens', () => {
   it('K10 confirms the look-alike suggestion and reaches its signatory mismatch', async () => {
     const person = applicant('K10');
     const { owner, quoteId } = await reachKyc();
-    const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: person.contactName });
+    const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: person.contactName });
     const { body } = await uploadAllReal(owner, created.body.id, 'K10');
     expect(body.application.verdict).toBe('NEEDS_CONFIRMATION');
     expect(body.application.gstin.confirmation.suggestion).toBe(person.gstinOnFile);
@@ -231,7 +231,7 @@ describe.skipIf(!hasPack)('the whole journey on the real specimens', () => {
   it('survives a registry outage, keeping every document, and finishes when it ends', async () => {
     const person = applicant('K09');
     const { owner, quoteId } = await reachKyc();
-    const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: person.contactName });
+    const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: person.contactName });
 
     await admin.admin('PUT', '/api/v1/admin/simulations/registry-outage', { enabled: true });
     const { body } = await uploadAllReal(owner, created.body.id, 'K09');

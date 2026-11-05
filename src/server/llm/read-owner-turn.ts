@@ -116,7 +116,7 @@ const RECORD_TURN: LlmTool = {
       segmentGuess: { type: 'string', enum: ['micro', 'prof', 'multi', 'mfg'], description: 'micro: small shop or service. prof: professional office. multi: several outlets. mfg: makes goods.' },
       city: { type: 'string', description: 'The city name in English, if they named one.' },
       cityTier: { ...integer, description: 'Only if they describe the place without naming a known city: 1 metro, 2 large city, 3 small town or village.' },
-      employeeCount: { ...integer, description: 'People who work there. "Just two of us" is 2.' },
+      employeeCount: { ...integer, description: 'People who work there, however it is said: staff, employees, workers, log. "Just two of us" is 2. "40 people" is 40.' },
       numSites: { ...integer, description: 'Sites, branches, outlets or stores.' },
       gstinStatus: { type: 'string', enum: ['ACTIVE', 'CANCELLED', 'SUSPENDED', 'NONE', 'UNKNOWN'], description: 'ACTIVE: they have GST. NONE: they have no GST. UNKNOWN: they will not say.' },
       fibreAvailable: { type: 'boolean', description: 'Whether fibre reaches their premises. Only if they said so.' },

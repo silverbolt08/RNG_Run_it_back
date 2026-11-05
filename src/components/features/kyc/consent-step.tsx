@@ -15,7 +15,6 @@ export type ConsentItem = { purpose: string; status: string; currentNoticeVersio
 export function ConsentStep({ consents, onDone }: { consents: readonly ConsentItem[]; onDone(): void }) {
   const { t, locale } = useLocale();
   const errorMessage = useErrorMessage();
-  const [adult, setAdult] = useState(false);
   const [kyc, setKyc] = useState(false);
   const [updates, setUpdates] = useState(false);
   const [marketing, setMarketing] = useState(false);
@@ -30,7 +29,7 @@ export function ConsentStep({ consents, onDone }: { consents: readonly ConsentIt
   };
 
   const submit = async () => {
-    if (!adult || !kyc) {
+    if (!kyc) {
       setShowRequired(true);
       return;
     }
@@ -61,12 +60,11 @@ export function ConsentStep({ consents, onDone }: { consents: readonly ConsentIt
         </ul>
       </Card>
       <div className="flex flex-col">
-        <CheckboxField label={t('kyc.consentAdult')} checked={adult} onChange={setAdult} />
         <CheckboxField label={t('kyc.consentKyc')} checked={kyc} onChange={setKyc} />
         <CheckboxField label={t('kyc.consentUpdates')} checked={updates} onChange={setUpdates} />
         <CheckboxField label={t('kyc.consentMarketing')} checked={marketing} onChange={setMarketing} />
       </div>
-      {showRequired && (!adult || !kyc) ? <Notice tone="danger" live>{t('kyc.consentRequired')}</Notice> : null}
+      {showRequired && !kyc ?<Notice tone="danger" live>{t('kyc.consentRequired')}</Notice> : null}
       {error ? <Notice tone="danger" live>{error}</Notice> : null}
       <StickyBar>
         <Button fullWidth loading={busy} onClick={() => void submit()}>

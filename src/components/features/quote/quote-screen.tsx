@@ -189,10 +189,29 @@ export function QuoteScreen() {
         />
       ) : null}
 
+      <Section title={t('quote.detailsHeading')}>
+        <Card className="flex flex-col gap-1 text-sm tabular-nums">
+          <p>{t('quote.beforeGst', { amount: formatInr(quote.monthlyTotalInr), gst: formatInr(quote.monthlyGstInr), rate: quote.gstRatePercent })}</p>
+          <p>
+            {t('quote.setupLabel')}: {formatInr(quote.setupFinalInr)}
+          </p>
+          <p>{t('quote.contract', { months: quote.contractMonths })}</p>
+          <p>{t('quote.install', { days: quote.installDays })}</p>
+        </Card>
+        {locked ? null : (
+          <>
+            <p className="text-sm text-ink-muted">{t('quote.acceptNote')}</p>
+            <Button fullWidth variant="secondary" disabled={busy} onClick={() => void save()}>
+              {t('quote.save')}
+            </Button>
+          </>
+        )}
+      </Section>
+
       {saved ? <Notice tone="success" live>{t('quote.saved')}</Notice> : null}
 
       <StickyBar>
-        <div aria-live="polite" className="flex flex-wrap items-end justify-between gap-x-4">
+        <div aria-live="polite" className="flex items-end justify-between gap-3">
           <div className="flex flex-col">
             <span className="text-sm text-ink-muted">{t('quote.monthlyLabel')}</span>
             <span data-testid="monthly-total" className="text-[28px] font-bold leading-9 tabular-nums">
@@ -200,29 +219,18 @@ export function QuoteScreen() {
             </span>
           </div>
           <div className="flex flex-col text-right text-sm tabular-nums">
-            <span>{t('quote.contract', { months: quote.contractMonths })}</span>
-            <span>{t('quote.install', { days: quote.installDays })}</span>
+            <span>{t('quote.barSetup', { amount: formatInr(quote.setupFinalInr) })}</span>
+            <span>{t('quote.barContract', { months: quote.contractMonths })}</span>
           </div>
         </div>
-        <p className="text-sm tabular-nums text-ink-muted">
-          {t('quote.beforeGst', { amount: formatInr(quote.monthlyTotalInr), gst: formatInr(quote.monthlyGstInr), rate: quote.gstRatePercent })}
-          {' · '}
-          {tDynamic('quote.setupLabel')}: {formatInr(quote.setupFinalInr)}
-        </p>
         {locked ? (
           <Button fullWidth onClick={() => router.push('/verify')}>
             {t('quote.continueKyc')}
           </Button>
         ) : (
-          <>
-            {askPhone ? null : <p className="text-sm text-ink-muted">{t('quote.acceptNote')}</p>}
-            <Button fullWidth disabled={!hasLines || busy} loading={accepting} onClick={() => void accept()}>
-              {t('quote.accept')}
-            </Button>
-            <Button fullWidth variant="ghost" disabled={busy} onClick={() => void save()}>
-              {t('quote.save')}
-            </Button>
-          </>
+          <Button fullWidth disabled={!hasLines || busy} loading={accepting} onClick={() => void accept()}>
+            {t('quote.accept')}
+          </Button>
         )}
       </StickyBar>
     </Screen>

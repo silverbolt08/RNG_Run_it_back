@@ -4,6 +4,7 @@ import { and, desc, eq, inArray, isNotNull, ne } from 'drizzle-orm';
 import type { AdvisorFacts } from '../../domain/advisor/advisor-facts';
 import { propensityScore, type PropensityModel } from '../../domain/analytics/propensity';
 import type { AppContext } from '../app-context';
+import { recordAudit } from '../db/repositories/audit-repository';
 import { conversations, leads } from '../db/schema';
 
 // Stages where a person could still move things along, past the first contact.
@@ -14,7 +15,8 @@ const TOP_LEADS = 25;
  * Chats the advisor handed to a person: business facts and a reason, with no chat text, name or
  * identifier. Someone following up gets what they need, and nothing more.
  */
-export async function listHandoffs(app: AppContext) {
+export async function listHandoffs(app: AppContext, requestId: string) {
+  await recordAudit(app, { actorRef: 'admin', action: 'BACKOFFICE_HANDOFFS_READ', objectType: 'backoffice', requestId });
   const rows = await app.db
     .select({ id: conversations.id, reason: conversations.handoffReason, facts: conversations.facts, updatedAt: conversations.updatedAt })
     .from(conversations)
@@ -56,7 +58,8 @@ function loadModel(): Promise<PropensityModel> {
  * lead was created are used, so the score can't lean on what happened later. The seeded leads table
  * holds a subset of the features, and a missing one simply adds nothing to the score.
  */
-export async function listTopLeads(app: AppContext) {
+export async function listTopLeads(app: AppContext, requestId: string) {
+  await recordAudit(app, { actorRef: 'admin', action: 'BACKOFFICE_LEADS_READ', objectType: 'backoffice', requestId });
   const scoring = await loadModel();
   const rows = await app.db
     .select({

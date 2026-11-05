@@ -2,7 +2,7 @@
 
 Team RNG's entry for Airtel SYNC (YTL Hackathon 2026, Enterprise Track A).
 
-**Status:** [docs/blueprint.md](docs/blueprint.md) holds the phases, challenges, open decisions and cut order, and [docs/decisions-for-you.md](docs/decisions-for-you.md) holds what's waiting on a decision. One person is building with Claude. The stack and architecture below are the working default, so update this file when a decision changes.
+**Status:** [docs/blueprint.md](docs/blueprint.md) holds the phases, challenges, open decisions and cut order, and [docs/decisions-for-you.md](docs/decisions-for-you.md) holds what's waiting on a decision. One person is building with Claude. The app runs end to end, with the four modules, the back office and the architecture diagram and privacy note done. The video and final deck remain. Update this file when a decision changes.
 
 ## Overview and objectives
 
@@ -96,7 +96,7 @@ Everything is in `YTL_TrackA_Udyam_Digital_Data/`, and **these files are read-on
 | Styling | Tailwind CSS with `airtel-design-system` tokens | Consistent, fast to build |
 | Validation | Zod | Shared request, response and LLM schemas |
 | Database | SQLite through libSQL and Drizzle | No native build on Windows; can move to a hosted database |
-| LLM | A free option behind `LlmProvider`, because no paid API key is available. Proposed: Gemini free tier, with a local model through Ollama as backup, to be settled by running our scenarios on each | Structured tool use; provider and model IDs in config |
+| LLM | Gemini on a free key behind `LlmProvider`: `gemini-3.5-flash-lite`, then `gemini-2.5-flash` ([results](docs/spikes/llm-choice.md)). One step reads facts, and another words a brief without seeing the owner's text | No paid key is available. Models in config, and the journey works with the LLM off |
 | OCR | `tesseract.js` behind `OcrProvider`, with `sharp` for quality checks | Runs locally, so documents don't leave the app. 96.8% of fields on the specimens, phone photos untested ([results](docs/spikes/ocr-accuracy.md)) |
 | i18n | Message catalogues per locale | English and Hindi first, then regional |
 | Tests | Vitest, Playwright, axe | Unit to browser |
@@ -110,7 +110,7 @@ src/
   components/ui/       Design system components
   components/features/ advisor, quote, kyc, tracker, backoffice
   domain/              Pure business logic with no framework or database imports
-    catalogue/ eligibility/ pricing/ bundle/ kyc/ orders/
+    advisor/ analytics/ catalogue/ eligibility/ pricing/ bundle/ kyc/ orders/
   server/
     db/                Schema, migrations, repositories
     llm/               Provider, prompts, tools, output guard

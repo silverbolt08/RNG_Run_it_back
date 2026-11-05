@@ -34,7 +34,7 @@ describe('retention', () => {
   const verified = async (key = 'K03') => {
     await seedRegistryFor(app, key);
     const quoteId = await acceptedQuote(owner);
-    const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: applicant(key).contactName });
+    const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: applicant(key).contactName });
     await uploadAll(app, owner, created.body.id, key);
     return { quoteId, kycApplicationId: created.body.id as string };
   };
@@ -55,6 +55,27 @@ describe('retention', () => {
       abandonedLeadDays: 180,
       applicationLogDays: 30,
     });
+  });
+
+  it('cancels an order never activated, and erases its KYC data, after the abandoned period', async () => {
+    const refs = await verified();
+    const placed = await owner.post('/api/v1/orders', refs, { headers: { 'idempotency-key': 'order-key-stalled' } });
+    expect(placed.status).toBe(201);
+
+    app.fixedClock.advanceDays(RETENTION_POLICY.abandonedLeadDays - 1);
+    expect((await runRetention(app)).applicationsErased).toBe(0);
+
+    app.fixedClock.advanceDays(2);
+    expect((await runRetention(app)).applicationsErased).toBe(1);
+    expect(await count(`SELECT count(*) AS total FROM orders WHERE status = 'CANCELLED'`)).toBe(1);
+  });
+
+  it('runs at startup as well as on schedule, so a restart cannot skip it for ever', async () => {
+    const stop = startRetentionSchedule(app, 60_000);
+    await vi.waitFor(async () => {
+      expect(await count(`SELECT count(*) AS total FROM audit_log WHERE action = 'RETENTION_RUN'`)).toBeGreaterThan(0);
+    });
+    stop();
   });
 
   describe('raw documents', () => {
@@ -92,7 +113,7 @@ describe('retention', () => {
     it('also clears an application abandoned before any verdict', async () => {
       await seedRegistryFor(app, 'K03');
       const quoteId = await acceptedQuote(owner);
-      const created = await owner.post('/api/v1/kyc-applications', { quoteId, contactName: 'Asha Rao' });
+      const created = await owner.post('/api/v1/kyc-applications', { declaredAdultSignatory: true, quoteId, contactName: 'Asha Rao' });
       const { uploadSpecimen } = await import('../../helpers/specimens');
       await uploadSpecimen(app, owner, created.body.id, 'K03', 'SIGNATORY_ID');
       expect(storedFiles()).toHaveLength(1);

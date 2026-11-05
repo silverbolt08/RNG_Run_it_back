@@ -135,3 +135,25 @@ function expectedCheckCharacter(value: string): string {
   }
   return CHECKSUM_ALPHABET.charAt((base - (total % base)) % base);
 }
+
+// OCR mistakes a character or two. Far more than this is a different number, not a correction.
+const MAX_CORRECTION_EDITS = 4;
+
+/** Whether a number the owner typed could be what OCR misread, rather than some other business's. */
+export function isPlausibleCorrection(read: string, typed: string): boolean {
+  if (read === '') return false;
+  return editDistance(read.toUpperCase(), typed.toUpperCase()) <= MAX_CORRECTION_EDITS;
+}
+
+function editDistance(a: string, b: string): number {
+  let previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i += 1) {
+    const current = [i];
+    for (let j = 1; j <= b.length; j += 1) {
+      const substitution = (previous[j - 1] ?? 0) + (a[i - 1] === b[j - 1] ? 0 : 1);
+      current[j] = Math.min((previous[j] ?? 0) + 1, (current[j - 1] ?? 0) + 1, substitution);
+    }
+    previous = current;
+  }
+  return previous[b.length] ?? 0;
+}

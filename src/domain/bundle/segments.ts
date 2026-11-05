@@ -71,13 +71,16 @@ export const KNOWN_CITIES: readonly string[] = Object.keys(TIER_BY_CITY);
 
 /** A starting guess the advisor confirms with the owner. Segment guides ranking, never eligibility. */
 export function inferSegment(businessType: string, numSites: number | null): SegmentCode | null {
-  const segment = SEGMENT_BY_BUSINESS_TYPE[normalise(businessType)] ?? null;
+  const key = normalise(businessType);
+  // Object.hasOwn, so typing "constructor" can't reach an inherited property.
+  const segment = Object.hasOwn(SEGMENT_BY_BUSINESS_TYPE, key) ? (SEGMENT_BY_BUSINESS_TYPE[key] ?? null) : null;
   if (segment === 'mfg') return segment;
   return (numSites ?? 1) >= MULTI_SITE_MINIMUM ? 'multi' : segment;
 }
 
 export function lookupCityTier(city: string): number | null {
-  return TIER_BY_CITY[normalise(city)] ?? null;
+  const key = normalise(city);
+  return Object.hasOwn(TIER_BY_CITY, key) ? (TIER_BY_CITY[key] ?? null) : null;
 }
 
 function normalise(text: string): string {

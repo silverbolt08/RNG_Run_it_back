@@ -1,5 +1,5 @@
 import type { Need } from '../bundle/recommend-bundle';
-import { inferSegment, lookupCityTier } from '../bundle/segments';
+import { inferSegment, KNOWN_CITIES, lookupCityTier } from '../bundle/segments';
 import type { SegmentCode } from '../catalogue/catalogue';
 import type { GstinStatus } from '../eligibility/eligibility';
 import type { AdvisorSlot, FactUpdate } from './advisor-facts';
@@ -135,6 +135,28 @@ export function parseSlotText(slot: AdvisorSlot, raw: string): FactUpdate | null
     case 'CITY_TIER':
       return null;
   }
+}
+
+const PEOPLE_COUNT = /(\d{1,6})\s*(?:people|persons?|staff|employees|workers|log|लोग|कर्मचारी)|\b(\d{1,6})\s+of\s+us\b/iu;
+const SITE_COUNT = /(\d{1,6})\s*(?:sites?|branch(?:es)?|outlets?|stores?|locations?|शाखा|शाखाएं|शाखाएँ|जगह)/iu;
+const NO_GST = /\bno gst\b|\bgst nahi\b|\bgst nahin\b|without gst|gst नहीं/iu;
+
+/**
+ * Facts stated in so many words, read from free text by plain patterns. It backs up the LLM, which
+ * now and then drops a number it was clearly given, and it still helps when the LLM is down.
+ */
+export function readPlainFacts(raw: string): FactUpdate {
+  const update: FactUpdate = {};
+  const people = PEOPLE_COUNT.exec(raw);
+  if (people) update.employeeCount = Number(people[1] ?? people[2]);
+  const sites = SITE_COUNT.exec(raw);
+  if (sites) update.numSites = Number(sites[1]);
+  if (NO_GST.test(raw)) update.gstinStatus = 'NONE';
+
+  const words = raw.toLowerCase();
+  const city = KNOWN_CITIES.find((name) => new RegExp(`\\b${name}\\b`).test(words));
+  if (city) update.city = titleCase(city);
+  return update;
 }
 
 function wholeNumberOnly(text: string): number | null {

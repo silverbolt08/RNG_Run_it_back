@@ -15,6 +15,8 @@ export type AppConfig = {
   allowedOrigins: string[];
   secureCookies: boolean;
   registryTimeoutMs: number;
+  /** Believe x-forwarded-for only behind a proxy that sets it, because a client can send its own. */
+  trustProxy: boolean;
   llm: LlmConfig;
 };
 
@@ -47,6 +49,7 @@ const envSchema = z.object({
   COOKIE_SECURE: z.string().optional(),
   NODE_ENV: z.string().optional(),
   REGISTRY_TIMEOUT_MS: z.coerce.number().int().positive().optional(),
+  TRUST_PROXY: z.string().optional(),
   LLM_PROVIDER: z.string().optional(),
   LLM_MODEL: z.string().optional(),
   LLM_API_KEY: z.string().optional(),
@@ -83,6 +86,7 @@ export function loadConfig(env: Readonly<Record<string, string | undefined>>): A
       .filter((origin) => origin !== ''),
     secureCookies: values.COOKIE_SECURE ? values.COOKIE_SECURE !== 'false' : values.NODE_ENV === 'production',
     registryTimeoutMs: values.REGISTRY_TIMEOUT_MS ?? DEFAULT_REGISTRY_TIMEOUT_MS,
+    trustProxy: values.TRUST_PROXY === 'true',
     llm: {
       provider: values.LLM_PROVIDER === 'off' || !values.LLM_API_KEY ? 'off' : 'gemini',
       models: (values.LLM_MODEL || DEFAULT_LLM_MODELS)

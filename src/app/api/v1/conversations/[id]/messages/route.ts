@@ -9,5 +9,5 @@ export const POST = sessionRoute<{ id: string }>(
   'POST /api/v1/conversations/{id}/messages',
   { consent: 'advisor_profile', rateLimit: { name: 'advisor-message', rule: RATE_LIMITS.advisorMessage } },
   async ({ app, request, params, session }) =>
-    json(await sendMessage(app, session.ownerId, params.id, await readJson(request, conversationMessageSchema))),
+    json(await sendMessage(app, session, params.id, await readJson(request, conversationMessageSchema))),
 );

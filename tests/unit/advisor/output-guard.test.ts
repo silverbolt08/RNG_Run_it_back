@@ -7,6 +7,15 @@ const context = {
 };
 
 describe('checkReply', () => {
+  it('allows a subject only when the code brought it up', () => {
+    const briefed = { ...context, brief: 'They asked for a discount. Say the price is the same. There is no one-time setup fee.' };
+    expect(checkReply('I cannot change the price or give a discount. There is no setup fee.', briefed).ok).toBe(true);
+  });
+
+  it('does not mistake ordinary English for a promise', () => {
+    expect(checkReply('Feel free to ask about {{P01}}.', context).ok).toBe(true);
+  });
+
   it('fills in slots with what code decided', () => {
     expect(checkReply('{{P01}} costs {{MONTHLY}} a month, with GST.', context)).toEqual({
       ok: true,
@@ -37,6 +46,14 @@ describe('checkReply', () => {
     ['a broken slot', 'Pay {{MONTHLY now', 'UNKNOWN_SLOT'],
     ['a lower-case slot', 'Pay {{monthly}} now', 'UNKNOWN_SLOT'],
     ['an identifier', 'Your number is ABCDE1234F', 'IDENTIFIER'],
+    ['an amount in tens', 'just ninety nine a month', 'NUMBER_WORD'],
+    ['a Hindi amount in words', 'सिर्फ़ निन्यानवे महीना', 'NUMBER_WORD'],
+    ['something free', 'That one is free for you', 'PROMISE'],
+    ['half off', 'You can have half off today', 'PROMISE'],
+    ['a date promise', 'We will install by tomorrow', 'PROMISE'],
+    ['a discount nobody briefed', 'I can arrange a discount', 'PROMISE'],
+    ['a setup fee nobody briefed', 'There is no setup fee', 'PROMISE'],
+    ['a comparison', 'We are cheaper than the others', 'COMPARISON'],
     ['nothing at all', '   ', 'EMPTY'],
     ['far too much', 'word '.repeat(400), 'TOO_LONG'],
   ])('refuses %s', (_, text, reason) => {

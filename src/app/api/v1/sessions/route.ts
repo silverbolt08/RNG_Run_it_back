@@ -10,7 +10,7 @@ export const POST = publicRoute('POST /api/v1/sessions', async ({ app, request }
   const existing = cookie ? await resolveSession(app, cookie) : null;
   if (existing) return json(toPublicSession(existing));
 
-  enforceRateLimit(app, `new-session:${clientAddress(request)}`, RATE_LIMITS.newSession);
+  enforceRateLimit(app, `new-session:${clientAddress(app, request)}`, RATE_LIMITS.newSession);
   const started = await startAnonymousSession(app);
   return json(toPublicSession(started.info), 201, {
     'set-cookie': sessionCookieHeader(started.cookieValue, {

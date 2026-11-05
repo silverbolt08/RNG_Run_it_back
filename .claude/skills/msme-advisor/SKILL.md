@@ -181,21 +181,18 @@ Leads prefer Hindi (2,137), English (1,168), Marathi (505), Kannada (253), Gujar
 
 The team has no paid API key, so the advisor runs on a free LLM behind `LlmProvider`. Keep provider and model IDs in config, and keep provider-specific code out of everything above that interface.
 
-Tools the model may call:
+The advisor is built in two steps, in `src/server/services/advisor/advisor-service.ts`, and the model never gets a tool that does anything:
 
-| Tool | Purpose |
-|---|---|
-| `update_profile` | Save structured facts from the conversation |
-| `check_eligibility` | Run the engine for a set of products |
-| `recommend_bundle` | Run deterministic recommendation for the profile |
-| `build_quote` | Return priced lines and totals |
-| `handoff_to_human` | Flag the lead for a partner or field agent, with a reason |
+| Step | Sees | Can do |
+|---|---|---|
+| **Reader** (`src/server/llm/read-owner-turn.ts`) | Redacted owner text, business facts so far, the question asked | Call one forced tool, `record_turn`, which records facts and intents. Zod judges each field alone |
+| **Writer** (`src/server/llm/write-reply.ts`) | A brief built by code, and never the owner's text | Word it, using slots such as `{{MONTHLY}}` for every number and product name |
 
-Validate every tool input and model output with Zod. After each reply, run a guard in code:
+Code then does everything else: merges facts, picks the next question, runs `recommendBundle`, and fills the slots. The guard in `output-guard.ts` refuses numerals in any script, money words, promises, product names, product codes and unknown slots. A refusal gets one retry, and then a template from the message catalogues.
 
-- Every product name and rupee figure must appear in this turn's tool results.
-- If the guard fails, retry once, then fall back to a templated reply built from the tool results.
-- If the LLM is down or times out, the flow must still complete through a guided, form-based path.
+If the LLM is down or times out, tapped answers and plain answers still work, and the short form calls the same rules. A simple answer, such as a number, skips the LLM to save free quota. Plain patterns in `readPlainFacts` fill in a stated number or city that the model dropped.
+
+Send the LLM only what a recommendation needs. Do not send full GSTINs, names or documents (see `privacy-security`).
 
 ### Off-script input
 
@@ -208,8 +205,6 @@ Validate every tool input and model output with Zod. After each reply, run a gua
 | Contradicts an earlier fact | Confirm which is right, then re-run the engine |
 | Won't share size or GSTIN | Continue with products that don't need it, and explain the limit |
 | Stuck after 2 failed turns | Offer `handoff_to_human` |
-
-Send the LLM only what a recommendation needs. Do not send full GSTINs, names or documents (see `privacy-security`).
 
 ## Tests
 

@@ -31,14 +31,17 @@ async function newOwner() {
 
   await call('POST', '/sessions');
   const consents = await call<{ items: Array<{ purpose: string; currentNoticeVersion: string }> }>('GET', '/consents');
-  const notice = consents.items.find((item) => item.purpose === 'advisor_profile')?.currentNoticeVersion;
-  await call('POST', '/consents', { purpose: 'advisor_profile', noticeVersion: notice, language: 'en' });
+  for (const purpose of ['advisor_profile', 'ai_chat']) {
+    const notice = consents.items.find((item) => item.purpose === purpose)?.currentNoticeVersion;
+    await call('POST', '/consents', { purpose, noticeVersion: notice, language: 'en' });
+  }
   return call;
 }
 
 // Answers everything still asked, so each conversation reaches a recommendation.
 const FOLLOW_UPS: Readonly<Record<string, unknown>> = {
   BUSINESS: { slot: 'BUSINESS', value: 'SHOP' },
+  CITY: 'typed below',
   CITY_TIER: { slot: 'CITY_TIER', value: 2 },
   EMPLOYEES: { slot: 'EMPLOYEES', value: 5 },
   SITES: { slot: 'SITES', value: 1 },

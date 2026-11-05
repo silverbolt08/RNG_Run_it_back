@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge, Notice, Skeleton, type Tone } from '@/components/ui/feedback';
 import { Card, Screen } from '@/components/ui/layout';
@@ -10,8 +11,13 @@ import { api, ensureSession } from '@/lib/api-client';
 import { useErrorMessage } from '../shell/use-error-message';
 
 type Consent = { purpose: string; status: string; currentNoticeVersion: string };
-type Session = { phoneVerified: boolean; phoneMasked: string | null };
+type Session = { phoneVerified: boolean; phoneMasked: string | null; journey?: { kycApplicationId: string | null; quoteId: string | null } };
+type Application = { contact: { name: string | null; source: string | null }; gstin: { masked: string | null }; documents: Array<{ documentType: string }> };
+type Conversation = { facts: { businessType: string | null; city: string | null; employeeCount: number | null; numSites: number | null } };
 type Withdrawal = { effects?: { documentsDeleted?: number; ordersCancelled?: number } };
+
+// These need their full notice read first, so they can't be granted from a bare button here.
+const FULL_NOTICE: Readonly<Record<string, string>> = { advisor_profile: '/', ai_chat: '/', kyc_verification: '/verify' };
 
 const STATUS_TONE: Readonly<Record<string, Tone>> = { GRANTED: 'success', NOTICE_CHANGED: 'warning', NOT_ASKED: 'neutral', WITHDRAWN: 'neutral', ERASED: 'neutral' };
 
@@ -22,6 +28,8 @@ export function MyDataScreen() {
   const errorMessage = useErrorMessage();
   const [consents, setConsents] = useState<Consent[] | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [application, setApplication] = useState<Application | null>(null);
+  const [chat, setChat] = useState<Conversation | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);
@@ -32,6 +40,10 @@ export function MyDataScreen() {
     const [list, current] = await Promise.all([api.get<{ items: Consent[] }>('/consents'), api.get<Session>('/sessions/current')]);
     setConsents(list.items);
     setSession(current);
+    // Each may simply not exist, or not be readable after a withdrawal, so a miss isn't an error.
+    const applicationId = current.journey?.kycApplicationId;
+    setApplication(applicationId ? await api.get<Application>(`/kyc-applications/${applicationId}`).catch(() => null) : null);
+    setChat(await api.get<Conversation>('/conversations/current').catch(() => null));
   }, []);
 
   useEffect(() => {
@@ -82,6 +94,30 @@ export function MyDataScreen() {
     <Screen title={t('myData.title')}>
       <p className="text-ink-muted">{t('myData.intro')}</p>
       <p>{session?.phoneMasked ? t('myData.phone', { phone: session.phoneMasked }) : t('myData.notSignedIn')}</p>
+      <section className="flex flex-col gap-2">
+        <h2 className="text-xl font-semibold">{t('myData.holdHeading')}</h2>
+        {!application && !chat && !session?.journey?.quoteId ? <p className="text-sm text-ink-muted">{t('myData.holdNothing')}</p> : null}
+        {session?.journey?.quoteId ? <p className="text-sm">{t('myData.holdQuote')}</p> : null}
+        {application?.contact.source === 'LEAD_PREFILL' ? <p className="text-sm">{t('myData.holdNameOnFile')}</p> : null}
+        {chat ? (
+          <p className="text-sm">
+            {t('myData.holdBusiness', {
+              details: [chat.facts.businessType, chat.facts.city, chat.facts.employeeCount, chat.facts.numSites].filter((value) => value !== null).join(', ') || '—',
+            })}
+          </p>
+        ) : null}
+        {application?.contact.name ? <p className="text-sm">{t('myData.holdName', { name: application.contact.name })}</p> : null}
+        {application?.gstin.masked ? <p className="text-sm">{t('myData.holdGstin', { value: application.gstin.masked })}</p> : null}
+        {application ? (
+          <p className="text-sm">
+            {application.documents.length > 0
+              ? t('myData.holdDocuments', { names: application.documents.map((doc) => tDynamic(`kyc.doc.${doc.documentType}`)).join(', ') })
+              : t('myData.holdNoDocuments')}
+          </p>
+        ) : null}
+        {application ? <p className="text-sm text-ink-muted">{t('myData.holdCorrect')}</p> : null}
+      </section>
+
       {error ? <Notice tone="danger" live>{error}</Notice> : null}
       {done ? <Notice tone="success" live>{done}</Notice> : null}
 
@@ -108,6 +144,10 @@ export function MyDataScreen() {
                 {t('myData.withdraw')}
               </Button>
             )
+          ) : FULL_NOTICE[consent.purpose] ? (
+            <Link href={FULL_NOTICE[consent.purpose] ?? '/'} className="inline-flex min-h-12 items-center justify-center rounded-control border border-line-strong px-4 py-2 font-medium">
+              {t('myData.reviewNotice')}
+            </Link>
           ) : (
             <Button variant="secondary" disabled={busy} onClick={() => void grant(consent)}>
               {t('myData.grant')}
@@ -115,6 +155,11 @@ export function MyDataScreen() {
           )}
         </Card>
       ))}
+
+      <section className="flex flex-col gap-2">
+        <h2 className="text-xl font-semibold">{t('myData.grievanceHeading')}</h2>
+        <p className="text-sm">{t('myData.grievanceBody')}</p>
+      </section>
 
       <Button variant="ghost" disabled={busy} onClick={() => void signOut()}>
         {t('myData.signOut')}

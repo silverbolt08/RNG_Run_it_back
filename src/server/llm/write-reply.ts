@@ -29,6 +29,8 @@ Rules you must never break:
 Style:
 - Warm, plain words, no telecom jargon and no sales talk. Short sentences.
 - Plain text only, with no markdown and no bullet symbols. Separate items with commas or short sentences.
+- No greeting, because this is the middle of a conversation. Talk to the owner as "you".
+- Write every sentence in the requested language, translating the BRIEF, which is in English. Numbers and product names stay in their slots.
 - At most 60 words when asking a question, and at most 110 when recommending.`;
 
 const MAX_TOKENS = 700;
@@ -45,7 +47,7 @@ export async function writeReply(
   input: { language: OwnerLanguage; brief: string; values: Readonly<Record<string, string>>; catalogueNames: readonly string[] },
 ): Promise<{ text: string; failure: null } | { text: null; failure: GuardFailure }> {
   const prompt = `Write the reply in ${LANGUAGE_NAMES[input.language]}. Keep product names in slots.\n\nBRIEF:\n${input.brief}`;
-  const context = { values: input.values, catalogueNames: input.catalogueNames };
+  const context = { values: input.values, catalogueNames: input.catalogueNames, brief: input.brief };
 
   let failure: GuardFailure = 'EMPTY';
   for (const note of ['', '\n\nYour last attempt was refused. Remember: no digits, amounts or product names of your own, and only the slots in the BRIEF.']) {

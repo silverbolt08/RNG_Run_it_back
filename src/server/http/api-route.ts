@@ -111,7 +111,8 @@ export function enforceRateLimit(app: AppContext, key: string, rule: RateLimitRu
   if (retryAfter !== null) throw rateLimited(retryAfter);
 }
 
-export function clientAddress(request: Request): string {
+export function clientAddress(app: AppContext, request: Request): string {
+  if (!app.config.trustProxy) return 'local';
   return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'local';
 }
 
