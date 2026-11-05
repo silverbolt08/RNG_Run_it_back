@@ -153,7 +153,10 @@ export async function sendMessage(
 
   let reply: StoredMessage = { role: 'advisor', source: 'TEMPLATE', text: fillSlots(composed.template, composed.values) };
   let llmUsable = !understood.llmDown && llm !== null;
-  if (llm && llmUsable) {
+  // A tapped answer leading to the next question reads as well from our own wording, in the languages
+  // we have it in, and it's instant. The free tier's daily quota is better kept for typed messages.
+  const templateIsEnough = understood.turn === null && next.kind === 'ASK' && (language === 'en' || language === 'hi');
+  if (llm && llmUsable && !templateIsEnough) {
     try {
       const written = await writeReply(llm, {
         language,

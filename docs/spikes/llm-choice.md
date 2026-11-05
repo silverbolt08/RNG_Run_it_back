@@ -27,6 +27,8 @@
 | Scenarios reaching the expected bundle | 24 of 25. S19's owner declined to give GST details, and was asked again. That is now fixed, and not yet re-run live |
 | Off-script messages that changed a rule or price | 0 of 6 |
 
+**Free quota:** a third full pass the same day stopped working after S09, with every model returning `429 RESOURCE_EXHAUSTED`. Google's free daily quota had run out after several hundred calls across that day's testing. All 31 conversations still finished without an error, on templates and tappable answers, which is the fallback working as designed. It does mean these fixes haven't been re-run live: the repeated GST question (S19), the leased line asked for alongside "ignore your rules" (X02), and the prompt changes for S01. A tapped answer leading to the next question now spends no LLM call in English or Hindi, to make the quota last.
+
 That was one run on one day. Quotas and model names on the free tier change without notice, and an earlier run hit a moment when both models were unavailable, so run this again before the demo. The replies are in `analytics/output/advisor-live-replies.json`, and read well in English and Hinglish. The Hindi needs a native speaker's review.
 
 **Local backup:** a local model through Ollama was proposed as a backup, but isn't installed or built. It would need its own adapter behind `LlmProvider` and about 5 GB. If the LLM is unavailable, the journey already continues on tappable answers and the short form.

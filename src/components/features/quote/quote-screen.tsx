@@ -79,8 +79,12 @@ export function QuoteScreen() {
       const loaded = await api.get<QuoteView>(`/quotes/${session.journey.quoteId}`);
       setQuote(loaded);
       if (loaded.status !== 'ACCEPTED') await refreshAddOns(loaded.id);
-    })().catch((caught: unknown) => setError(errorMessage(caught)));
-  }, [errorMessage, refreshAddOns]);
+    })().catch((caught: unknown) => {
+      // Consent lapsed or the notice changed, so the home screen asks again, and links back here.
+      if (caught instanceof ApiFailure && caught.code === 'CONSENT_REQUIRED') router.replace('/');
+      else setError(errorMessage(caught));
+    });
+  }, [errorMessage, refreshAddOns, router]);
 
   const change = async (run: () => Promise<QuoteView>): Promise<boolean> => {
     setBusy(true);

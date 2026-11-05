@@ -204,6 +204,36 @@ describe('the advisor conversation', () => {
     });
   });
 
+  describe('saving the free quota', () => {
+    it('spends no LLM call on a tapped answer that leads to the next question', async () => {
+      const id = await start();
+      const response = await tap(id, 'BUSINESS', 'SHOP');
+      expect(llm.requests).toEqual([]);
+      expect(response.body.messages.at(-1)).toMatchObject({ source: 'TEMPLATE', text: 'Which city or town is it in?' });
+      expect(response.body.llmAvailable).toBe(true);
+    });
+
+    it('still words the recommendation with the LLM', async () => {
+      const id = await start();
+      llm.willRead({ ...READY_FACTS });
+      await say(id, 'my salon, all the details');
+      const before = llm.requests.length;
+      llm.willWrite('Your total is {{MONTHLY}} a month.');
+      const response = await tap(id, 'NEEDS', []);
+      expect(llm.requests.length).toBe(before + 1);
+      expect(response.body.messages.at(-1).source).toBe('LLM');
+    });
+
+    it('still words a tapped reply for someone chatting in a language we have no template for', async () => {
+      const id = await start();
+      llm.willRead({ businessType: 'salon', language: 'hinglish' });
+      await say(id, 'Meri ek salon hai');
+      const before = llm.requests.length;
+      await tap(id, 'EMPLOYEES', 5);
+      expect(llm.requests.length).toBe(before + 1);
+    });
+  });
+
   describe('from chat to quote', () => {
     const toQuote = (id: string) => owner.post(`${CONVERSATIONS}/${id}/quote`);
 

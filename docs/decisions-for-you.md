@@ -23,7 +23,8 @@ The app is built and runs end to end, so nothing here blocks further work.
 | # | Decision | Current default | Why it needs you |
 |---|---|---|---|
 | 1 | **Hosting** | Runs on a laptop for now. It needs a host with Node and a persistent disk, so GitHub Pages won't work | Decides the demo URL. Judges run scenarios live, so a laptop on a hotspot is a real risk |
-| 2 | **Gemini's unpaid terms** | Use them, with the notice telling owners that Google may reuse chat and its reviewers may read it | All data here is synthetic, but judges will read the note. A paid tier would remove this limit, and you said one isn't possible |
+| 2 | **Free quota on the day** | One key, and tapped answers spend no calls in English or Hindi | Testing used up the daily quota, and the advisor then fell back to templates and tapped answers. The quota resets daily, so don't rehearse heavily on judging day. Whether to find a paid key for that day is your call |
+| 3 | **Gemini's unpaid terms** | Use them, with the notice telling owners that Google may reuse chat and its reviewers may read it | All data here is synthetic, but judges will read the note. A paid tier would remove this limit, and you said one isn't possible |
 
 ## Only you can do these
 
@@ -33,6 +34,7 @@ The app is built and runs end to end, so nothing here blocks further work.
 | **Record the exact deadline and upload limits** when you have them | Sets the freeze date |
 | **Record the demo video** | The script is in the blueprint's shot list. 3 minutes at most |
 | **Ask for the final deck** when you're happy with the product | You asked to make it last |
+| **Re-run the live pass once the quota has reset**: `npx tsx scripts/advisor-live-conversations.ts http://localhost:3000` | Three fixes haven't been checked on the real model. It uses about 100 calls, so don't run it on judging day |
 | **Rotate the Gemini key** before the repo goes public, if it's ever been shared | It's only in `.env.local`, which git ignores |
 
 ## Known gaps

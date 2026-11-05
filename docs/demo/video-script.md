@@ -4,7 +4,7 @@
 
 **Before recording:**
 
-1. Run `npm run dev`, and check the advisor answers a typed message. If Gemini is busy, wait a minute.
+1. Run `npm run dev`, and check the advisor answers a typed message. If a reply says it can't read typed messages, Gemini is busy or the free daily quota has run out. Wait a minute, or record another day.
 2. Open a private window, so you start with a new session.
 3. Have `K03_*.png` and `K01_*.png` from the data pack ready to upload, and the contact names from `tests/fixtures/kyc/specimens.json`.
 4. Open `/backoffice` in another tab, with `ADMIN_TOKEN` from `.env.local`.
