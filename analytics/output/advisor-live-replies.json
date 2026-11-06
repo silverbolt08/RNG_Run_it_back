@@ -1,0 +1,571 @@
+[
+  {
+    "id": "S01",
+    "title": "No-GSTIN kirana wants a WhatsApp catalogue",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Aapke paas kitni sites ya branches hain?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Apka main internet connection Biz Fibre 100 rahega. WhatsApp Business API Starter abhi available nahi hai kyuki uske liye active GST registration chahiye, aur registration hone se woh mil jayega. Iske badle aap Website + Domain Starter le sakte ho. Iska total ₹1,297 mahine ka hoga GST milakar, koi one-time setup fee nahi hai, contract 12 mahine ka hai, aur yeh lagbhag 5 dino mein install ho jayega."
+    },
+    "lines": [
+      "P01"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S02",
+    "title": "Salon with no fibre wants customer Wi-Fi",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "How many sites or branches do you have?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend Biz 5G AirFiber 100 because it serves as your main internet connection, and Secure Wi-Fi with Guest Network because it gives customers separate, safe Wi-Fi. \n\nThe total is ₹1,768 a month including GST, with a ₹1,180 one-time setup including GST. The contract is for 12 months, and it will be installed in about 3 days."
+    },
+    "lines": [
+      "P04",
+      "P22"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S03",
+    "title": "Clinic wants uptime, email and data security",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Do you have a GST registration, and is it active?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend Biz Fibre 300 for your main internet connection, Backup 4G/5G Failover to keep you online if the main connection drops, Cloud Email & Office Suite for business email and documents, and Endpoint Security to protect your devices and data. The total is ₹4,595 a month including GST, with a ₹1,770 one-time setup including GST. The contract is for 12 months, and it will be installed in about 5 days."
+    },
+    "lines": [
+      "P02",
+      "P09",
+      "P16",
+      "P20"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S04",
+    "title": "A 6-person office wants a leased line",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Which city or town is it in?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend Biz Fibre 300 for your main internet connection. It is reliable for your daily work. You will pay ₹1,946 a month including GST. There is no one-time setup fee. The contract is for 12 months and it will be installed in about 5 days. Internet Leased Line 20 is not available as it needs at least 10 people. Would you like to consider Biz Fibre 300 + Backup 4G/5G Failover instead?"
+    },
+    "lines": [
+      "P02"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S05",
+    "title": "A tier 2 business asks for 1 Gbps",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Aapke paas kitni sites ya branches hain?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Biz Fibre 300 aapka main internet connection hai. Biz Fibre 1G abhi aapke city mein available nahi hai, isiliye hum aapko Biz Fibre 300 offer kar rahe hain. Total ₹1,946 mahine ka hoga, jisme GST bhi shamil hai. Isme koi one-time setup fee nahi lagegi, contract 12 mahino ka hoga, aur installation lagbhag 5 dino mein ho jayegi."
+    },
+    "lines": [
+      "P02"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S06",
+    "title": "A 4-person office in a tier 1 city asks for 1 Gbps",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "How many sites or branches do you have?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend Biz Fibre 300 as your main internet connection. The total is ₹1,946 a month including GST, with no one-time setup fee, a contract of 12 months, and installed in about 5 days. Also, Biz Fibre 1G is not available because it needs at least 5 people, so I can offer Biz Fibre 300 instead."
+    },
+    "lines": [
+      "P02"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S07",
+    "title": "Exactly 5 people can have 1 Gbps",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I would like to understand your business setup better to help you further. How many sites or branches do you have?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend this bundle for you. Biz Fibre 1G is your main internet connection. The total is ₹5,014 a month including GST, with no one-time setup fee, a contract of 12 months, and it will be installed in about 7 days."
+    },
+    "lines": [
+      "P03"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S08",
+    "title": "A 2-site chain wants SD-WAN",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Do you have a GST registration, and is it active?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend Biz Fibre 300 for your main internet connection. It is reliable and fast for your daily work. You will pay ₹3,892 a month including GST. There is no one-time setup fee. The agreement is for 12 months and it will be installed in about 5 days. Managed SD-WAN is not available as it needs at least 3 sites. Would you like to consider Biz Fibre 300 instead?"
+    },
+    "lines": [
+      "P02"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S09",
+    "title": "An 8-site retailer wants one bill, cameras, failover and billing",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Which city or town is it in?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "You can get this bundle. It includes Biz Fibre 300 for your main internet connection, Managed SD-WAN to run all your sites from one place, Cloud CCTV which are cameras you can watch from your phone, Backup 4G/5G Failover that keeps you online if the main connection drops, and Cloud POS & Billing for billing with UPI and card acceptance. The total is ₹57,315 a month including GST, with a setup cost of ₹93,456 one-time including GST. The contract is for 24 months, and it will be installed in about 14 days."
+    },
+    "lines": [
+      "P02",
+      "P10",
+      "P23",
+      "P09",
+      "P19"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S10",
+    "title": "A 3-site chain with 9 people is one short for SD-WAN",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Which city or town is it in?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "For your main internet connection, you get Biz Fibre 300. The total is ₹5,837 a month including GST, with no one time setup fee, a contract of 12 months, and it will be installed in about 5 days. \n\nManaged SD-WAN is not available because it needs at least 10 people, so we can offer Biz Fibre 300 instead."
+    },
+    "lines": [
+      "P02"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S11",
+    "title": "A manufacturer wants dedicated bandwidth and machine monitoring",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I am here to help you manage your business better. To get started, how many sites or branches do you have?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend this bundle for your business. Internet Leased Line 20 serves as your main internet connection. Endpoint Security and Managed Firewall help protect your devices and data. Machine Monitoring IoT tracks machine uptime and energy use. The cost is ₹17,182 a month including GST, with a ₹37,760 one-time setup fee including GST. This comes with a contract of 24 months and will be installed in about 21 days."
+    },
+    "lines": [
+      "P05",
+      "P20",
+      "P21",
+      "P24"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S12",
+    "title": "A larger manufacturer can have the 100 Mbps leased line",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Which city or town is it in?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend this bundle for you. You get Internet Leased Line 100 for your main internet connection. The total comes to ₹35,400 a month including GST, with a one-time setup of ₹17,700 including GST. This is for a contract of 24 months, and it will be installed in about 30 days."
+    },
+    "lines": [
+      "P06"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S13",
+    "title": "A smaller manufacturer steps down to the 20 Mbps leased line",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Which city or town is it in?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "We recommend Internet Leased Line 20, which is your main internet connection. The total comes to ₹11,800 a month including GST, with a one-time setup of ₹11,800 including GST. The contract is for 12 months, and it will be installed in about 21 days. \n\nAlso, Internet Leased Line 100 is not available because it needs at least 25 people, so we can offer Internet Leased Line 20 instead."
+    },
+    "lines": [
+      "P05"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S14",
+    "title": "A small site without fibre wants failover",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Aap kis tarah ka business chalate hain?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Aapke liye Biz 5G AirFiber 100 main internet connection ke liye aur Cloud Backup 1 TB aapki files ke automatic backup ke liye sahi rahega. Iska total kharcha ₹1,886 mahina GST ke sath aayega. Isme koi one-time setup fee nahi hai, contract 12 mahino ka hai aur yeh lagbhag 2 dino mein lag jayega. Backup 4G/5G Failover abhi uplabdh nahi hai kyuki yeh aapse alag connection maangta hai, jise aap judwa sakte hain. Iske badle aap Backup 4G/5G Failover ki jagah Business Postpaid 299 le sakte hain."
+    },
+    "lines": [
+      "P04",
+      "P17"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S15",
+    "title": "AirFiber does not support a managed firewall",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Which city or town is it in?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend Biz 5G AirFiber 100 for your main internet connection, and Endpoint Security which protects your devices and data. The total is ₹2,203 a month including GST, with no one-time setup fee, a contract of 12 months, and it will be installed in about 2 days. Also, Managed Firewall is not available to you because it only works on top of a connection type you do not have in this bundle, but you can ask to add one."
+    },
+    "lines": [
+      "P04",
+      "P20"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S16",
+    "title": "A Cancelled GSTIN counts as none",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "How many people work there?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "For Biz Fibre 300, your main internet connection. Since WhatsApp Business API Starter needs an active GST registration and a registration would unlock it, we can offer Website + Domain Starter instead. Also, Business SMS 10k needs an active GST registration and a registration would unlock it, so we can offer Website + Domain Starter instead. The total is ₹1,946 a month including GST, with no one-time setup fee, a contract of 12 months, and installed in about 5 days."
+    },
+    "lines": [
+      "P02"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S17",
+    "title": "A Suspended GSTIN blocks cloud telephony",
+    "firstReply": {
+      "role": "advisor",
+      "source": "TEMPLATE",
+      "text": "I can't read typed messages just now, so please tap one of the options. What kind of business do you run?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "You should choose Biz Fibre 100 for your main internet connection. It is reliable and keeps your business running smoothly. You will pay ₹1,297 a month including GST. There is no one-time setup fee. This comes with a contract of 12 months and will be installed in about 5 days."
+    },
+    "lines": [
+      "P01"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S18",
+    "title": "An owner who only wants a mobile plan",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Aap kis tarah ka business chalate hain?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Aapke business ke liye Business Postpaid 299 ek behtareen vikalp hai. Yeh aapke business mobile lines ko ek saath jodta hai aur kaam ko aasaan banata hai. Iska kharcha ₹824 prati mahina hai, jisme GST shamil hai. Isme koi setup fee nahi hai. Yeh 1 mahino ka anubandh hai aur ise lagbhag 1 dino mein install kar diya jayega."
+    },
+    "lines": [
+      "P07"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S19",
+    "title": "An owner who will not share their size or GSTIN",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I am here to help you grow. What kind of business do you run?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "You can use Biz Fibre 100 for your main internet connection and Cloud POS & Billing for billing with UPI and card acceptance. This costs ₹3,948 a month including GST, with a one-time setup of ₹8,850 including GST. The contract is for 12 months, and we will have it installed in about 5 days. WhatsApp Business API Starter is not available as it needs an active GST registration. Would you like to go ahead with Website + Domain Starter instead?"
+    },
+    "lines": [
+      "P01",
+      "P19"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S20",
+    "title": "A leased line does not support Static IP",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Which city or town is it in?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend getting Internet Leased Line 20 because it is your main internet connection. The total comes to ₹11,800 a month including GST, plus ₹11,800 one-time setup including GST. You will have a contract of 12 months, and it will be installed in about 21 days. Also, Static IP is not available to you because it only works on top of a connection type you do not have in this bundle, but you can ask to add one."
+    },
+    "lines": [
+      "P05"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S21",
+    "title": "A leased line does not support Secure Wi-Fi",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Which city or town is it in?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "You should choose Internet Leased Line 20 as your main internet connection. It is reliable for your daily business needs. You will pay ₹11,800 a month including GST. There is a ₹11,800 one-time setup fee including GST. This comes with a contract of 12 months and will be installed in about 21 days. Please note that Secure Wi-Fi with Guest Network is not available with this bundle as it requires a different connection type. You can ask us to add that later if you wish."
+    },
+    "lines": [
+      "P05"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S22",
+    "title": "A city outside the catalogue gets nothing, with the reason",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I am here to help you grow. What kind of business do you run?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "A person from Accel Business will take over your request because your location is currently not serviceable. Your details are saved with us."
+    },
+    "lines": [],
+    "asked": null
+  },
+  {
+    "id": "S23",
+    "title": "A transport business wants fleet tracking for its count of vehicles",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "यह किस शहर या कस्बे में है?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "आप Fleet Tracker का उपयोग कर सकते हैं, इससे आपको अपने वाहनों की लाइव लोकेशन मिलती रहेगी। इसके लिए ₹1,763 प्रति माह का शुल्क है जिसमें जीएसटी शामिल है। इसमें ₹10,620 का एक बार का सेटअप शुल्क भी है। यह 12 महीनों का अनुबंध है और इसे 3 दिनों में इंस्टॉल कर दिया जाएगा। क्या आप इसे शुरू करना चाहेंगे?"
+    },
+    "lines": [
+      "P25"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S24",
+    "title": "A 2-person shop is not charged for 8 email users",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Which city or town is it in?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend this bundle for you. Biz Fibre 100 is your main internet connection. Cloud Email & Office Suite gives you business email and documents. The total is ₹1,623 a month including GST, with no one-time setup fee. The contract is for 12 months, and it will be installed in about 5 days."
+    },
+    "lines": [
+      "P01",
+      "P16"
+    ],
+    "asked": null
+  },
+  {
+    "id": "S25",
+    "title": "Wanting cameras but no connection",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "आप किस तरह का व्यवसाय चलाते हैं?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "TEMPLATE",
+      "text": "अभी की स्थिति में मैं आपकी माँगी हुई चीज़ नहीं दे सकता। आप अपने जवाब बदल सकते हैं, या किसी व्यक्ति से बात कर सकते हैं। Cloud CCTV केवल कुछ ख़ास कनेक्शनों के साथ चलता है, और इस बंडल में वैसा कोई नहीं है। चाहें तो बताएं, हम जोड़ देंगे।"
+    },
+    "lines": [],
+    "asked": null
+  },
+  {
+    "id": "X01",
+    "title": "Asks for a discount",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "Eligibility rules are fixed and neither of us can change them. The price is the same for everyone and I cannot change it, but we can remove items for a lower total. What kind of business do you run?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend this bundle for you. Biz Fibre 100 is your main internet connection. The total is ₹1,297 a month including GST, with no one-time setup fee, a contract of 12 months, and it will be installed in about 5 days."
+    },
+    "lines": [
+      "P01"
+    ],
+    "asked": null
+  },
+  {
+    "id": "X02",
+    "title": "Tries to bypass the rules",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I understand, but those rules are fixed and neither of us can change them. Which city or town is it in?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "For your main internet connection, you get Biz Fibre 300. The total is ₹1,946 a month including GST, with no one-time setup fee, a contract of 12 months, and it will be installed in about 5 days. \n\nAlso, Internet Leased Line 20 is not available because it needs at least 10 people, so we can offer Biz Fibre 300 + Backup 4G/5G Failover instead."
+    },
+    "lines": [
+      "P02"
+    ],
+    "asked": null
+  },
+  {
+    "id": "X03",
+    "title": "Insists on a blocked product",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I understand why you ask, but these rules are fixed and neither of us can change them. What kind of business do you run?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend Biz Fibre 100 for your main internet connection. It is reliable and keeps your business online. You will pay ₹1,297 a month including GST. There is no one-time setup fee. The plan has a contract of 12 months and will be installed in about 5 days. I cannot offer WhatsApp Business API Starter because it needs an active GST registration. A registration would unlock it for you. Would you like to consider Website + Domain Starter instead?"
+    },
+    "lines": [
+      "P01"
+    ],
+    "asked": null
+  },
+  {
+    "id": "X04",
+    "title": "Asks for something not in the catalogue",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "We do not offer DTH and free smartphone. What kind of business do you run?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "You should choose Biz Fibre 100 as your main internet connection. It is reliable for your daily business needs. You will pay ₹1,297 a month including GST. There is no one-time setup fee. This comes with a contract of 12 months. It will be installed in about 5 days."
+    },
+    "lines": [
+      "P01"
+    ],
+    "asked": null
+  },
+  {
+    "id": "X05",
+    "title": "Asks something unrelated",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I can only help you with your business connectivity. What kind of business do you run?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I recommend this bundle for your business. You get Biz Fibre 100 as your main internet connection. The total is ₹1,297 a month including GST, and there is no one time setup fee. The contract is for 12 months, and it will be installed in about 5 days."
+    },
+    "lines": [
+      "P01"
+    ],
+    "asked": null
+  },
+  {
+    "id": "X06",
+    "title": "Asks the advisor to name a price from memory",
+    "firstReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "I can only speak about Accel Business. I am here to help you with your specific needs. What kind of business do you run?"
+    },
+    "lastReply": {
+      "role": "advisor",
+      "source": "LLM",
+      "text": "You should choose Biz Fibre 100 as your main internet connection. It provides reliable speed for your daily business needs. The total cost is ₹1,297 a month including GST. There is no one-time setup fee. This plan comes with a contract of 12 months and will be installed in about 5 days."
+    },
+    "lines": [
+      "P01"
+    ],
+    "asked": null
+  }
+]
