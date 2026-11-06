@@ -1,6 +1,6 @@
 # Project Udyam Digital: delivery blueprint
 
-> **Status on 2026-11-05.** Phases 0 to 7 are built: rules, API, advisor on a live free LLM, all screens in English and Hindi, KYC, tracker, My data and the back office. From Phase 9, the architecture diagram, privacy note and README exist. Still to do: the video, the final deck, hosting, a native Hindi review and the final pre-demo run. Dates below are the original plan, and test results are in the [README](../README.md) and [the LLM results](spikes/llm-choice.md).
+> **Status on 2026-11-06.** Phases 0 to 8 are done. That covers the rules, the API, the advisor on a live free LLM, all screens in English and Hindi, KYC with photo and PDF uploads, the tracker, My data and the back office, plus hardening through QA and security reviews. From Phase 9, the architecture diagram, privacy note, README and video script exist. Still to do: record the video, make the final deck when asked, choose hosting, and do the final pre-demo run. Dates below are the original plan. Current test results are in [CLAUDE.md](../CLAUDE.md), and the live results are in [the LLM note](spikes/llm-choice.md).
 ## Context
 
 We are entering Airtel SYNC, Track A. The folder holds the case, the data pack, the skills and the agents, but no application code yet. We need a plan from now to judging that names the major challenges in each phase and how to handle them.
@@ -421,28 +421,20 @@ Each phase has an exit gate. Per `CLAUDE.md`, nothing counts as done until the r
 
 ## Next steps
 
-Phase 0 status on 2026-11-04:
+Status on 2026-11-06:
 
-| Item | Status |
+| Phase | Status |
 |---|---|
-| Git repository and ignore rules | Done, with nothing committed |
-| OCR accuracy test | Done |
-| Deadline, upload limits and demo format | **Yours to check on the platform** |
-| API key in `.env.local` and one live call | **Yours to add the key**, then the call can be tested |
-| App scaffold and Windows install check | Done |
-| Test deploy | Not started, because it needs a host chosen |
+| 0 Confirm and de-risk | Done, except the test deploy, which waits for hosting. The deadline still isn't recorded |
+| 1 Business numbers | Done. Scripts in `analytics/` reproduce the funnel and ₹15,053, and you confirmed segment order and targets |
+| 2 Rules core | Done. 368 of 368 setup fees and contracts match, and exactly 56 bundles are flagged |
+| 3 to 6 Skeleton, advisor, quote and tracker, KYC | Done, with the API in `docs/architecture/api.md`. K01 to K12 give their expected results through the real app |
+| 7 Stretch | Done: back office and propensity score. Voice and WhatsApp were skipped |
+| 8 Harden | Done. QA found 24 defects and the security reviews found 2 high issues, then 2 more in PDF handling. All are fixed or listed in `decisions-for-you.md` |
+| 9 Submission pack | Diagram, privacy note, README and video script done. The video and final deck remain |
+| 10 Live judging | Not started. Rehearse with scenarios you didn't write |
 
-Phase 2 status on 2026-11-04: rules core built in `src/domain`, and its exit gate is met. All 368 setup fees and contracts match, exactly 56 bundles are flagged, and 15 deliberate breaks to the rules were all caught by the tests.
-
-Phase 1 status on 2026-11-04: scripts in `analytics/` reproduce the funnel and ₹15,053 and write the [business numbers](business-case/numbers.md). Segment order and targets are still candidates for you to confirm.
-
-Phase 6 status on 2026-11-04: KYC parsing, checks and verdicts are built in `src/domain/kyc`, and K01 to K12 give their expected results on real OCR output. The upload pipeline, consent gate and screens aren't built yet.
-
-Phase 9 status on 2026-11-04: paused at your request. The final deck gets made once the product is finished. An early draft and its script sit in `docs/business-case`, uncommitted. The other deliverables haven't started.
-
-Phase 3 status on 2026-11-05: the backend is built and committed on `feat/foundation`, with the API documented in `docs/architecture/api.md`. The screens and a hosted deploy aren't done, so this phase's exit gate isn't met yet.
-
-Timeline update on 2026-11-04: the team now says there is enough time, so the 6-day schedule above is no longer a limit. The phase order and exit gates still apply.
+The team says there is enough time, so the original 6-day schedule is no longer a limit.
 
 Open items for you are in [decisions-for-you.md](decisions-for-you.md).
 

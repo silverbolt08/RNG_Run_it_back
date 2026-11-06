@@ -43,6 +43,8 @@ The app is built and runs end to end, so nothing here blocks further work.
 |---|---|
 | The mock OTP lets anyone who knows a phone number sign in as that owner | Inherent to a mock, and the privacy note says so |
 | PDF uploads read the first page only | Certificates carry what we check on page one. A document whose details sit on a later page gets the "wrong document" message, and can be sent as a photo |
+| A real PDF from the GST or Udyam portal is untested | Hand-made PDFs, scanned specimens and text PDFs all read correctly. Try a real download before the demo |
+| One QA browser probe is flaky under load | Pressing Space should open the file chooser, and the probe waits only 3 seconds for it. It passed 3 times out of 3 when run alone |
 | Real phone photos are untested | Simulated ones read 91.6% to 100% of fields the same as clean scans. See the [OCR note](spikes/ocr-accuracy.md). Try a few real photos before the demo |
 | Chat works in any language the model reads, but only English and Hindi have screens and fallback wording | Replies in other languages haven't been tested |
 | No local LLM backup | If Gemini is down, the owner continues on tappable answers and the short form |

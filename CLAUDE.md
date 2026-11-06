@@ -2,7 +2,17 @@
 
 Team RNG's entry for Airtel SYNC (YTL Hackathon 2026, Enterprise Track A).
 
-**Status:** [docs/blueprint.md](docs/blueprint.md) holds the phases, challenges, open decisions and cut order, and [docs/decisions-for-you.md](docs/decisions-for-you.md) holds what's waiting on a decision. One person is building with Claude. The app runs end to end, with the four modules, the back office and the architecture diagram and privacy note done. The video and final deck remain. Update this file when a decision changes.
+**Status:** [docs/blueprint.md](docs/blueprint.md) holds the phases, challenges, open decisions and cut order, and [docs/decisions-for-you.md](docs/decisions-for-you.md) holds what's waiting on a decision. One person is building with Claude. Update this file when a decision changes.
+
+| Area | State on 2026-11-06 |
+|---|---|
+| App | Runs end to end on branch `feat/foundation`, with all commits local and no remote. Four modules, sign-in, My data, the back office with propensity, and photo or PDF uploads |
+| Checks | QA and security reviews done, with their findings fixed or listed in `decisions-for-you.md` |
+| Last full run | `tsc` and ESLint clean. Vitest 1,454 of 1,454, QA logic 43 of 43, e2e 27 of 27, and `next build` succeeds. QA browser probes passed except the Space-opens-file-chooser probe, a timing flake under load that passes when run alone |
+| Live advisor | 31 of 31 conversations finished, 60 of 62 replies in the model's own words and 0 of 6 off-script attempts changed a rule or price. Results are in `analytics/output/advisor-live-*.json`, which stay uncommitted |
+| Deliverables | The architecture diagram, privacy note and README are done, and so is the video script in `docs/demo/video-script.md`. The video (the user records it) and the final deck remain |
+| Decided | Hosting is chosen at the end. Hindi is reviewed and accepted. Make the final deck only when the user asks |
+| Untested | Real phone photos, a real PDF from the GST or Udyam portal, and real phones with screen readers |
 
 ## Overview and objectives
 
@@ -78,6 +88,14 @@ Everything is in `YTL_TrackA_Udyam_Digital_Data/`, and **these files are read-on
 - **Don't filter the specimen watermark before OCR.** It cut field accuracy from 97% to 77%.
 - **A checksum failure on an OCR value isn't a rejection yet.** OCR misreads K10's valid GSTIN, so the owner confirms the value first.
 
+### Build traps
+
+- **Next.js loads each route as its own copy of a module.** So `instanceof` fails across them: check `error.name`, as `isLlmUnavailable` and `isOcrUnavailable` do. Server-wide state, such as the PDF queue, lives on `globalThis`.
+- **The free Gemini quota runs out** after a few hundred calls a day. Ration live runs, and don't rehearse heavily on judging day.
+- **pdfjs needs a trailing forward slash** on `standardFontDataUrl`, on Windows too.
+- **A blank page reads as blurred**, so PDFs are cropped to their content before the quality check.
+- **Heavy OCR and PDF tests share the CPU**, so Vitest's timeout is 20 s. Don't send many PDFs in a test that's about something else, because each one starts a process.
+
 ## Technical architecture
 
 ### Principles
@@ -96,8 +114,9 @@ Everything is in `YTL_TrackA_Udyam_Digital_Data/`, and **these files are read-on
 | Styling | Tailwind CSS with `airtel-design-system` tokens | Consistent, fast to build |
 | Validation | Zod | Shared request, response and LLM schemas |
 | Database | SQLite through libSQL and Drizzle | No native build on Windows; can move to a hosted database |
-| LLM | Gemini on a free key behind `LlmProvider`: `gemini-3.5-flash-lite`, then `gemini-2.5-flash` ([results](docs/spikes/llm-choice.md)). One step reads facts, and another words a brief without seeing the owner's text | No paid key is available. Models in config, and the journey works with the LLM off |
+| LLM | Gemini on a free key behind `LlmProvider`, trying `gemini-3.5-flash-lite`, then `gemini-3.1-flash-lite`, then `gemini-3.5-flash`, with a 10 s timeout ([results](docs/spikes/llm-choice.md)). One step reads facts, and another words a brief without seeing the owner's text. Tapped answers and simple typed ones skip the LLM | No paid key is available. Models in `LLM_MODEL`, and the journey works with the LLM off |
 | OCR | `tesseract.js` behind `OcrProvider`, with `sharp` for quality checks | Runs locally, so documents don't leave the app. 96.8% of fields on the specimens, phone photos untested ([results](docs/spikes/ocr-accuracy.md)) |
+| PDF | `pdfjs-dist` and `@napi-rs/canvas` draw page one in `scripts/pdf-render-process.mjs`, a separate process the server kills after 15 s or 1 GB | A 2 KB PDF could otherwise freeze the server. The image then goes through the same checks as a photo |
 | i18n | Message catalogues per locale | English and Hindi first, then regional |
 | Tests | Vitest, Playwright, axe | Unit to browser |
 | Analytics | Python and pandas in `analytics/` | Outputs feed the deck and dashboard |
@@ -222,6 +241,8 @@ Use TDD for `src/domain` and the KYC checks.
 
 **Before the demo:** run the full suite, a live LLM scenario pass, and the flow with the LLM and registry deliberately switched off.
 
+**The full suite**, as listed in the README: `npx tsc --noEmit`, `npx eslint .`, `npx vitest run`, `npm run test:qa:logic`, `npx playwright test` and `npx next build`. Then the QA browser probes, which need a build and `npx tsx tests/qa/start-server.ts` on port 3200 first. The e2e run starts its own servers on ports 3100 and 3101, so free those ports afterwards. Live runs (`scripts/advisor-live-eval.ts`, `scripts/advisor-live-conversations.ts`) spend free quota.
+
 ## Git conventions
 
 - Branch from `main` as `feat/advisor-chat`, `fix/gstin-checksum`, `docs/privacy-note`.
@@ -229,6 +250,7 @@ Use TDD for `src/domain` and the KYC checks.
 - Keep commits small and passing. Merge through a PR when teammates are involved.
 - Never commit `.env*` (except `.env.example`), uploaded documents, `__MACOSX`, build output or `node_modules`.
 - The data pack and case folder stay out of git for now (blueprint decision 3), so seeds read them from a configured folder.
+- Keep the draft deck (`docs/business-case/build_deck.py` and its `.pptx`) and `analytics/output/advisor-live-*.json` uncommitted, so stage files by name, never with `git add -A`.
 - Commit `.claude/` and `skills-lock.json`, so teammates get the same setup.
 - Never force-push `main`. Commit or push only when asked.
 
